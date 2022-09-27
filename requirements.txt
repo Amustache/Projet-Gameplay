@@ -1,0 +1,10 @@
+numpy
+pandas
+matplotlib
+beautifulsoup4
+jupyter
+notebook
+black
+isort
+pre-commit
+pre-commit-hooks
