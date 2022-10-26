@@ -6,7 +6,7 @@ import time
 import os
 
 cap = cv2.VideoCapture("inputs/video_test_extract.mp4")
-result = cv2.VideoWriter('result.mp4', -1, 20.0, (640, 480))
+# result = cv2.VideoWriter('result.mp4', -1, 20.0, (640, 480))
 
 SR = cv2.dnn_superres.DnnSuperResImpl_create()
 
@@ -37,6 +37,41 @@ def super_res(image):
 init_super("ESPCN_x4")
 # init_super("EDSR_x4")
 
+
+low_threshold = 50
+high_threshold = 150
+sigma_s = 25
+sigma_r = 0.15
+
+
+# Parameters
+def on_change_low(value):
+    global low_threshold
+    low_threshold = value
+
+
+def on_change_high(value):
+    global high_threshold
+    high_threshold = value
+
+
+def on_change_sigma_s(value):
+    global sigma_s
+    sigma_s = value
+
+
+def on_change_sigma_r(value):
+    global sigma_r
+    sigma_r = value
+
+
+windowName = 'lines_finder'
+cv2.namedWindow(windowName)
+cv2.createTrackbar('low_threshold', windowName, 0, 500, on_change_low)
+cv2.createTrackbar('high_threshold', windowName, 0, 500, on_change_high)
+# cv2.createTrackbar('sigma_s', windowName, 0, 50, on_change_sigma_s)
+# cv2.createTrackbar('sigma_r', windowName, 0, 1, on_change_sigma_r)
+
 while True:
     # First, we get the pic
     ret, frame = cap.read()
@@ -54,7 +89,7 @@ while True:
 
     # Enhance resolution
     # dst = super_res(sky)
-    detailenhanced = cv2.detailEnhance(sky, sigma_s=10, sigma_r=0.15)
+    detailenhanced = cv2.detailEnhance(sky, sigma_s=sigma_s, sigma_r=sigma_r)
 
     # Grayscale
     gray = cv2.cvtColor(detailenhanced, cv2.COLOR_BGR2GRAY)
@@ -64,8 +99,8 @@ while True:
     blur_gray = cv2.GaussianBlur(gray, (kernel_size, kernel_size), 0)
 
     # Edge detection
-    low_threshold = 50
-    high_threshold = 150
+    # low_threshold = 50
+    # high_threshold = 150
     edges = cv2.Canny(gray, low_threshold, high_threshold)
 
     # Resize
@@ -81,6 +116,26 @@ while True:
     cv2.imshow('Blured', blur_gray)
     cv2.imshow('Edges', edges)
     cv2.imshow('Result', result)
+
+    rho = 1  # distance resolution in pixels of the Hough grid
+    theta = np.pi / 180  # angular resolution in radians of the Hough grid
+    threshold = 15  # minimum number of votes (intersections in Hough grid cell)
+    min_line_length = 50  # minimum number of pixels making up a line
+    max_line_gap = 20  # maximum gap in pixels between connectable line segments
+    line_image = np.copy(sky) * 0  # creating a blank to draw lines on
+
+    # Run Hough on edge detected image
+    # Output "lines" is an array containing endpoints of detected line segments
+    lines = cv2.HoughLinesP(edges, rho, theta, threshold, np.array([]),
+                            min_line_length, max_line_gap)
+
+    for line in lines:
+        for x1, y1, x2, y2 in line:
+            cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 5)
+
+    lines_edges = cv2.addWeighted(sky, 0.8, line_image, 1, 0)
+
+    cv2.imshow(windowName, lines_edges)
 
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
