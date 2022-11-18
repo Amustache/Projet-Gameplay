@@ -8,3 +8,4 @@ black
 isort
 pre-commit
 pre-commit-hooks
+opencv-contrib-python
