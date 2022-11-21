@@ -14,7 +14,7 @@ def main():
     mask = cv2.imread('../inputs/mask_strict.png', 0)
 
     while True:
-        choice = translate_then_rotate
+        choice = rotate_left
 
         minimap_0 = extract_enhance_minimap(base, mask)
         minimap_1 = extract_enhance_minimap(choice, mask)
