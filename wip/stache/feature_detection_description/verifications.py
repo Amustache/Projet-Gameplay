@@ -11,11 +11,13 @@ def main():
     translate_y = cv2.imread("../inputs/dummy_translate_y.png")
     translate_xy = cv2.imread("../inputs/dummy_translate_xy.png")
 
+    mask = cv2.imread('../inputs/mask_strict.png', 0)
+
     while True:
         choice = translate_then_rotate
 
-        minimap_0 = extract_enhance_minimap(base)
-        minimap_1 = extract_enhance_minimap(choice)
+        minimap_0 = extract_enhance_minimap(base, mask)
+        minimap_1 = extract_enhance_minimap(choice, mask)
 
         src_pts, dst_pts, _ = sift(minimap_0, minimap_1)
 

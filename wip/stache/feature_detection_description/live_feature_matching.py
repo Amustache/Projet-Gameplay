@@ -14,16 +14,14 @@ def main():
     mask = cv2.imread('../inputs/mask_strict.png', 0)
 
     # Initial values
-    # x_prev, y_prev = 330, 420
     x_prev, y_prev = 0, 0
-    # theta0 = 93  # hardcoded
-    theta = 150  # hardcoded
-    # theta = 180  # hardcoded
-    coordinates = []
+    theta_for_north = 160  # hardcoded
     i = 0
-    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    coordinates = []
     # ["frame", "x_prev", "y_prev", "x_d", "y_d", "x_cur", "y_cur", "theta_prev", "theta_d", "theta_cur"]
-    debug_list = [[i, x_prev, y_prev, 0, 0, x_prev, y_prev, theta, 0, theta]]
+    debug_list = [[i, x_prev, y_prev, 0, 0, x_prev, y_prev, theta_for_north, 0, theta_for_north]]
 
     # Plot for the translation
     fig_move = plt.figure()
@@ -34,10 +32,10 @@ def main():
         if not ret:
             break
         i += 1
-        # print(f"Frame {i} out of {length}")
+        # print(f"Frame {i} out of {total_frames}")
 
         # Here we jump five frames each time so that we have more room for comparison
-        if i % 15 != 0:
+        if i % 5 != 0:
             continue
 
         # Get and enhance minimaps
@@ -50,27 +48,27 @@ def main():
 
         # If we have no matches, we cannot compare
         if not matchesMask:
+            print(f"Error: No matchesMask")
             continue
 
         # Extract rotation
-        scale, theta_current, _, _ = get_affine_matrix(src_pts, dst_pts)
+        try:
+            scale, theta_relative, _, _ = get_affine_matrix(src_pts, dst_pts)
+        except cv2.error:
+            print(f"Error: No affine matrix found")
+            continue
 
         # Rotate picture for matching
-        minimap_0_rotated = straighten_img(minimap_1, theta_current, scale)
-        minimap_1_rotated = straighten_img(minimap_1, theta + theta_current, scale)
+        minimap_0_rotated = straighten_img(minimap_0, theta_for_north, scale)
+        minimap_1_rotated = straighten_img(minimap_1, theta_for_north + theta_relative, scale)
 
         # Match to find translation
         src_pts, dst_pts, _ = sift(minimap_0_rotated, minimap_1_rotated)
-        scale, theta, x_d, y_d = get_affine_matrix(src_pts, dst_pts)
-
-        # Discard "big moves"
-        THREESHOLD_LOW = 0.01
-        THREESHOLD_HIGH = 1
-
-        if abs(x_d) < THREESHOLD_LOW or abs(x_d) > THREESHOLD_HIGH:
-            x_d = 0.0
-        if abs(y_d) < THREESHOLD_LOW or abs(y_d) > THREESHOLD_HIGH:
-            y_d = 0.0
+        try:
+            _, _, x_d, y_d = get_affine_matrix(src_pts, dst_pts)
+        except cv2.error:
+            print(f"Error: No affine matrix found")
+            continue
         print(x_d, y_d)
 
         x, y = x_prev + x_d, y_prev + y_d
@@ -78,10 +76,10 @@ def main():
         y_prev = y
 
         coordinates.append([x, y])
-        theta += theta_current
+        theta_for_north += theta_relative
         frame_0 = frame_1
 
-        debug_list.append([i, x_prev - x_d, y_prev - y_d, x_d, y_d, x_prev, y_prev, theta - theta_current, theta_current, theta])
+        # debug_list.append([i, x_prev - x_d, y_prev - y_d, x_d, y_d, x_prev, y_prev, theta_for_north - theta_relative, theta_relative, theta_for_north])
 
         # Show things
         ref = cv2.resize(frame_1, (int(frame_1.shape[1] * 50 / 100), int(frame_1.shape[0] * 50 / 100)))
@@ -106,7 +104,7 @@ def main():
         bous = cv2.imread("../inputs/boussole.png")
         (h, w) = bous.shape[:2]
         (cX, cY) = (w // 2, h // 2)
-        M = cv2.getRotationMatrix2D((cX, cY), -theta, 1.0)
+        M = cv2.getRotationMatrix2D((cX, cY), -theta_for_north, 1.0)
         rotated = cv2.warpAffine(bous, M, (w, h))
 
         cv2.imshow("Reference", ref)

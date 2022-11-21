@@ -89,7 +89,7 @@ def extract_enhance_minimap(frame, mask=None, x_0=None, x_1=None, y_0=None, y_1=
     frame = frame[x_0:x_1, y_0:y_1]
     h, w, _ = frame.shape
 
-    if mask.any():
+    if mask is not None and mask.any():
         mask = cv2.resize(mask, (w, h))
 
     frame_masked = cv2.bitwise_and(frame, frame, mask=mask)
@@ -152,7 +152,7 @@ def sift_find_good_matches(matches):
     return good
 
 
-def sift_find_matching_keypoints(kp1, kp2, good):
+def sift_find_matching_keypoints(kp1, kp2, good, min_match_count=5):
     """
     Helper to find homography matrix and matches mask between two sets of keypoints
 
@@ -163,15 +163,13 @@ def sift_find_matching_keypoints(kp1, kp2, good):
     :param good: Set of good matches
     :return: Coordinates for the found points, and the matches mask
     """
-    MIN_MATCH_COUNT = 10
-
-    if len(good) >= MIN_MATCH_COUNT:
+    if len(good) >= min_match_count:
         src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
         dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
         M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
         matchesMask = mask.ravel().tolist()
     else:
-        print("Not enough matches are found - {}/{}".format(len(good), MIN_MATCH_COUNT))
+        print("Not enough matches are found - {}/{}".format(len(good), min_match_count))
         src_pts, dst_pts, matchesMask = None, None, None
 
     return src_pts, dst_pts, matchesMask
