@@ -13,6 +13,14 @@ def main(show=False, verbatim=False):
     test_translation_and_rotation(show, verbatim, 200)
 
 
+def add_gaussian_noise(img):
+    gauss = np.random.normal(0, 1, img.size)
+    gauss = gauss.reshape(img.shape[0], img.shape[1], img.shape[2]).astype('uint8')
+
+    img_gauss = cv2.add(img, gauss)
+
+    return img_gauss
+
 def get_random_translation():
     return np.float32([
         [1, 0, random.randint(-10, 10)],
@@ -46,6 +54,8 @@ def test_translation_and_rotation(show=False, verbatim=False, iters=50):
         else:
             cur = straighten_img(base, theta_truth)
             cur = cv2.warpAffine(cur, M, (cur.shape[1], cur.shape[0]))
+
+        cur = add_gaussian_noise(cur)
 
         if show:
             cv2.imshow("base", base)
