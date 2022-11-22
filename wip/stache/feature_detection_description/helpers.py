@@ -6,6 +6,11 @@ ERROR_THRESHOLD = 0  # Number of digits kept
 
 
 def straighten_img(img, theta=0, scale=1):
+    if abs(theta) > 180:
+        raise ValueError("-180 <= theta <= 180")
+    if theta == 180:
+        theta = -180
+
     (h, w) = img.shape[:2]
     (cX, cY) = (w // 2, h // 2)
     M = cv2.getRotationMatrix2D((cX, cY), theta, scale)
@@ -18,7 +23,7 @@ def get_affine_matrix(src_pts, dst_pts, threshold=ERROR_THRESHOLD):
     m, _ = cv2.estimateAffinePartial2D(src_pts, dst_pts)
 
     scale = round(np.sign(m[0, 0]) * np.sqrt(m[0, 0] ** 2 + m[0, 1] ** 2), threshold)
-    theta = round(np.degrees(np.arctan2(-m[0, 1], m[0, 0])), threshold)
+    theta = round(np.degrees(np.arctan2(-m[0, 1], m[0, 0])), 1+threshold)
     x_d = round(m[0, 2], threshold)
     y_d = round(m[1, 2], threshold)
 

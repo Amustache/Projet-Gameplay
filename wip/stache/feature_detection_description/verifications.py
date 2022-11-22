@@ -1,56 +1,236 @@
+import random
+import time
+
 import cv2
+import pandas as pd
+
 from helpers import *
 
 
-def main():
-    base = cv2.imread("../inputs/dummy_base.png")
-    rotate_left = cv2.imread("../inputs/dummy_rotate_left.png")
-    rotate_right = cv2.imread("../inputs/dummy_rotate_right.png")
-    translate_then_rotate = cv2.imread("../inputs/dummy_translate_then_rotate.png")
-    translate_x = cv2.imread("../inputs/dummy_translate_x.png")
-    translate_y = cv2.imread("../inputs/dummy_translate_y.png")
-    translate_xy = cv2.imread("../inputs/dummy_translate_xy.png")
+def main(show=False, verbatim=False):
+    # test_rotation(show, verbatim)
+    # test_translation(show, verbatim, 200)
+    test_translation_and_rotation(show, verbatim, 200)
 
+
+def get_random_translation():
+    return np.float32([
+        [1, 0, random.randint(-10, 10)],
+        [0, 1, random.randint(-10, 10)]
+    ])
+
+
+def test_translation_and_rotation(show=False, verbatim=False, iters=50):
+    base = cv2.imread("../inputs/dummy_base.png")
     mask = cv2.imread('../inputs/mask_strict.png', 0)
 
-    while True:
-        choice = rotate_left
+    errors = list()
+
+    for i in range(0, iters):
+
+        if verbatim:
+            print(f"== current iteration: {1+i}/{iters} ==")
+        translate_first = random.randint(1, 6) > 3
+        if verbatim:
+            print(f"translate first: {translate_first}")
+
+        theta_truth = round(random.uniform(-180, 180), 1)
+        M = get_random_translation()
+        x_truth, y_truth = M[0, 2], M[1, 2]
+        if verbatim:
+            print(f"truth: theta: {theta_truth}, x: {x_truth}, y: {y_truth}")
+
+        if translate_first:
+            cur = cv2.warpAffine(base, M, (base.shape[1], base.shape[0]))
+            cur = straighten_img(cur, theta_truth)
+        else:
+            cur = straighten_img(base, theta_truth)
+            cur = cv2.warpAffine(cur, M, (cur.shape[1], cur.shape[0]))
+
+        if show:
+            cv2.imshow("base", base)
+            cv2.imshow("cur", cur)
 
         minimap_0 = extract_enhance_minimap(base, mask)
-        minimap_1 = extract_enhance_minimap(choice, mask)
+        minimap_1 = extract_enhance_minimap(cur, mask)
+        if show:
+            cv2.imshow("minimap_0", minimap_0)
+            cv2.imshow("minimap_1", minimap_1)
 
-        src_pts, dst_pts, _ = sift(minimap_0, minimap_1)
+        # SIFT magic
+        src_pts, dst_pts, matchesMask, comparison = sift(minimap_0, minimap_1, True)
+        assert matchesMask is not None, "matchesMask is None"
 
-        scale, theta, x_d, y_d = get_affine_matrix(src_pts, dst_pts)
-        print(f"Before: scale: {scale}; theta: {theta}; x_d: {x_d}; y_d: {y_d}")
+        # Extract rotation
+        try:
+            scale, theta_relative, _, _ = get_affine_matrix(src_pts, dst_pts)
+        except cv2.error:
+            print(f"Error: No affine matrix found")
+            continue
+        if verbatim:
+            print(f"theta found: {theta_relative}, expected: {-theta_truth}")
+        # assert theta_relative == -theta_truth, f"found rotation is not correct: {theta_relative} should be {-theta_truth}"
 
-        # Redresser
-        minimap_1 = straighten_img(minimap_1, theta, scale)
+        # Rotate picture for matching
+        minimap_1_rotated = straighten_img(minimap_1, theta_relative)
+        if show:
+            cv2.imshow("minimap_1_rotated", minimap_1_rotated)
+        test_x, test_y = cross_diff(minimap_0, minimap_1_rotated)
+        if verbatim:
+            print(f"! found rotation shift: {test_x, test_y}")
 
-        # Vérifier
-        src_pts, dst_pts, _ = sift(minimap_0, minimap_1)
+        # Match to find translation
+        src_pts, dst_pts, _ = sift(minimap_0, minimap_1_rotated)
+        try:
+            _, _, x_d, y_d = get_affine_matrix(src_pts, dst_pts)
+        except cv2.error:
+            print(f"Error: No affine matrix found")
+            continue
+        if verbatim:
+            print(f"! found x_d: {x_d}, found y_d: {y_d}")
+        errors.append([abs(theta_truth + theta_relative), abs(x_truth - x_d), abs(y_truth - y_d)])
 
-        scale, theta, x_d, y_d = get_affine_matrix(src_pts, dst_pts)
-        print(f"After: scale: {scale}; theta: {theta}; x_d: {x_d}; y_d: {y_d}")
+        if show:
+            k = cv2.waitKey(1000) & 0xFF
+            if k == 27:
+                break
+            cv2.destroyAllWindows()
 
-        cv2.imshow("base", base)
-        cv2.imshow("choice", choice)
-        cv2.imshow("minimap_0", minimap_0)
-        cv2.imshow("minimap_1", minimap_1)
+    df = pd.DataFrame(errors, columns=["theta", "x_d", "y_d"])
+    print(df.mean())
 
-        # Get cross diff
-        cross_x_d, cross_y_d = cross_diff(minimap_0, minimap_1)
-        print(f"cross diff: {cross_x_d, cross_y_d}")
 
-        # Mean of the two
-        print(f"x_d: {(x_d + cross_x_d) // 2}; y_d: {(y_d + cross_y_d) // 2}")
+def test_translation(show=False, verbatim=False, iters=50):
+    base = cv2.imread("../inputs/dummy_base.png")
+    mask = cv2.imread('../inputs/mask_strict.png', 0)
 
-        k = cv2.waitKey(5) & 0xFF
-        if k == 27:
-            break
+    neutral = np.float32([
+        [1, 0, 0],
+        [0, 1, 0]
+    ])
+    temp = cv2.warpAffine(base, neutral, (base.shape[1], base.shape[0]))
+    test = cross_diff(base, temp)
+    assert test == (0, 0)
 
-    cv2.destroyAllWindows()
+    for i in range(0, iters):
+        if verbatim:
+            print(f"== current translation: {1+i}/{iters} ==")
+        M = get_random_translation()
+        x_truth, y_truth = M[0, 2], M[1, 2]
+        if verbatim:
+            print(f"truth: {x_truth, y_truth}")
+
+        cur = cv2.warpAffine(base, M, (base.shape[1], base.shape[0]))
+        test = cross_diff(base, cur)
+        if verbatim:
+            print(f"found cross: {test}")
+        assert test == (x_truth, y_truth), "translation is not correct"
+
+        minimap_0 = extract_enhance_minimap(base, mask)
+        minimap_1 = extract_enhance_minimap(cur, mask)
+        if show:
+            cv2.imshow("minimap_0", minimap_0)
+            cv2.imshow("minimap_1", minimap_1)
+
+        # SIFT magic
+        src_pts, dst_pts, matchesMask, comparison = sift(minimap_0, minimap_1, True)
+        assert matchesMask is not None, "matchesMask is None"
+
+        try:
+            _, _, x_d, y_d = get_affine_matrix(src_pts, dst_pts)
+        except cv2.error:
+            print(f"Error: No affine matrix found")
+            continue
+        if verbatim:
+            print(f"found x_d: {x_d}, found y_d: {y_d}")
+        assert x_d == x_truth and y_d == y_truth, "found values are not correct"
+
+        # Translate image back
+        M_back = np.float32([
+            [1, 0, -x_d],
+            [0, 1, -y_d]
+        ])
+        minimap_1_translated = cv2.warpAffine(minimap_1, M_back, (minimap_1.shape[1], minimap_1.shape[0]))
+        test_x, test_y = cross_diff(minimap_0, minimap_1_translated)
+        if verbatim:
+            print(f"final cross: {test}")
+        assert abs(test_x) <= 1 and abs(test_y) <= 1, "translation is not correct"
+
+        if show:
+            k = cv2.waitKey(1000) & 0xFF
+            if k == 27:
+                break
+            cv2.destroyAllWindows()
+
+
+def test_rotation(show=False, verbatim=False):
+    base = cv2.imread("../inputs/dummy_base.png")
+    mask = cv2.imread('../inputs/mask_strict.png', 0)
+
+    temp = straighten_img(base, 0)
+    test = cross_diff(base, temp)
+    assert test == (0, 0)
+
+    for i, rot in enumerate(range(-180, 180, 10)):
+        if verbatim:
+            print(f"== current rotation: {rot} ({1+i}/{len(range(-180, 180, 10))}) ==")
+
+        # Test rotation
+        cur = straighten_img(base, rot)  # Anti-clockwise
+        test = cross_diff(base, straighten_img(cur, -rot))
+        if show:
+            cv2.imshow("base", base)
+            cv2.imshow("cur", cur)
+        if verbatim:
+            print(f"Initial rotation shift: {test}")
+        assert test == (0, 0), f"rotation is not correct: {test}"
+
+        minimap_0 = extract_enhance_minimap(base, mask)
+        minimap_1 = extract_enhance_minimap(cur, mask)
+        if show:
+            cv2.imshow("minimap_0", minimap_0)
+            cv2.imshow("minimap_1", minimap_1)
+
+        # SIFT magic
+        src_pts, dst_pts, matchesMask, comparison = sift(minimap_0, minimap_1, True)
+        assert matchesMask is not None, "matchesMask is None"
+
+        # Extract rotation
+        try:
+            scale, theta_relative, _, _ = get_affine_matrix(src_pts, dst_pts)
+        except cv2.error:
+            print(f"Error: No affine matrix found")
+            continue
+        if verbatim:
+            print(f"theta found: {theta_relative}, expected: {-rot}")
+        assert abs(theta_relative + rot) < 0.2, f"found rotation is not correct: {theta_relative} should be {-rot}"
+
+        # Rotate picture for matching
+        minimap_1_rotated = straighten_img(minimap_1, theta_relative)
+        if show:
+            cv2.imshow("minimap_1_rotated", minimap_1_rotated)
+        test_x, test_y = cross_diff(minimap_0, minimap_1_rotated)
+        if verbatim:
+            print(f"found rotation shift: {test_x, test_y}")
+        assert abs(test_x) <= 1 and abs(test_y) <= 1, f"rotation is not correct: {test_x, test_y}"
+
+        # Match to find translation
+        src_pts, dst_pts, _ = sift(minimap_0, minimap_1_rotated)
+        try:
+            _, _, x_d, y_d = get_affine_matrix(src_pts, dst_pts)
+        except cv2.error:
+            print(f"Error: No affine matrix found")
+            continue
+        if verbatim:
+            print(f"found x_d: {x_d}, found y_d: {y_d}")
+        assert x_d == 0 and y_d == 0
+
+        if show:
+            k = cv2.waitKey(1000) & 0xFF
+            if k == 27:
+                break
+            cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    main()
+    main(show=False, verbatim=True)
