@@ -21,6 +21,7 @@ def add_gaussian_noise(img):
 
     return img_gauss
 
+
 def get_random_translation():
     return np.float32([
         [1, 0, random.randint(-10, 10)],
@@ -37,7 +38,7 @@ def test_translation_and_rotation(show=False, verbatim=False, iters=50):
     for i in range(0, iters):
 
         if verbatim:
-            print(f"== current iteration: {1+i}/{iters} ==")
+            print(f"== current iteration: {1 + i}/{iters} ==")
         translate_first = random.randint(1, 6) > 3
         if verbatim:
             print(f"translate first: {translate_first}")
@@ -124,7 +125,7 @@ def test_translation(show=False, verbatim=False, iters=50):
 
     for i in range(0, iters):
         if verbatim:
-            print(f"== current translation: {1+i}/{iters} ==")
+            print(f"== current translation: {1 + i}/{iters} ==")
         M = get_random_translation()
         x_truth, y_truth = M[0, 2], M[1, 2]
         if verbatim:
@@ -182,8 +183,9 @@ def test_rotation(show=False, verbatim=False):
     assert test == (0, 0)
 
     for i, rot in enumerate(range(-180, 180, 10)):
+        # break
         if verbatim:
-            print(f"== current rotation: {rot} ({1+i}/{len(range(-180, 180, 10))}) ==")
+            print(f"== current rotation: {rot} ({1 + i}/{len(range(-180, 180, 10))}) ==")
 
         # Test rotation
         cur = straighten_img(base, rot)  # Anti-clockwise
@@ -214,6 +216,67 @@ def test_rotation(show=False, verbatim=False):
         if verbatim:
             print(f"theta found: {theta_relative}, expected: {-rot}")
         assert abs(theta_relative + rot) < 0.2, f"found rotation is not correct: {theta_relative} should be {-rot}"
+
+        # Rotate picture for matching
+        minimap_1_rotated = straighten_img(minimap_1, theta_relative)
+        if show:
+            cv2.imshow("minimap_1_rotated", minimap_1_rotated)
+        test_x, test_y = cross_diff(minimap_0, minimap_1_rotated)
+        if verbatim:
+            print(f"found rotation shift: {test_x, test_y}")
+        assert abs(test_x) <= 1 and abs(test_y) <= 1, f"rotation is not correct: {test_x, test_y}"
+
+        # Match to find translation
+        src_pts, dst_pts, _ = sift(minimap_0, minimap_1_rotated)
+        try:
+            _, _, x_d, y_d = get_affine_matrix(src_pts, dst_pts)
+        except cv2.error:
+            print(f"Error: No affine matrix found")
+            continue
+        if verbatim:
+            print(f"found x_d: {x_d}, found y_d: {y_d}")
+        assert x_d == 0 and y_d == 0
+
+        if show:
+            k = cv2.waitKey(1000) & 0xFF
+            if k == 27:
+                break
+            cv2.destroyAllWindows()
+
+    for i, rot in enumerate(range(0, 360, 10)):
+        if verbatim:
+            print(f"== current rotation: {rot} ({1 + i}/{len(range(-180, 180, 10))}) ==")
+
+        # Test rotation
+        cur = straighten_img(base, rot)  # Anti-clockwise
+        test = cross_diff(base, straighten_img(cur, -rot))
+        if show:
+            cv2.imshow("base", base)
+            cv2.imshow("cur", cur)
+        if verbatim:
+            print(f"Initial rotation shift: {test}")
+        assert test == (0, 0), f"rotation is not correct: {test}"
+
+        minimap_0 = extract_enhance_minimap(base, mask)
+        minimap_1 = extract_enhance_minimap(cur, mask)
+        if show:
+            cv2.imshow("minimap_0", minimap_0)
+            cv2.imshow("minimap_1", minimap_1)
+
+        # SIFT magic
+        src_pts, dst_pts, matchesMask, comparison = sift(minimap_0, minimap_1, True)
+        assert matchesMask is not None, "matchesMask is None"
+
+        # Extract rotation
+        try:
+            scale, theta_relative, _, _ = get_affine_matrix(src_pts, dst_pts)
+        except cv2.error:
+            print(f"Error: No affine matrix found")
+            continue
+        if verbatim:
+            print(f"theta found: {theta_relative}, expected: {rot}")
+        # if not (abs(theta_relative) == 180 and abs(rot) == 180):
+        #     assert abs(theta_relative + rot) < 0.2, f"found rotation is not correct: {theta_relative} should be {rot}"
 
         # Rotate picture for matching
         minimap_1_rotated = straighten_img(minimap_1, theta_relative)
