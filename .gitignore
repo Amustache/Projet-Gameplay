@@ -352,3 +352,10 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,linux,python,pycharm+all,jupyternotebooks,venv
+
+# Videos
+*.webm
+*.mp4
+
+# ML data
+ML/data
