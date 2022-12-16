@@ -119,7 +119,14 @@
             )
 
 
-            chart = new Chart(getById("graph1"), {type: 'line'})
+            chart = new Chart(getById("graph1"), {
+                type: 'line',
+                options: {
+                    animation: {
+                        duration: 0
+                    }
+                }
+            })
 
             run_analysis()
         }
@@ -132,18 +139,19 @@
         }
 
 
-        function draw_graph(transition_table){
+        function draw_graph(trans_table){
             let datasets = []
+            let labels = []
 
-            transition_table.forEach(table => {
+            trans_table.forEach(table => {
                 let index = 0
                 let sum = 0
-                table.forEach(row => row.forEach(elem => sum += elem))
+                table.state.forEach(row => row.forEach(elem => sum += elem))
 
-                table.forEach( row => { row.forEach( elem => {
+                table.state.forEach( row => { row.forEach( elem => {
                     if(datasets[index] == undefined){
                         datasets[index] = {
-                            label: index,
+                            label: listened_keys[index % listened_keys.length] + "→" + listened_keys[Math.floor(index / listened_keys.length)],
                             data: [],
                             borderWidth: 1
                         }
@@ -151,9 +159,11 @@
                     datasets[index].data.push(elem/sum)
                     index++
                 }) })
+
+                labels.push((table.frame/FPS).toFixed(1))
             })
           
-            chart.data.labels = [...Array(transition_table.length).keys()]
+            chart.data.labels = labels
             chart.data.datasets = datasets
             chart.update()
         }

@@ -47,24 +47,27 @@ function compute_transition_table(data){
         {
             index = listened_keys.indexOf(data[i][1])
             state[index][prev_index] += 1
-            output.push(JSON.parse(JSON.stringify(state)))
+            output.push({
+                state : JSON.parse(JSON.stringify(state)),
+                frame : data[i][0]
+            })
             prev_index = index
         }
     }
     return output
 }
 
-function show_transition_table(input, table){
-    if(input.length == 0){
+function show_transition_table(trans_table, table){
+    if(trans_table.length == 0){
         return
     }
 
     table.innerHTML = ""
     let new_content = ""
-    let index = input.length-1
+    let index = trans_table.length-1
 
     let sum = 0
-    input[index].forEach(row => row.forEach(elem => sum += elem))
+    trans_table[index].state.forEach(row => row.forEach(elem => sum += elem))
 
     for(let i=0; i < listened_keys.length; i++){
 
@@ -78,7 +81,7 @@ function show_transition_table(input, table){
 
         new_content += "<tr><td>" + listened_keys[i] + "</td>"
         for(let j=0; j < listened_keys.length; j++){
-            value = (100*input[index][i][j]/sum).toFixed(1)
+            value = (100*trans_table[index].state[i][j]/sum).toFixed(1)
             new_content += "<td style='background-color:hsl(0, 100%, "+(100-value/2)+"%)'>" + value + "%</td>"
         }
         table.innerHTML += new_content + "</tr>"
