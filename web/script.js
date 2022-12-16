@@ -42,7 +42,7 @@ function compute_transition_table(data){
     }
 
     let prev_index = listened_keys.indexOf(data[0][1])
-    for(let i=0; i<data.length && data[i][0] < getCurrentFrame(); i++){
+    for(let i=0; i<data.length && data[i][0] < getTotalFrames(); i++){
         if(listened_keys.includes(data[i][1]))
         {
             index = listened_keys.indexOf(data[i][1])
@@ -64,7 +64,10 @@ function show_transition_table(trans_table, table){
 
     table.innerHTML = ""
     let new_content = ""
-    let index = trans_table.length-1
+    let index = 0
+    while(trans_table[index].frame <= getCurrentFrame()){
+        index++
+    }
 
     let sum = 0
     trans_table[index].state.forEach(row => row.forEach(elem => sum += elem))
@@ -87,6 +90,4 @@ function show_transition_table(trans_table, table){
         table.innerHTML += new_content + "</tr>"
         new_content = ""
     }
-    
-    
 }

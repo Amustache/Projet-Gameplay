@@ -65,6 +65,8 @@
 
         var parsed_data  = []
         var parsed_truth = []
+        var transition_table_prediction = []
+        var transition_table_truth = []
 
         function getById(elem){
             return document.getElementById(elem)
@@ -72,6 +74,10 @@
 
         function getCurrentFrame(){
             return parseInt(video.currentTime*FPS)
+        }
+
+        function getTotalFrames(){
+            return parseInt(video.duration*FPS)
         }
 
         function next_frame(){
@@ -105,6 +111,8 @@
         function init(){
             parsed_data  = parse_data(data)
             parsed_truth = parse_data(truth, true)
+            transition_table_prediction = compute_transition_table(data)
+            transition_table_truth = compute_transition_table(truth)
 
             let accuracy = compute_accuracy(parsed_data, parsed_truth)
 
@@ -127,15 +135,14 @@
                     }
                 }
             })
+            draw_graph(transition_table_prediction)
 
             run_analysis()
         }
 
         function run_analysis() {
-            let ttable = compute_transition_table(data)
-            draw_graph(ttable)
-            show_transition_table(ttable,  getById("analysis_body"))
-            show_transition_table(compute_transition_table(truth), getById("analysis2_body"))
+            show_transition_table(transition_table_prediction, getById("analysis_body"))
+            show_transition_table(transition_table_truth,      getById("analysis2_body"))
         }
 
 
