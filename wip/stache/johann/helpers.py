@@ -2,14 +2,89 @@ import cv2
 import numpy as np
 import scipy.signal
 
+######## JP TEST FUNCTIONS ############
+
+def enhance_fg(img):
+    gimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret,thresh1 = cv2.threshold(gimg,110,255,cv2.THRESH_BINARY)
+    
+    boxed = cv2.boxFilter(thresh1, -1, (40, 40), normalize=False)
+    alpha = cv2.blur(boxed, (11, 11))
+    alpha = alpha.reshape(*alpha.shape, 1).astype('float32')/255
+
+    fg = (img*alpha).astype('uint8')
+    composed = cv2.addWeighted(img, 0.2, fg, 0.8, 0)
+    return composed
+
+def filter_kp(kp, img, radius=115):
+    center = np.float32(img.shape[1::-1]) / 2
+    return [pt for pt in kp if np.linalg.norm(pt.pt - center) < radius]
+
+def kp_description(frame, filter_radius=False, use_binary=False):
+    descriptor = cv2.BRISK.create() if use_binary else cv2.KAZE.create(upright=True)
+
+    detector = cv2.KAZE.create(upright=True)
+
+    kp1 = detector.detect(frame)
+    
+    if filter_radius:
+        kp1 = filter_kp(kp1, frame)
+    
+    kp1, des1 = descriptor.compute(frame, kp1)
+
+    return kp1, des1
+
+def kp_matching(des1, des2, ann=False, k=2, use_binary=False):
+    if ann: #WARNING Not finished
+        FLANN_INDEX_LSH = 6
+        index_params= dict(algorithm = FLANN_INDEX_LSH,
+                       table_number = 6, # 12
+                       key_size = 12,     # 20
+                       multi_probe_level = 1) #2
+        search_params = dict(checks=50)
+        flann = cv2.FlannBasedMatcher(index_params, search_params)
+        matches = flann.knnMatch(descriptors0, descriptors1, k=k)
+    else: #slower but not approximate
+        bf = cv2.BFMatcher(cv2.NORM_HAMMING if use_binary else cv2.NORM_L2)
+        matches = bf.knnMatch(des1,des2,k=k)
+    return matches
+
+def filter_with_template(template_des, kp1, des1, k=8, use_binary=False):
+    matches = kp_matching(template_des, des1, k=k, use_binary=use_binary)
+    kp = [kp1[m.trainIdx] for m in matches[0]]#can do better than 0
+    des = [des1[m.trainIdx] for m in matches[0]]#can do better than 0
+    return kp, np.vstack(des)  
+
+def filter_matches(matches, ratio_test=False):
+    if ratio_test:
+        good = []
+        for m, n in matches: #Lowe's SIFT value may not be relevant for binary descriptors
+            if m.distance < 0.7 * n.distance:
+                good.append(m)
+        return good
+    else:
+        return [m[0] for m in matches]
+    
+def draw_matches(frame1, kp1, frame2, kp2, good, matchesMask=None):
+    draw_params = dict(matchColor=(0, 255, 0),  # draw matches in green color
+                       singlePointColor=None,
+                       matchesMask=matchesMask,  # draw only inliers
+                       flags=2)
+
+    comparison = cv2.drawMatches(frame1, kp1, frame2, kp2, good, None, **draw_params)
+    return comparison
+
+###################
+
+
 ERROR_THRESHOLD = 0  # Number of digits kept
 
-
 def straighten_img(img, theta=0, scale=1):
-    # if abs(theta) > 180:
-    #     raise ValueError(f"-180 <= theta <= 180: {theta}")
-    # if theta == 180:
-    #     theta = -180
+    if abs(theta) > 180:
+        print(f"Theta has strange value {theta}")
+        #raise ValueError("-180 <= theta <= 180")
+    if theta == 180:
+        theta = -180
 
     (h, w) = img.shape[:2]
     (cX, cY) = (w // 2, h // 2)
@@ -21,11 +96,8 @@ def straighten_img(img, theta=0, scale=1):
 
 def get_affine_matrix(src_pts, dst_pts, threshold=ERROR_THRESHOLD):
     m, _ = cv2.estimateAffinePartial2D(src_pts, dst_pts)
-
     scale = round(np.sign(m[0, 0]) * np.sqrt(m[0, 0] ** 2 + m[0, 1] ** 2), threshold)
     theta = round(np.degrees(np.arctan2(-m[0, 1], m[0, 0])), 1+threshold)
-    # if theta > 180:
-    #     theta = -(180 - (180 - theta))
     x_d = round(m[0, 2], threshold)
     y_d = round(m[1, 2], threshold)
 
@@ -116,10 +188,11 @@ def sift_keypoints_and_descriptors(frame1, frame2):
     :param frame2: Image array vector
     :return: Keypoints and descriptors for each image array vector
     """
-    sift = cv2.SIFT_create()
 
-    kp1, des1 = sift.detectAndCompute(frame1, None)
-    kp2, des2 = sift.detectAndCompute(frame2, None)
+    algo = cv2.SIFT_create()
+
+    kp1, des1 = algo.detectAndCompute(frame1, None)
+    kp2, des2 = algo.detectAndCompute(frame2, None)
 
     return kp1, des1, kp2, des2
 
@@ -141,6 +214,8 @@ def sift_flann_matches(descriptors0, descriptors1):
     flann = cv2.FlannBasedMatcher(index_params, search_params)
     matches = flann.knnMatch(descriptors0, descriptors1, k=2)
 
+    bf = cv2.BFMatcher()
+    matches = bf.knnMatch(descriptors0,descriptors1,k=2)
     return matches
 
 

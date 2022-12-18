@@ -5,8 +5,8 @@ from helpers import *
 
 def main():
     # cap = cv2.VideoCapture("../inputs/rotate.mp4")
-    cap = cv2.VideoCapture("../inputs/video_test_extract_2.mp4")
-    # cap = cv2.VideoCapture("../inputs/extract_pokemon.mp4")
+    # cap = cv2.VideoCapture("../inputs/video_test_extract_2.mp4")
+    cap = cv2.VideoCapture("../inputs/extract_pokemon.mp4")
     ret, frame_0 = cap.read()
     if not ret:
         exit(-1)

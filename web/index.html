@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>-</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="chartjs-plugin-annotation.min.js"></script>
+        <script src="script.js"></script>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body onload="init()">
+        <section>
+            <div>
+                <video id="video" width="320" height="240" controls>
+                    <source src="video.webm" type="video/mp4">
+                </video> 
+            </div>
+
+            <div id="parameters">
+                <div>
+                    <p><span id="time">0</span>s | Frame <span id="frame">0</span></p>
+                </div>
+                <div>
+                    <input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
+                    <label>Speed x<span id="speedLabel">1</span></label>
+                </div>
+                <div>
+                    <button onclick="move_frame(-10)">-10 frames</button>
+                    <button onclick="move_frame(-1)">Previous frame</button>
+                    <button onclick="move_frame(1)">Next frame</button>
+                    <button onclick="move_frame(10)">+ 10 frames</button>
+                </div>
+                <table>
+                    <tbody id="summary_body">
+                        <tr>
+                            <th></th>
+                            <th>Prediction</th>
+                            <th>Truth</th>
+                            <th>Total Accuracy</th>
+                        </tr>
+    
+                    </tbody>
+                </table>
+
+                <div>
+                    <table>
+                        <thead><tr><th>Prediction</th></tr></thead>
+                        <tbody id="analysis_prediction">
+                        </tbody>
+                    </table>
+    
+                    <table>
+                        <thead><tr><th>Truth</th></tr></thead>
+                        <tbody id="analysis_truth">
+                        </tbody>
+                    </table>
+                </div>
+
+                <canvas id="graph1"></canvas>
+            </div>
+        </section>
+    </body>
+    <script src="prediction.js"></script>
+    <script src="truth.js"></script>
+    <script>
+        const FPS           = 60
+        const DEFAULT_VALUE = "UP"
+        const video         = getById("video")
+        const listened_keys = [
+            "Key.right",
+            "Key.left",
+            "x"
+        ]
+
+        var parsed_data  = []
+        var parsed_truth = []
+        var transition_table_prediction = []
+        var transition_table_truth = []
+
+        function getById(elem){
+            return document.getElementById(elem)
+        }
+
+        function getCurrentFrame(){
+            return parseInt(video.currentTime*FPS)
+        }
+
+        function getTotalFrames(){
+            return parseInt(video.duration*FPS)
+        }
+
+        function move_frame(nb=1){
+            video.currentTime += nb/FPS
+        }
+
+        function updateSpeed(){
+            const speed = getById("speedInput").value
+            getById("speedLabel").innerHTML = speed
+            video.playbackRate = speed
+        }
+
+        video.ontimeupdate = (event) => {
+            getById("time").innerHTML  = video.currentTime
+            getById("frame").innerHTML = getCurrentFrame()
+
+            listened_keys.forEach(elem => {
+                const truth     = parsed_truth[getCurrentFrame()][elem]
+                const predicted = parsed_data[getCurrentFrame()][elem]
+                getById(elem+"_truth").innerHTML = truth
+                getById(elem+"_prediction").innerHTML = truth != predicted ? "<span class='red'>"+predicted+"<span>" : predicted
+            })
+
+            run_analysis()
+        }
+
+        function set_offset(offset){
+            for(let i=0; i<truth.length; i++){
+                truth[i][0] += offset 
+            }
+        }
+
+        function init(){
+            set_offset(3)
+            parsed_data  = parse_data(prediction)
+            parsed_truth = parse_data(truth, true)
+            transition_table_prediction = compute_transition_table(prediction)
+            transition_table_truth = compute_transition_table(truth)
+
+            let accuracy = compute_accuracy(parsed_data, parsed_truth)
+
+            listened_keys.forEach(e =>
+                getById("summary_body").innerHTML += '\
+                    <tr>\
+                        <td>'+e+'</td>\
+                        <td id="'+e+'_prediction"></td>\
+                        <td id="'+e+'_truth"></td>\
+                        <td>'+ (100*accuracy[e]/parsed_truth.length).toFixed(2) +'%</td>\
+                    </tr>'
+            )
+
+
+            chart = new Chart(getById("graph1"), {
+                type: 'scatter',
+                options: {
+                    showLine: true,
+                    animation: {
+                        duration: 0
+                    },
+                    plugins: { annotation: { annotations: {
+                        timeline: {
+                            type: 'line',
+                            xMax: 0,
+                            xMin: 0,
+                            borderColor: 'rgb(255, 99, 132)'
+                        }
+                    } } }
+                },
+            })
+            draw_graph(transition_table_prediction)
+
+            run_analysis()
+        }
+
+        function run_analysis() {
+            show_transition_table(transition_table_prediction, getById("analysis_prediction"))
+            show_transition_table(transition_table_truth,      getById("analysis_truth"))
+            update_graph(transition_table_prediction)
+        }
+
+        function update_graph(trans_table){
+            chart.options.plugins.annotation.annotations.timeline.xMax = getCurrentFrame()/FPS
+            chart.options.plugins.annotation.annotations.timeline.xMin = getCurrentFrame()/FPS
+            chart.update()
+        }
+
+
+        function draw_graph(trans_table){
+            let datasets = []
+            let table_index = 0
+
+            trans_table.forEach(table => {
+                let index = 0
+                if(table_index % 8 == 0)
+                {
+                    let sum = [0, 0, 0]
+                    table.state.forEach(row => {
+                        for(let i=0; i<row.length; i++){
+                            sum[i] += row[i]
+                        }
+                    })
+
+                    table.state.forEach( row => {
+                        for(let i=0; i<row.length; i++){
+                            if(datasets[index] == undefined){
+                                datasets[index] = {
+                                    label: listened_keys[index % listened_keys.length] + "→" + listened_keys[Math.floor(index / listened_keys.length)],
+                                    data: [],
+                                    borderWidth: 1
+                                }
+                            }
+                            datasets[index].data.push({
+                                x: table.frame/FPS,
+                                y: row[i]/sum[i]
+                            })
+                            index++
+                        }
+                    })
+                }
+                table_index++
+            })
+          
+            chart.data.datasets = datasets
+            chart.update()
+        }
+    </script>
+</html>
