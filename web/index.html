@@ -179,25 +179,31 @@
 
             trans_table.forEach(table => {
                 let index = 0
-                let sum = 0
                 if(table_index % 8 == 0)
                 {
-                    table.state.forEach(row => row.forEach(elem => sum += elem))
-
-                    table.state.forEach( row => { row.forEach( elem => {
-                        if(datasets[index] == undefined){
-                            datasets[index] = {
-                                label: listened_keys[index % listened_keys.length] + "→" + listened_keys[Math.floor(index / listened_keys.length)],
-                                data: [],
-                                borderWidth: 1
-                            }
+                    let sum = [0, 0, 0]
+                    table.state.forEach(row => {
+                        for(let i=0; i<row.length; i++){
+                            sum[i] += row[i]
                         }
-                        datasets[index].data.push({
-                            x: table.frame/FPS,
-                            y: elem/sum
-                        })
-                        index++
-                    }) })
+                    })
+
+                    table.state.forEach( row => {
+                        for(let i=0; i<row.length; i++){
+                            if(datasets[index] == undefined){
+                                datasets[index] = {
+                                    label: listened_keys[index % listened_keys.length] + "→" + listened_keys[Math.floor(index / listened_keys.length)],
+                                    data: [],
+                                    borderWidth: 1
+                                }
+                            }
+                            datasets[index].data.push({
+                                x: table.frame/FPS,
+                                y: row[i]/sum[i]
+                            })
+                            index++
+                        }
+                    })
                 }
                 table_index++
             })
