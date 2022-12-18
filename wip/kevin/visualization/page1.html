@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <!-- Add a svg area, empty -->
+        <div id="area"></div>
+
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.js"></script>
+
+        <button onclick="triggerTransitionAxis()">Trigger transition</button>
+
+
+
+        <script>
+
+            let radius = 20
+
+            let margin = {top: 10, right: 40, bottom: 30, left: 30},
+                width = 1200 - margin.left - margin.right,
+                height = 800 - margin.top - margin.bottom;
+            
+            let actions = ['Left', 'Jump', 'Right']
+
+
+            let keys = "RJjrRrJRjrJRrRjrJLljLJljLlRJjJjJjJjJjJLjrJljRJjrLlRJjJjr"
+
+            
+            let sVg = d3.select('#area')
+                .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+            // X scale and Axis
+            let x = d3.scaleLinear()
+                .domain([0, keys.length])         // This is the min and the max of the data: 0 to 100 if percentages
+                .range([0, width]);       // This is the corresponding value I want in Pixel
+            
+            sVg.append('g')
+                .attr("transform", "translate(" + 2*radius + "," + height + ")")
+                .call(d3.axisBottom(x))
+                .attr("class", "x_axis");
+
+            // Y scale and Axis
+            let y = d3.scaleBand()
+                .domain(actions)        
+                .range([0, height])
+                .padding(1);       
+
+            sVg.append('g')
+                .attr("transform", "translate(" + 2*radius + ",0)")
+                .call(d3.axisLeft(y));
+
+            let rectPos = createRectFromText(keys);
+
+            // {x:x(20), y:y("Left"), width: 100, height: 30}, 
+           // {x:x(50), y:y("Jump"), width: 120, height: 30}, 
+             //               {x:x(80), y:y("Right"), width: 30, height: 30} 
+            
+
+            sVg.append("circle")
+                 .attr("cx", x(0)).attr("cy", y("Left")).attr("r", radius/2).style("fill", "blue");
+            sVg.append("circle")
+                 .attr("cx", x(0)).attr("cy", y("Jump")).attr("r", radius/2).style("fill", "red");
+            sVg.append("circle")
+                 .attr("cx", x(0)).attr("cy", y("Right")).attr("r", radius/2).style("fill", "green");
+
+            sVg.selectAll("myRect")
+               .data(rectPos)
+               .enter()
+               .append("rect")
+                .attr("width", function(d){return d.width})
+                .attr("x", function(d){return d.x})
+                .attr("y", function(d){return d.y})
+                .attr("height", function(d){return d.height})
+                .attr("fill", "#8B0000")
+
+            
+            // sVg.selectAll("rect")
+            //    .transition()
+            //    .duration(1000)
+            //    .attr("width", function(d){
+            //                                if(d.x == 0){
+            //                                 return 0
+            //                                } else {
+            //                                 return d.width
+            //                                }
+            //    })
+
+            
+            function triggerTransitionAxis(){
+
+                x.domain([100,200])
+
+                sVg.selectAll("rect")
+               .transition()
+               .duration(10000)
+               .attr("x", function(d){return 0-d.width})
+               .delay(function(d,i){console.log(i) ; return(i*100)})
+
+                // Update the axis
+                sVg.select(".x_axis")
+                .transition()
+                .duration(10000)
+                .call(d3.axisBottom(x)) 
+            }
+
+            function createRectFromText(text){
+
+                let positions = []
+
+                for(let i = 0, end ; i <= text.length ; i++){
+                    switch(text[i]){
+                        case 'R':
+                            end = text.slice(i).indexOf("r") + i;
+                            //positions['R'].push([i, end]);
+                            positions.push({x:x(i), 
+                                          y:y('Right'),
+                                          width: x(end-i),
+                                          height:30})
+                            break;
+                        case 'J':
+                            end = text.slice(i).indexOf("j") + i;
+                            //positions['J'].push([i, end])
+                            positions.push({x:x(i), 
+                                          y:y('Jump'),
+                                          width: x(end-i),
+                                          height:30})
+                            break;
+                        case 'L': 
+                            end = text.slice(i).indexOf("l") + i;
+                            //positions['L'].push([i, end])
+                            positions.push({x:x(i), 
+                                          y:y('Left'),
+                                          width: x(end-i),
+                                          height:30})
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                return positions
+            }
+
+            
+        </script>
+
+    </body>
+</html>

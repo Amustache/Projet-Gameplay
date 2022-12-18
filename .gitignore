@@ -18,6 +18,9 @@ ipython_config.py
 ### VSCODE ####
 .vscode
 
+### data kevin ###
+wip/kevin/data
+
 ### Linux ###
 *~
 
