@@ -47,12 +47,16 @@ button{
 }
 #parameters div:nth-child(3){
     width: 50%;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     margin-bottom:25px;
 }
 #parameters table{
     justify-self: center;
     width: 50%;
+}
+#parameters div:nth-child(5){
+    justify-self: center;
+    grid-template-columns: 1fr 1fr;
 }
 
 .red{

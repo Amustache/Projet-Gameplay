@@ -3,6 +3,7 @@
     <head>
         <title>-</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="chartjs-plugin-annotation.min.js"></script>
         <script src="script.js"></script>
         <link rel="stylesheet" type="text/css" href="style.css">
     </head>
@@ -13,6 +14,7 @@
                     <source src="video.webm" type="video/mp4">
                 </video> 
             </div>
+
             <div id="parameters">
                 <div>
                     <p><span id="time">0</span>s | Frame <span id="frame">0</span></p>
@@ -22,8 +24,10 @@
                     <label>Speed x<span id="speedLabel">1</span></label>
                 </div>
                 <div>
-                    <button onclick="previous_frame()">Previous frame</button>
-                    <button onclick="next_frame()">Next frame</button>
+                    <button onclick="move_frame(-10)">-10 frames</button>
+                    <button onclick="move_frame(-1)">Previous frame</button>
+                    <button onclick="move_frame(1)">Next frame</button>
+                    <button onclick="move_frame(10)">+ 10 frames</button>
                 </div>
                 <table>
                     <tbody id="summary_body">
@@ -37,15 +41,19 @@
                     </tbody>
                 </table>
 
-                <table>
-                    <tbody id="analysis_body">
-                    </tbody>
-                </table>
-
-                <table>
-                    <tbody id="analysis2_body">
-                    </tbody>
-                </table>
+                <div>
+                    <table>
+                        <thead><tr><th>Prediction</th></tr></thead>
+                        <tbody id="analysis_prediction">
+                        </tbody>
+                    </table>
+    
+                    <table>
+                        <thead><tr><th>Truth</th></tr></thead>
+                        <tbody id="analysis_truth">
+                        </tbody>
+                    </table>
+                </div>
 
                 <canvas id="graph1"></canvas>
             </div>
@@ -80,12 +88,8 @@
             return parseInt(video.duration*FPS)
         }
 
-        function next_frame(){
-            video.currentTime += 1/FPS
-        }
-
-        function previous_frame(){
-            video.currentTime -= 1/FPS
+        function move_frame(nb=1){
+            video.currentTime += nb/FPS
         }
 
         function updateSpeed(){
@@ -108,10 +112,17 @@
             run_analysis()
         }
 
+        function set_offset(offset){
+            for(let i=0; i<truth.length; i++){
+                truth[i][0] += offset 
+            }
+        }
+
         function init(){
-            parsed_data  = parse_data(data)
+            set_offset(3)
+            parsed_data  = parse_data(prediction)
             parsed_truth = parse_data(truth, true)
-            transition_table_prediction = compute_transition_table(data)
+            transition_table_prediction = compute_transition_table(prediction)
             transition_table_truth = compute_transition_table(truth)
 
             let accuracy = compute_accuracy(parsed_data, parsed_truth)
@@ -128,12 +139,21 @@
 
 
             chart = new Chart(getById("graph1"), {
-                type: 'line',
+                type: 'scatter',
                 options: {
+                    showLine: true,
                     animation: {
                         duration: 0
-                    }
-                }
+                    },
+                    plugins: { annotation: { annotations: {
+                        timeline: {
+                            type: 'line',
+                            xMax: 0,
+                            xMin: 0,
+                            borderColor: 'rgb(255, 99, 132)'
+                        }
+                    } } }
+                },
             })
             draw_graph(transition_table_prediction)
 
@@ -141,36 +161,47 @@
         }
 
         function run_analysis() {
-            show_transition_table(transition_table_prediction, getById("analysis_body"))
-            show_transition_table(transition_table_truth,      getById("analysis2_body"))
+            show_transition_table(transition_table_prediction, getById("analysis_prediction"))
+            show_transition_table(transition_table_truth,      getById("analysis_truth"))
+            update_graph(transition_table_prediction)
+        }
+
+        function update_graph(trans_table){
+            chart.options.plugins.annotation.annotations.timeline.xMax = getCurrentFrame()/FPS
+            chart.options.plugins.annotation.annotations.timeline.xMin = getCurrentFrame()/FPS
+            chart.update()
         }
 
 
         function draw_graph(trans_table){
             let datasets = []
-            let labels = []
+            let table_index = 0
 
             trans_table.forEach(table => {
                 let index = 0
                 let sum = 0
-                table.state.forEach(row => row.forEach(elem => sum += elem))
+                if(table_index % 8 == 0)
+                {
+                    table.state.forEach(row => row.forEach(elem => sum += elem))
 
-                table.state.forEach( row => { row.forEach( elem => {
-                    if(datasets[index] == undefined){
-                        datasets[index] = {
-                            label: listened_keys[index % listened_keys.length] + "→" + listened_keys[Math.floor(index / listened_keys.length)],
-                            data: [],
-                            borderWidth: 1
+                    table.state.forEach( row => { row.forEach( elem => {
+                        if(datasets[index] == undefined){
+                            datasets[index] = {
+                                label: listened_keys[index % listened_keys.length] + "→" + listened_keys[Math.floor(index / listened_keys.length)],
+                                data: [],
+                                borderWidth: 1
+                            }
                         }
-                    }
-                    datasets[index].data.push(elem/sum)
-                    index++
-                }) })
-
-                labels.push((table.frame/FPS).toFixed(1))
+                        datasets[index].data.push({
+                            x: table.frame/FPS,
+                            y: elem/sum
+                        })
+                        index++
+                    }) })
+                }
+                table_index++
             })
           
-            chart.data.labels = labels
             chart.data.datasets = datasets
             chart.update()
         }

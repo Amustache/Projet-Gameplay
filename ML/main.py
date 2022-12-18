@@ -5,16 +5,15 @@ import torch
 from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import KFold
 
-from NeuralNetwork import NeuralNetwork
-from VideoLoader   import VideoLoader
-from KeyslogReader import KeyslogReader
+from lib.NeuralNetwork import NeuralNetwork
+from lib.VideoLoader import VideoLoader
+from lib.KeyslogReader import KeyslogReader
 
 from torch.utils.tensorboard import SummaryWriter
-tensorboardWriter = SummaryWriter(comment="Neural Network")
 
 DEVICE           = "cuda" if torch.cuda.is_available() else "cpu"
 VIDEO_DIMENSIONS = (int(1920/8), int(1080/8))
-START_FRAME      = 1000
+START_FRAME      = 100
 END_FRAME        = 0
 OFFSET           = 3
 BATCH_SIZE       = 25
@@ -39,8 +38,12 @@ class VideoKeysLogMerge(torch.utils.data.IterableDataset):
             self.next_element = 0
             raise StopIteration
 
+def start_tensorboard():
+    global tensorboardWriter
+    tensorboardWriter = SummaryWriter(comment="Neural Network")
 
 def write_tensorboard(name, epoch, results):
+    global tensorboardWriter
     loss, correct_parts, correct = results
     tensorboardWriter.add_scalar(name+"/Accuracy/buttonLeft",  correct_parts[0], epoch)
     tensorboardWriter.add_scalar(name+"/Accuracy/buttonRight", correct_parts[1], epoch)
@@ -95,15 +98,15 @@ def test():
     print("Test finished")
 
 
-def train():
+def train(video_path, keylog_path):
     print("Start training...")
-    data_frames = get_video(sys.argv[2])
-    data_keys   = get_keylog(sys.argv[3], data_frames.getFrameStep())
+    data_frames = get_video(video_path)
+    data_keys   = get_keylog(keylog_path, data_frames.getFrameStep())
     data        = get_dataloader(VideoKeysLogMerge(data_frames, data_keys))
     model       = get_model()
     for epoch in range(NB_EPOCHS):
         print_epoch(epoch)
-        write_tensorboard("Train", epoch+split*NB_EPOCHS, model.process(data, is_train=True))
+        write_tensorboard("Train", epoch*NB_EPOCHS, model.process(data, is_train=True))
     save_model(model, "_train_model.pth")
     print("Train finished")
 
@@ -129,8 +132,12 @@ def predict(path):
         f = open( (os.path.basename(path).split(".")[0]) +".csv", "w")
         f.write("FRAME,KEY,STATUS\n")
         with torch.no_grad():
+            i = 0
             for x in dataloader:
-                pred_batch = torch.round(model(x.to(DEVICE)))
+                print(f"{i}/{len(dataloader)}")
+                x[0] = x[0].to(DEVICE)
+                x[1] = x[1].to(DEVICE)
+                pred_batch = torch.round(model(x))
                 for pred in pred_batch:
                     for j in range(len(current_state)):
                         if current_state[j] != pred[j]:
@@ -138,6 +145,7 @@ def predict(path):
                             f.write(f"{frame},{keys_dict[j]},{state}\n")
                             current_state[j] = pred[j]
                     frame += data.fps_step
+                i+=1
         f.close()
         print("Prediction finished")
 
@@ -151,7 +159,7 @@ def predict(path):
 
 def main():
     if len(sys.argv) < 2: print("No action specified !")
-    elif sys.argv[1] == "train"   : train()
+    elif sys.argv[1] == "train"   : train(sys.argv[2], sys.argv[3])
     elif sys.argv[1] == "test"    : test()
     elif sys.argv[1] == "predict" : predict(sys.argv[2])
     else: print("Unknown command")
