@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>-</title>
+        <title>Gameplay Analysis</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
         <script src="chartjs-plugin-annotation.min.js"></script>
+        <script src="chartjs-plugin-zoom.min.js"></script>
+        <script src="utils.js"></script>
         <script src="script.js"></script>
         <link rel="stylesheet" type="text/css" href="style.css">
     </head>
@@ -28,6 +31,11 @@
                     <button onclick="move_frame(-1)">Previous frame</button>
                     <button onclick="move_frame(1)">Next frame</button>
                     <button onclick="move_frame(10)">+ 10 frames</button>
+                </div>
+                <div>
+                    <canvas id="graph_keys_1" height="50px"></canvas>
+                    <canvas id="graph_keys_2" height="50px"></canvas>
+                    <canvas id="graph_keys_3" height="50px"></canvas>
                 </div>
                 <table>
                     <tbody id="summary_body">
@@ -55,7 +63,7 @@
                     </table>
                 </div>
 
-                <canvas id="graph1"></canvas>
+                <canvas id="graph_ttable"></canvas>
             </div>
         </section>
     </body>
@@ -71,10 +79,11 @@
             "x"
         ]
 
-        var parsed_data  = []
+        var parsed_prediction  = []
         var parsed_truth = []
         var transition_table_prediction = []
         var transition_table_truth = []
+        var charts = []
 
         function getById(elem){
             return document.getElementById(elem)
@@ -104,7 +113,7 @@
 
             listened_keys.forEach(elem => {
                 const truth     = parsed_truth[getCurrentFrame()][elem]
-                const predicted = parsed_data[getCurrentFrame()][elem]
+                const predicted = parsed_prediction[getCurrentFrame()][elem]
                 getById(elem+"_truth").innerHTML = truth
                 getById(elem+"_prediction").innerHTML = truth != predicted ? "<span class='red'>"+predicted+"<span>" : predicted
             })
@@ -120,12 +129,12 @@
 
         function init(){
             set_offset(3)
-            parsed_data  = parse_data(prediction)
-            parsed_truth = parse_data(truth, true)
+            parsed_prediction = parse_data(prediction)
+            parsed_truth      = parse_data(truth)
             transition_table_prediction = compute_transition_table(prediction)
-            transition_table_truth = compute_transition_table(truth)
+            transition_table_truth      = compute_transition_table(truth)
 
-            let accuracy = compute_accuracy(parsed_data, parsed_truth)
+            let accuracy = compute_accuracy(parsed_prediction, parsed_truth)
 
             listened_keys.forEach(e =>
                 getById("summary_body").innerHTML += '\
@@ -137,25 +146,9 @@
                     </tr>'
             )
 
-
-            chart = new Chart(getById("graph1"), {
-                type: 'scatter',
-                options: {
-                    showLine: true,
-                    animation: {
-                        duration: 0
-                    },
-                    plugins: { annotation: { annotations: {
-                        timeline: {
-                            type: 'line',
-                            xMax: 0,
-                            xMin: 0,
-                            borderColor: 'rgb(255, 99, 132)'
-                        }
-                    } } }
-                },
-            })
-            draw_graph(transition_table_prediction)
+            key_graphs = draw_key_graphs(parsed_prediction, ["graph_keys_1","graph_keys_2","graph_keys_3"] , parsed_truth)
+            key_graphs.forEach(graph => charts.push(graph))
+            charts.push(draw_ttable_graph(transition_table_prediction))
 
             run_analysis()
         }
@@ -167,13 +160,14 @@
         }
 
         function update_graph(trans_table){
-            chart.options.plugins.annotation.annotations.timeline.xMax = getCurrentFrame()/FPS
-            chart.options.plugins.annotation.annotations.timeline.xMin = getCurrentFrame()/FPS
-            chart.update()
+            charts.forEach(chart => {
+                chart.options.plugins.annotation.annotations.timeline.xMax = getCurrentFrame()/FPS
+                chart.options.plugins.annotation.annotations.timeline.xMin = getCurrentFrame()/FPS
+                chart.update()
+            })
         }
 
-
-        function draw_graph(trans_table){
+        function draw_ttable_graph(trans_table){
             let datasets = []
             let table_index = 0
 
@@ -207,9 +201,16 @@
                 }
                 table_index++
             })
-          
-            chart.data.datasets = datasets
-            chart.update()
+
+            return new Chart(getById("graph_ttable"), {
+                type: 'scatter',
+                data:{ datasets: [...datasets] },
+                options: {
+                    showLine: true,
+                    animation: { duration: 0 },
+                    plugins: chart_plugins
+                },
+            })
         }
     </script>
 </html>

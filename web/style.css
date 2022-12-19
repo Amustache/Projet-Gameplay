@@ -42,7 +42,7 @@ button{
     margin:5px;
 }
 #parameters div:nth-child(2){
-    width:80%;
+    width:90%;
     grid-template-columns: 10fr 2fr;
 }
 #parameters div:nth-child(3){
@@ -50,11 +50,14 @@ button{
     grid-template-columns: 1fr 1fr 1fr 1fr;
     margin-bottom:25px;
 }
+#parameters div:nth-child(4){
+    width: 80%;
+}
 #parameters table{
     justify-self: center;
     width: 50%;
 }
-#parameters div:nth-child(5){
+#parameters div:nth-child(6){
     justify-self: center;
     grid-template-columns: 1fr 1fr;
 }

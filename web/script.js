@@ -95,3 +95,53 @@ function show_transition_table(trans_table, table){
         new_content = ""
     }
 }
+
+function draw_key_graphs(predictions, canvas, truth=undefined){
+    let graphs = []
+    let pointsBackgrounds = {}
+    let graphs_data = {}
+    listened_keys.forEach(key => {
+        graphs_data[key] = []
+        pointsBackgrounds[key] = []
+    })
+
+    for(let i=0; i<predictions.length; i++){
+        listened_keys.forEach(key => {
+            let correct = true
+            if(truth != undefined && i < truth.length){
+                correct = predictions[i][key] == truth[i][key]
+            }
+
+            if(i==0 || predictions[i-1][key] != predictions[i][key] || !correct){
+                graphs_data[key].push({
+                    x: i/FPS,
+                    y: predictions[i][key] == "DOWN" ? 1 : 0
+                })
+                pointsBackgrounds[key].push(correct ? "#0000ff" : "#ff0000")
+            }
+        })
+    }
+
+    for(let i=0; i<listened_keys.length; i++){
+        graphs.push(
+            new Chart(canvas[i], {
+                type: 'scatter',
+                data:{
+                    datasets: [{
+                        label: listened_keys[i],
+                        data: graphs_data[listened_keys[i]],
+                        borderWidth: 1,
+                        pointBackgroundColor: pointsBackgrounds[listened_keys[i]]
+                    }]
+                },
+                options: {
+                    showLine: true,
+                    animation: { duration: 0 },
+                    plugins: chart_plugins
+                },
+            })
+        )
+    }
+
+    return graphs
+}
