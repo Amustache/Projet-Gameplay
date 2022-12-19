@@ -22,7 +22,7 @@
 
 
             let keys = "RJjrRrJRjrJRrRjrJLljLJljLlRJjJjJjJjJjJLjrJljRJjrLlRJjJjr"
-
+            console.log(keys.length)
 
             let sVg = d3.select('#area')
                 .append("svg")
@@ -132,7 +132,7 @@
 
                 let positions = []
 
-                for(let i = 0, end ; i <= text.length ; i++){
+                for(let i = 0, end ; i < text.length ; i++){
                     switch(text[i]){
                         case 'R':
                             end = text.slice(i).indexOf("r") + i;
@@ -140,7 +140,6 @@
                                           y:'Right',
                                           width: end-i,
                                           height:30})
-                            console.log(x(i), x(end-i))
                             break;
                         case 'J':
                             end = text.slice(i).indexOf("j") + i;
