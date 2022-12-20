@@ -4,10 +4,11 @@
         <title>Gameplay Analysis</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-        <script src="chartjs-plugin-annotation.min.js"></script>
-        <script src="chartjs-plugin-zoom.min.js"></script>
+        <script src="libs/chartjs-plugin-annotation.min.js"></script>
+        <script src="libs/chartjs-plugin-zoom.min.js"></script>
         <script src="utils.js"></script>
         <script src="script.js"></script>
+        <script src="NLP.js"></script>
         <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body onload="init()">
@@ -129,10 +130,10 @@
 
         function init(){
             set_offset(3)
-            parsed_prediction = parse_data(prediction)
-            parsed_truth      = parse_data(truth)
-            transition_table_prediction = compute_transition_table(prediction)
-            transition_table_truth      = compute_transition_table(truth)
+            parsed_prediction = parse_data(prediction, listened_keys)
+            parsed_truth      = parse_data(truth, listened_keys)
+            transition_table_prediction = compute_transition_table(prediction, listened_keys)
+            transition_table_truth      = compute_transition_table(truth, listened_keys)
 
             let accuracy = compute_accuracy(parsed_prediction, parsed_truth)
 
@@ -148,14 +149,14 @@
 
             key_graphs = draw_key_graphs(parsed_prediction, ["graph_keys_1","graph_keys_2","graph_keys_3"] , parsed_truth)
             key_graphs.forEach(graph => charts.push(graph))
-            charts.push(draw_ttable_graph(transition_table_prediction))
+            charts.push(draw_ttable_graph(transition_table_prediction, getById("graph_ttable")))
 
             run_analysis()
         }
 
         function run_analysis() {
-            show_transition_table(transition_table_prediction, getById("analysis_prediction"))
-            show_transition_table(transition_table_truth,      getById("analysis_truth"))
+            show_transition_table_with_frames(transition_table_prediction, getById("analysis_prediction"), listened_keys)
+            show_transition_table_with_frames(transition_table_truth,      getById("analysis_truth"),      listened_keys)
             update_graph(transition_table_prediction)
         }
 
@@ -167,7 +168,7 @@
             })
         }
 
-        function draw_ttable_graph(trans_table){
+        function draw_ttable_graph(trans_table, canvas){
             let datasets = []
             let table_index = 0
 
@@ -202,7 +203,7 @@
                 table_index++
             })
 
-            return new Chart(getById("graph_ttable"), {
+            return new Chart(canvas, {
                 type: 'scatter',
                 data:{ datasets: [...datasets] },
                 options: {
