@@ -1,16 +1,27 @@
 function preprocess_element(element){
     let result = 0
-    for(let j=0; j<listened_keys.length; j++){
-        if(element[listened_keys[j]] == "UP"){
-            result += Math.pow(2, j)
+    for(let i=0; i<listened_keys.length; i++){
+        if(element[listened_keys[i]] == "DOWN"){
+            result += Math.pow(2, i)
         }
     }
+    return result.toString()
+}
 
-    if(result != Math.pow(2, listened_keys.length)-1){
-        return result
-    }else{
-        return undefined
+function unprocess_element(element){
+    let result = []
+    for(let i=0; i<element.length; i++){
+        let state_num = parseInt(element[i])
+        let current_key_state = []
+        for(let j=listened_keys.length-1; j>=0; j--){
+            if(state_num >= Math.pow(2, j)){
+                current_key_state.push(listened_keys[j])
+                state_num -= Math.pow(2, j)
+            }
+        }
+        result.push(current_key_state.length == 0 ? ["None"] : current_key_state)
     }
+    return result
 }
 
 function preprocess(data){
@@ -50,7 +61,6 @@ function BPE_iteration(data){
             best.count = tokens[token]
         }
     }
-    console.log("Best : "+best.token)
 
     let new_data = []
     for(let i=0; i<data.length; i++){
@@ -70,8 +80,6 @@ function BPE(data, nb_iter=10){
         console.log("Iteration "+i)
 
         let [new_data, tokens] = BPE_iteration(data)
-        console.log(tokens)
-        console.log(new_data)
         data = new_data
 
         let keys = []
@@ -80,13 +88,34 @@ function BPE(data, nb_iter=10){
                 keys.push(elem)
             }
         })
+
         console.log(keys)
+        console.log(data)
+
         let trans_table = compute_transition_table_NLP(data, keys)
-        console.log(trans_table)
+
         let table = document.createElement("table")
         show_transition_table(trans_table, table, keys)
-        getById("parameters").appendChild(table)
+
+        let table_keys = document.createElement("table")
+        let unproc_keys = unprocess_keys(keys)
+        unproc_keys.forEach(key => table_keys.innerHTML += "<tr><td>"+JSON.stringify(key)+"</td></tr>")
+
+        let div = document.createElement("div")
+        div.appendChild(table)
+        div.appendChild(table_keys)
+        getById("parameters").appendChild(div)
+
+        console.log(unprocess_keys(keys))
     }
+
+    return 
+}
+
+function unprocess_keys(keys){
+    let result = []
+    keys.forEach(key => result.push(unprocess_element(key)))
+    return result
 }
 
 function compute_transition_table_NLP(data, keys){

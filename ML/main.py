@@ -111,9 +111,9 @@ def train(video_path, keylog_path):
     print("Train finished")
 
 
-def predict(path):
-    if os.path.isfile(path):
-        print("Predicting "+path)
+def predict(video_path, model_path):
+    if os.path.isfile(video_path):
+        print("Predicting "+video_path)
         keys_dict = [
             "Key.left",
             "Key.right",
@@ -122,14 +122,14 @@ def predict(path):
         current_state = [0,0,0]
 
         model = get_model()
-        model.load_state_dict(torch.load(sys.argv[3]))
+        model.load_state_dict(torch.load(model_path))
         model.eval()
 
-        data = get_video(path)
+        data = get_video(video_path)
         dataloader = get_dataloader(data)
 
         frame = START_FRAME
-        f = open( (os.path.basename(path).split(".")[0]) +".csv", "w")
+        f = open( (os.path.basename(video_path).split(".")[0]) +".csv", "w")
         f.write("FRAME,KEY,STATUS\n")
         with torch.no_grad():
             i = 0
@@ -149,10 +149,10 @@ def predict(path):
         f.close()
         print("Prediction finished")
 
-    elif os.path.isdir(path):
-        files = os.listdir(path)
+    elif os.path.isdir(video_path):
+        files = os.listdir(video_path)
         for f in files:
-            predict(path+f)
+            predict(video_path+f)
     else:
         print("Path is not a file or a directory")
 
@@ -161,7 +161,7 @@ def main():
     if len(sys.argv) < 2: print("No action specified !")
     elif sys.argv[1] == "train"   : train(sys.argv[2], sys.argv[3])
     elif sys.argv[1] == "test"    : test()
-    elif sys.argv[1] == "predict" : predict(sys.argv[2])
+    elif sys.argv[1] == "predict" : predict(sys.argv[2], sys.argv[3])
     else: print("Unknown command")
 
 if __name__ == "__main__": main()
