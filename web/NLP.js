@@ -76,6 +76,8 @@ function BPE_iteration(data){
 }
 
 function BPE(data, nb_iter=10){
+    let trans_table
+
     for(let i=0; i<nb_iter; i++){
         console.log("Iteration "+i)
 
@@ -89,10 +91,7 @@ function BPE(data, nb_iter=10){
             }
         })
 
-        console.log(keys)
-        console.log(data)
-
-        let trans_table = compute_transition_table_NLP(data, keys)
+        trans_table = compute_transition_table_NLP(data, keys)
 
         let table = document.createElement("table")
         show_transition_table(trans_table, table, keys)
@@ -106,10 +105,10 @@ function BPE(data, nb_iter=10){
         div.appendChild(table_keys)
         getById("parameters").appendChild(div)
 
-        console.log(unprocess_keys(keys))
+        find_loop_in_ttable(convert_table_to_column_percent(trans_table.state))
     }
 
-    return 
+    return trans_table
 }
 
 function unprocess_keys(keys){
