@@ -1,11 +1,15 @@
+function heuristic(candidate){
+    return candidate.probability*candidate.path.length
+}
+
 function find_loop_in_ttable(ttable){
     let processed = convert_table_to_column_percent(ttable)
     let result = []
     for(let i=0; i<processed.length; i++){
         let loops = find_loop_in_table_entry(processed, i)
-        let best_loop = {probability:0}
+        let best_loop = {probability:0, path:[]}
         loops.forEach(loop => {
-            if(loop.probability > best_loop.probability){
+            if(heuristic(loop) > heuristic(best_loop)){
                 best_loop = loop
             }
         })
@@ -13,9 +17,9 @@ function find_loop_in_ttable(ttable){
     }
     console.log(result)
 
-    let best = {probability:0}
+    let best = {probability:0, path:[]}
     result.forEach(elem => {
-        if(elem.probability > best.probability){
+        if(heuristic(elem) > heuristic(best)){
             best = elem
         }
     })
@@ -55,7 +59,7 @@ function find_loop_in_table_entry(ttable, entry_index){
         graph.best_candidate_index = -1
         for(let i=0; i<graph.candidates.length; i++){
             if(!graph.candidates[i].visited && graph.visited_indices.indexOf(graph.candidates[i].path[graph.candidates[i].path.length-1]) == -1){
-                if(graph.best_candidate_index == -1 || graph.candidates[i].probability > graph.candidates[graph.best_candidate_index].probability){
+                if(graph.best_candidate_index == -1 || heuristic(graph.candidates[i]) > heuristic(graph.candidates[graph.best_candidate_index]) ){
                     graph.best_candidate_index = i
                 }
             }
