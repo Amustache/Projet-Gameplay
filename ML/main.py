@@ -1,7 +1,7 @@
 import sys
 import os
-from datetime import datetime
 import torch
+from datetime import datetime
 from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import KFold
 
@@ -20,6 +20,7 @@ BATCH_SIZE       = 25
 NB_EPOCHS        = 100
 NB_K_SPLIT       = 8
 SHUFFLE_DATASETS = False
+FPS              = 25
 
 
 class VideoKeysLogMerge(torch.utils.data.IterableDataset):
@@ -55,8 +56,8 @@ def write_tensorboard(name, epoch, results):
 def save_model(model, suffix):
     torch.save(model.state_dict(), datetime.now().strftime("%Y-%m-%d-%H:%M")+suffix)
 
-def get_video(path):
-    return VideoLoader(path, VIDEO_DIMENSIONS, START_FRAME, END_FRAME)
+def get_video(path, preload):
+    return VideoLoader(path, VIDEO_DIMENSIONS, START_FRAME, END_FRAME, FPS, preload)
 
 def get_keylog(path, frameStep):
     return KeyslogReader(path, frameStep, START_FRAME, offset=OFFSET)
@@ -70,10 +71,10 @@ def get_dataloader(data):
 def print_epoch(epoch):
     print(f"--------------  Epoch {epoch+1}  -----------------")
 
-def test():
+def test(video_path, keylog_path):
     print("Start testing...")
-    data_frames = get_video('data/4/video.mkv')
-    data_keys   = get_keylog('data/4/keylog.csv', data_frames.getFrameStep())
+    data_frames = get_video(video_path, preload=True)
+    data_keys   = get_keylog(keylog_path, data_frames.getFrameStep())
     data        = VideoKeysLogMerge(data_frames, data_keys)
 
     kf = KFold(n_splits=NB_K_SPLIT).split(data)
@@ -100,7 +101,7 @@ def test():
 
 def train(video_path, keylog_path):
     print("Start training...")
-    data_frames = get_video(video_path)
+    data_frames = get_video(video_path, preload=False)
     data_keys   = get_keylog(keylog_path, data_frames.getFrameStep())
     data        = get_dataloader(VideoKeysLogMerge(data_frames, data_keys))
     model       = get_model()
@@ -125,7 +126,7 @@ def predict(video_path, model_path):
         model.load_state_dict(torch.load(model_path))
         model.eval()
 
-        data = get_video(video_path)
+        data = get_video(video_path, preload=False)
         dataloader = get_dataloader(data)
 
         frame = START_FRAME
@@ -159,8 +160,8 @@ def predict(video_path, model_path):
 
 def main():
     if len(sys.argv) < 2: print("No action specified !")
-    elif sys.argv[1] == "train"   : train(sys.argv[2], sys.argv[3])
-    elif sys.argv[1] == "test"    : test()
+    elif sys.argv[1] == "train"   : train(sys.argv[2],   sys.argv[3])
+    elif sys.argv[1] == "test"    : test(sys.argv[2],    sys.argv[3])
     elif sys.argv[1] == "predict" : predict(sys.argv[2], sys.argv[3])
     else: print("Unknown command")
 

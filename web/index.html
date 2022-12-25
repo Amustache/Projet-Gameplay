@@ -104,7 +104,9 @@
         }
 
         function init(){
-            truth.forEach(e => e[0] += 5 )
+            for(let i=0; i<truth_data.length; i++){
+                truth_data[i][0] += 4
+            }
             
             predictions = new KeyLog(prediction_data, KEYS)
             truth       = new KeyLog(truth_data, KEYS)
@@ -115,17 +117,17 @@
             add_new_scatter_graph(getById("graph_ttable"), truth.get_ttable_graph_dataset(), 400)
 
             generate_summary()
-            update()
+            //update()
         }
 
-        function update() {
-            /*charts.forEach(chart => {
+        /*function update() {
+            charts.forEach(chart => {
                 chart.options.plugins.annotation.annotations.timeline.xMax = getCurrentFrame()/FPS
                 chart.options.plugins.annotation.annotations.timeline.xMin = getCurrentFrame()/FPS
                 chart.update()
-            })*/
+            })
             setTimeout(update, UPDATE_TIME)
-        }
+        }*/
 
         function generate_summary(){
             let [total_accuracy, accuracies] = compute_accuracies(predictions.getByFrame(), truth.getByFrame())
@@ -140,7 +142,7 @@
             )
 
             let datasets = []
-            let window_size = 20
+            let window_size = 40
             let means = Array(KEYS.length).fill(Array(window_size).fill(0))
             KEYS.forEach(key => {datasets.push({
                 label : key,
@@ -206,7 +208,7 @@
                         correct = current_prediction == truth.getByFrame()[i][key]
                     }
 
-                    if(i==0 || predictions_frames[i-1][key] != current_prediction || !correct){
+                    if(/*i==0 || predictions_frames[i-1][key] != current_prediction ||*/ !correct){
                         graphs_data[key].push({
                             x: i/FPS,
                             y: current_prediction == "DOWN" ? 1 : 0
@@ -231,12 +233,10 @@
             let canvas = document.createElement("canvas")
             canvas.height = height
             canvas.width = "1400"
-
             let container_div = document.createElement("div")
             container_div.style.width = "90%"
             container_div.style.height = height+"px"
             container_div.appendChild(canvas)
-
             charts.push(new Chart(canvas, {
                 type: 'scatter',
                 data:{ datasets: datasets },
