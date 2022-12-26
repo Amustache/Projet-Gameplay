@@ -1,0 +1,26 @@
+Erreurs : 
+- Les sauts ne sont visible que 4 frames plus tard
+- Les FPS ont l'air de beaucoup influencer, peut-être les diminuer un petit peu
+- Les transformations de Mario sont mal reconnues (surtout si elles surviennent durant des sauts)
+
+
+LEFT :
+    - Bref changement de direction mal reconnus
+
+
+RIGHT :
+    - Souvent l'état de la touche oscille, ce qui provoque beaucoup d'appuis qui n'existent en fait pas
+    - Erreur de momentum, principalement en l'air
+        - Quand la vitesse "ralenti et redémarre" le modèle se trompe. Et cela arrive souvent quand le joueur module sa vitesse
+        - Le modèle n'a aucune notion de "changement de vitesse" quand mario saute
+        - Mario met ~25 frames pour démarrer quand il est à l'arrêt, la vision dans le futur n'est pas suffisante actuellement
+    - Visiblement il ne sait pas trop bien quand RIGHT est pressé ou non lors d'un saut
+
+X :
+ - 2 types :
+    - Erreurs isolées, dues à un décalage entre frame et truth
+    - Erreurs en séries dues à une mismatch sur ce qui se passe
+        - Du a une mauvaise détection de quand le saut est relâché
+
+Solution :
+    -> Entrainer le modèle sur des data qui ont le même décalage que les données de test

@@ -48,6 +48,11 @@
                 </div>
                 <div id="graph_ttable"></div>
             </div>
+            <div>
+                <button onclick="run_NLP()">RUN NLP</button>
+                <table id="BPE_table"></table>
+                <table id="BPE_keys"></table>
+            </div>
         </section>
     </body>
     <script>
@@ -64,6 +69,7 @@
     <script src="libs/chartjs-plugin-annotation.min.js"></script>
     <script src="libs/chartjs-plugin-zoom.min.js"></script>
     <script src="consts.js"></script>
+    <script src="visualisation.js"></script>
     <script src="keylog.js"></script>
     <script src="NLP.js"></script>
     <script src="IA.js"></script>
@@ -99,8 +105,8 @@
                 getById(key+"_prediction").innerHTML = truth_key != predicted_key ? "<span class='red'>"+predicted_key+"<span>" : predicted_key
             })
 
-            predictions.print_ttable(getById("analysis_prediction"))
-            truth.print_ttable(getById("analysis_truth"))
+            print_ttable(predictions.getTransitionTableOfFrame(getCurrentFrame()), getById("analysis_prediction"), KEYS)
+            print_ttable(truth.getTransitionTableOfFrame(getCurrentFrame()), getById("analysis_truth"), KEYS)
         }
 
         function init(){
@@ -162,7 +168,7 @@
                 }
             }
 
-            add_new_scatter_graph(getById("summary"), datasets, 200)
+            add_new_scatter_graph(getById("summary"), datasets, 350)
         }
 
         function compute_accuracies(prediction, truth){
@@ -229,20 +235,13 @@
             return graphs
         }
 
-        function add_new_scatter_graph(container, datasets, height){
-            let canvas = document.createElement("canvas")
-            canvas.height = height
-            canvas.width = "1400"
-            let container_div = document.createElement("div")
-            container_div.style.width = "90%"
-            container_div.style.height = height+"px"
-            container_div.appendChild(canvas)
-            charts.push(new Chart(canvas, {
-                type: 'scatter',
-                data:{ datasets: datasets },
-                options: CHART_OPTIONS
-            }))
-            container.appendChild(container_div)
+        function run_NLP(){
+            let [bpe, keys] = new NLP(truth.parsed_data, KEYS).BPE(10)
+            print_ttable(bpe, getById("BPE_table"), keys.map(e=>e[0]))
+
+            let keys_table = ""
+            keys.forEach(key => keys_table += "<tr><td>"+key[0]+"</td><td>"+key[1]+"</td></tr>")
+            getById("BPE_keys").innerHTML = keys_table
         }
     </script>
 </html>

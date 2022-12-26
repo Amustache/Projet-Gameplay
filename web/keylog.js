@@ -86,45 +86,13 @@ class KeyLog{
         return ttables[index]
     }
 
-    get_ttable_row_sums(ttable){
-        let sum = Array(this.keys.length).fill(0)
-        ttable.state.forEach(row => {
-            for(let i=0; i<row.length; i++){
-                sum[i] += row[i]
-            }
-        })
-        return sum
-    }
-
-    print_ttable(table_html){
-        let ttable = this.getTransitionTableOfFrame(getCurrentFrame()) 
-    
-        table_html.innerHTML = ""
-        let new_content = ""
-        let row_sums = this.get_ttable_row_sums(ttable)
-
-        new_content += "<th>"
-        this.keys.forEach(key => new_content += "<td>"+key+"</td>")
-        new_content += "</th>"
-    
-        for(let i=0; i < this.keys.length; i++){    
-            new_content += "<tr><td>" + KEYS[i] + "</td>"
-            for(let j=0; j < this.keys.length; j++){
-                let value = (100*ttable.state[i][j]/row_sums[j]).toFixed(1)
-                new_content += "<td style='background-color:hsl(0, 100%, "+(100-value/2)+"%)'>" + value + "%</td>"
-            }
-            table_html.innerHTML += new_content + "</tr>"
-            new_content = ""
-        }
-    }
-
     get_ttable_graph_dataset(){
         let datasets = []
         let ttables = this.getTransitionTables()
 
         for(let i=0; i<ttables.length; i+=GRAPH_DECIMATE_FACTOR){
             let ttable = ttables[i]
-            let row_sums = this.get_ttable_row_sums(ttable)
+            let row_sums = get_ttable_row_sums(ttable, this.keys)
             let index = 0
             for(let row=0; row<ttable.state.length; row++){
                 for(let col=0; col<ttable.state[row].length; col++){
