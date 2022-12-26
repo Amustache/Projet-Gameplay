@@ -50,8 +50,10 @@
             </div>
             <div>
                 <button onclick="run_NLP()">RUN NLP</button>
+                <input id="nb_iter" type="number">
                 <table id="BPE_table"></table>
                 <table id="BPE_keys"></table>
+                <div id="AI_result"></div>
             </div>
         </section>
     </body>
@@ -72,7 +74,7 @@
     <script src="visualisation.js"></script>
     <script src="keylog.js"></script>
     <script src="NLP.js"></script>
-    <script src="IA.js"></script>
+    <script src="AI.js"></script>
     <script src="prediction.js"></script>
     <script src="truth.js"></script>
     <script>
@@ -236,12 +238,27 @@
         }
 
         function run_NLP(){
-            let [bpe, keys] = new NLP(truth.parsed_data, KEYS).BPE(10)
-            print_ttable(bpe, getById("BPE_table"), keys.map(e=>e[0]))
+            let [ttable, keys] = new NLP(truth.parsed_data, KEYS).BPE(getById("nb_iter").value)
+            print_ttable(ttable, getById("BPE_table"), keys.map(e=>e[0]))
 
             let keys_table = ""
-            keys.forEach(key => keys_table += "<tr><td>"+key[0]+"</td><td>"+key[1]+"</td></tr>")
+            for(let i=0; i<keys.length; i++){
+                keys_table += "<tr><td>"+i+"</td><td>"+keys[i][0]+"</td><td>"+keys[i][1]+"</td></tr>"
+            }
             getById("BPE_keys").innerHTML = keys_table
+
+            let ai = new AI(ttable.state, keys)
+            let loops = ai.find_loop_in_ttable()
+
+            console.log(loops)
+
+            let result = ""
+            for(let i=0; i<3; i++){
+                result += "<p>"
+                loops[i].path.forEach(index => result += keys[index][1].toString().replaceAll("],[", "] ⟶  [")+" ⟶  ")
+                result += "</p>"
+            }
+            getById("AI_result").innerHTML = result
         }
     </script>
 </html>

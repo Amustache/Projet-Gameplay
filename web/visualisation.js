@@ -37,7 +37,11 @@ function print_ttable(ttable, table_html, keys){
         new_content += "<tr><td>" + keys[i] + "</td>"
         for(let j=0; j < keys.length; j++){
             let value = (100*ttable.state[i][j]/row_sums[j]).toFixed(1)
-            new_content += "<td style='background-color:hsl(0, 100%, "+(100-value/2)+"%)'>" + value + "%</td>"
+            if(value != 0){
+                new_content += "<td style='background-color:hsl(0, 100%, "+(100-value/2)+"%)'>" + value + "%</td>"
+            }else{
+                new_content += "<td></td>"
+            }
         }
         table_html.innerHTML += new_content + "</tr>"
         new_content = ""
