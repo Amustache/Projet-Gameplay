@@ -5,15 +5,15 @@ from datetime import datetime
 from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import KFold
 
-from lib.NeuralNetwork import NeuralNetwork
-from lib.VideoLoader import VideoLoader
-from lib.KeyslogReader import KeyslogReader
+from inc.NeuralNetwork import NeuralNetwork
+from inc.VideoLoader import VideoLoader
+from inc.KeyslogReader import KeyslogReader
 
 from torch.utils.tensorboard import SummaryWriter
 
 DEVICE           = "cuda" if torch.cuda.is_available() else "cpu"
 VIDEO_DIMENSIONS = (int(1920/8), int(1080/8))
-START_FRAME      = 100
+START_FRAME      = 1000
 END_FRAME        = 0
 OFFSET           = 3
 BATCH_SIZE       = 25
@@ -73,6 +73,7 @@ def print_epoch(epoch):
 
 def test(video_path, keylog_path):
     print("Start testing...")
+    start_tensorboard()
     data_frames = get_video(video_path, preload=True)
     data_keys   = get_keylog(keylog_path, data_frames.getFrameStep())
     data        = VideoKeysLogMerge(data_frames, data_keys)
@@ -101,6 +102,7 @@ def test(video_path, keylog_path):
 
 def train(video_path, keylog_path):
     print("Start training...")
+    start_tensorboard()
     data_frames = get_video(video_path, preload=False)
     data_keys   = get_keylog(keylog_path, data_frames.getFrameStep())
     data        = get_dataloader(VideoKeysLogMerge(data_frames, data_keys))
