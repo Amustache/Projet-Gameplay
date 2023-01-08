@@ -40,9 +40,9 @@ def anotate():
     print("Finished.")
 
 
-def csvToJs():
+def csvToJs(file_path, dataName):
     output = []
-    f = open(sys.argv[2], "r")
+    f = open(file_path, "r")
     f.readline()
     for line in f:
         if line.strip() != "":
@@ -50,8 +50,8 @@ def csvToJs():
             line_split[0] = int(line_split[0])
             output.append(line_split)
 
-    f_output = open(sys.argv[2].split('.')[0]+".js", "w")
-    f_output.write("const data=")
+    f_output = open(file_path.split('.')[0]+".js", "w")
+    f_output.write("const "+dataName+"=")
     f_output.write(json.dumps(output))
 
     f.close()
@@ -64,7 +64,7 @@ def main():
     elif sys.argv[1] == "anotate" :
         anotate()
     elif sys.argv[1] == "csvToJs":
-        csvToJs()
+        csvToJs(sys.argv[2], sys.argv[3])
     else:
         print("Unknown command")
 

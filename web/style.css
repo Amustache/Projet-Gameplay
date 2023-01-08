@@ -5,15 +5,15 @@
 }
 section{
     margin:auto;
-    width:900px;
+    width:1400px;
     text-align:center;
 }
 section div{
     justify-self: center;
 }
 video{
-    width: 100%;
-    height: auto;
+    width: auto;
+    height: 400px;
 }
 table{
     border-collapse: collapse;
@@ -40,13 +40,12 @@ button{
 #parameters div{
     display:inline-grid;
     margin:5px;
+    width:90%;
 }
 #parameters div:nth-child(2){
-    width:90%;
     grid-template-columns: 10fr 2fr;
 }
 #parameters div:nth-child(3){
-    width: 50%;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     margin-bottom:25px;
 }
@@ -55,7 +54,6 @@ button{
 }
 #parameters table{
     justify-self: center;
-    width: 50%;
 }
 #parameters div:nth-child(6){
     justify-self: center;
