@@ -18,8 +18,6 @@
             
             let actions = ['Left', 'Jump', 'Right']
 
-            let icon_size = []
-
 
             let keys = "RJjrRrJRjrJRrRjrJLljLJljLlRJjJjJjJjJjJLjrJljRJjrLlRJjJjr"
             console.log(keys.length)
@@ -100,7 +98,7 @@
                     .attr("y", function(d){return y(d.y) - d.height/2})
                     .attr("height", function(d){return d.height})
                     .attr("transform", "translate(" + 2*radius + ", 0)")
-                    .attr("fill", "#8B0000")
+                    .attr("fill", function(d){return d.fill})
 
 
             var zoom = d3.zoom()
@@ -139,21 +137,24 @@
                             positions.push({x:i, 
                                           y:'Right',
                                           width: end-i,
-                                          height:30})
+                                          height:30,
+                                          fill:'#d62728'})
                             break;
                         case 'J':
                             end = text.slice(i).indexOf("j") + i;
                             positions.push({x:i, 
                                           y:'Jump',
                                           width: end-i,
-                                          height:30})
+                                          height:30,
+                                          fill:'#2ca02c'})
                             break;
                         case 'L': 
                             end = text.slice(i).indexOf("l") + i;
                             positions.push({x:i, 
                                           y:'Left',
                                           width: end-i,
-                                          height:30})
+                                          height:30,
+                                          fill: '#1f77b4'})
                             break;
                         default:
                             break;
