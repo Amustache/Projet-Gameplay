@@ -3,7 +3,7 @@ import cv2
 import pandas
 import json
 
-from lib.KeyslogReader import KeyslogReader
+from inc.KeyslogReader import KeyslogReader
 
 def anotate():
     if len(sys.argv) != 3: 

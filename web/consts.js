@@ -2,7 +2,7 @@ const FPS           = 60
 const DEFAULT_VALUE = "UP"
 const VIDEO         = getById("video")
 const UPDATE_TIME   = 2000
-const GRAPH_DECIMATE_FACTOR = 15
+const GRAPH_DECIMATE_FACTOR = 30
 
 const KEYS = [
     "Key.right",

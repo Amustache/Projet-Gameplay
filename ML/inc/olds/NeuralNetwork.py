@@ -15,51 +15,35 @@ class NeuralNetwork(nn.Module):
         conv_output_height = 4
 
         #self.init_frame = nn.Sequential(
-        #    nn.Conv2d(1, 64, 7),
-        #    nn.MaxPool2d(5),
+        #    nn.Conv2d(1, 32, 7),
+        #    nn.MaxPool2d(6),
+        #
+        #    nn.Conv2d(32, 64, 3),
+        #    nn.MaxPool2d(8),
+        #    nn.Dropout2d(0.4),
         #)
         #self.init_frame.apply(self.init_weights)
 
         self.init_time = nn.Sequential(
-            nn.Conv2d(11, 256, 7),
-            nn.MaxPool2d(5),
+            nn.Conv2d(11, 64, 7),
+            nn.MaxPool2d(6),
+
+            nn.Conv2d(64, 128, 3),
+            nn.MaxPool2d(8),
+            nn.Dropout2d(0.4),
         )
         self.init_time.apply(self.init_weights)
 
         self.forward_1 = nn.Sequential(
 
-            #nn.Conv2d(192, 64, 1),
-            nn.MaxPool2d(3),
-            nn.Dropout2d(0.3),
-
-            nn.Conv2d(256, 256, 3),
-            nn.MaxPool2d(3),
-            nn.Dropout2d(0.3),
-
             nn.Flatten(),
-            nn.Linear(256*conv_output_width*conv_output_height, 128),
+            nn.Linear(128*conv_output_width*conv_output_height, 256),
             nn.ReLU(),
             nn.Dropout(0.4),
-            nn.Linear(128, 64),
+            nn.Linear(256, 128),
             nn.ReLU(),
             nn.Dropout(0.4),
-            nn.Linear(64, 3),
-            nn.Sigmoid()
-        )
-        self.forward_1.apply(self.init_weights)
-
-        """
-        self.forward_1 = nn.Sequential(
-
-            nn.Conv2d(192, 32, 1),
-            nn.MaxPool2d(8),
-            nn.Dropout2d(0.4),
-
-            nn.Flatten(),
-            nn.Linear(32*conv_output_width*conv_output_height, 32),
-            nn.ReLU(),
-            nn.Dropout(0.4),
-            nn.Linear(32, 1),
+            nn.Linear(128, 1),
             nn.Sigmoid()
         )
         self.forward_2 = copy.deepcopy(self.forward_1)
@@ -68,9 +52,8 @@ class NeuralNetwork(nn.Module):
         self.forward_1.apply(self.init_weights)
         self.forward_2.apply(self.init_weights)
         self.forward_3.apply(self.init_weights)
-        """
 
-        self.optimizer_fn = torch.optim.SGD(self.parameters(), lr=0.016, weight_decay=0.002)
+        self.optimizer_fn = torch.optim.SGD(self.parameters(), lr=0.015, weight_decay=0.003)
         self.to(device)
 
     def init_weights(self, layer):
@@ -83,21 +66,18 @@ class NeuralNetwork(nn.Module):
 
     def forward(self, x):
 
-        frame_rgb, frame_time = x
-
         #Print the shape at each layer
         #x = x[:, 0:3]
         #for layer in self.init_frame:
-        #    print(frame_rgb.shape)
-        #    frame_rgb = layer(frame_rgb)
-        #for layer in self.init_time:
-        #    print(frame_time.shape)
-        #    frame_time = layer(frame_time)
-        #x = torch.cat((frame_rgb,frame_time), dim=1)
+        #    print(x)
+        #    x = layer(x)
+        #x = torch.cat((x,x), dim=1)
         #for layer in self.forward_1:
-        #    print(x.shape)
+        #    print(x.size())
         #    x = layer(x )
         #return x
+
+        frame_rgb, frame_time = x
 
         #self.debug_frame(frame_rgb)
         #print(frame_rgb.shape)
@@ -112,13 +92,12 @@ class NeuralNetwork(nn.Module):
         #    ), dim=1 ))
 
         #init_frame = self.init_frame(frame_rgb)
-        init  = self.init_time(torch.cat( (frame_rgb, frame_time), dim=1 ))
+        init_time  = self.init_time(torch.cat( (frame_rgb, frame_time), dim=1 ))
         #init = torch.cat( (init_frame, init_time), dim=1 )
-        #f1 = self.forward_1( init )
-        #f2 = self.forward_2( init )
-        #f3 = self.forward_3( init )
-        #return torch.cat( (f1,f2,f3), dim=1)
-        return self.forward_1( init )
+        f1 = self.forward_1( init_time )
+        f2 = self.forward_2( init_time )
+        f3 = self.forward_3( init_time )
+        return torch.cat( (f1,f2,f3), dim=1)
 
 
     def process(self, data, is_train):

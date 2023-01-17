@@ -1,0 +1,10 @@
+FRAME,KEY,STATUS
+17,Key.cmd,DOWN
+34,Key.right,DOWN
+40,Key.right,UP
+56,Key.cmd,UP
+401,Key.cmd,DOWN
+416,Key.right,DOWN
+424,Key.right,UP
+440,Key.cmd,UP
+542,Key.cmd,DOWN

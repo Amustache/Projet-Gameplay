@@ -1,9 +1,8 @@
 function add_new_scatter_graph(container, datasets, height){
     let canvas = document.createElement("canvas")
     canvas.height = height
-    canvas.width = "1400"
+    canvas.width = "100%"
     let container_div = document.createElement("div")
-    container_div.style.width = "90%"
     container_div.style.height = height+"px"
     container_div.appendChild(canvas)
     charts.push(new Chart(canvas, {
@@ -29,9 +28,8 @@ function print_ttable(ttable, table_html, keys){
     let new_content = ""
     let row_sums = get_ttable_row_sums(ttable, keys)
 
-    new_content += "<th>"
+    new_content += "<td>↙</td>"
     keys.forEach(key => new_content += "<td>"+key+"</td>")
-    new_content += "</th>"
 
     for(let i=0; i < keys.length; i++){    
         new_content += "<tr><td>" + keys[i] + "</td>"

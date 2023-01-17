@@ -77,7 +77,7 @@ class VideoLoader:
         fd7 = f11[1] - f10[1]
         fd8 = f13[1] - f12[1]
         fd9 = f15[1] - f14[1]
-        return f0[1], torch.cat( (fd0, fd1, fd2, fd3, fd4, fd5, fd6, fd7, fd8, fd9), dim=0)
+        return f0[0], torch.cat( (fd0, fd1, fd2, fd3, fd4, fd5, fd6, fd7, fd8, fd9), dim=0)
 
 
     def getFrame(self, id):

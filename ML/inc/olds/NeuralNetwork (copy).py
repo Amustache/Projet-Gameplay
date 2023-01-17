@@ -14,14 +14,14 @@ class NeuralNetwork(nn.Module):
         conv_output_width = 2
         conv_output_height = 4
 
-        #self.init_frame = nn.Sequential(
-        #    nn.Conv2d(1, 64, 7),
-        #    nn.MaxPool2d(5),
-        #)
-        #self.init_frame.apply(self.init_weights)
+        self.init_frame = nn.Sequential(
+            nn.Conv2d(1, 64, 7),
+            nn.MaxPool2d(5),
+        )
+        self.init_frame.apply(self.init_weights)
 
         self.init_time = nn.Sequential(
-            nn.Conv2d(11, 256, 7),
+            nn.Conv2d(10, 128, 7),
             nn.MaxPool2d(5),
         )
         self.init_time.apply(self.init_weights)
@@ -32,7 +32,7 @@ class NeuralNetwork(nn.Module):
             nn.MaxPool2d(3),
             nn.Dropout2d(0.3),
 
-            nn.Conv2d(256, 256, 3),
+            nn.Conv2d(192, 256, 3),
             nn.MaxPool2d(3),
             nn.Dropout2d(0.3),
 
@@ -70,7 +70,7 @@ class NeuralNetwork(nn.Module):
         self.forward_3.apply(self.init_weights)
         """
 
-        self.optimizer_fn = torch.optim.SGD(self.parameters(), lr=0.016, weight_decay=0.002)
+        self.optimizer_fn = torch.optim.SGD(self.parameters(), lr=0.014, weight_decay=0.002)
         self.to(device)
 
     def init_weights(self, layer):
@@ -111,9 +111,9 @@ class NeuralNetwork(nn.Module):
         #    frame_time[:, 4]
         #    ), dim=1 ))
 
-        #init_frame = self.init_frame(frame_rgb)
-        init  = self.init_time(torch.cat( (frame_rgb, frame_time), dim=1 ))
-        #init = torch.cat( (init_frame, init_time), dim=1 )
+        init_frame = self.init_frame(frame_rgb)
+        init_time  = self.init_time(frame_time)
+        init = torch.cat( (init_frame, init_time), dim=1 )
         #f1 = self.forward_1( init )
         #f2 = self.forward_2( init )
         #f3 = self.forward_3( init )

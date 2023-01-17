@@ -11,12 +11,12 @@ from inc.KeyslogReader import KeyslogReader
 
 from torch.utils.tensorboard import SummaryWriter
 
-DEVICE           = "cuda" if torch.cuda.is_available() else "cpu"
+DEVICE           = "cuda:0" if torch.cuda.is_available() else "cpu"
 VIDEO_DIMENSIONS = (int(1920/8), int(1080/8))
 START_FRAME      = 1000
 END_FRAME        = 0
 OFFSET           = 3
-BATCH_SIZE       = 25
+BATCH_SIZE       = 40
 NB_EPOCHS        = 100
 NB_K_SPLIT       = 8
 SHUFFLE_DATASETS = False
@@ -155,7 +155,7 @@ def predict(video_path, model_path):
     elif os.path.isdir(video_path):
         files = os.listdir(video_path)
         for f in files:
-            predict(video_path+f)
+            predict(video_path+f, model_path)
     else:
         print("Path is not a file or a directory")
 

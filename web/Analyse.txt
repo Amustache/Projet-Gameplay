@@ -24,3 +24,15 @@ X :
 
 Solution :
     -> Entrainer le modèle sur des data qui ont le même décalage que les données de test
+
+__________________________________
+05.01
+
+RIGHT
+-> Toujours mêmes problèmes d'accélération
+
+X
+-> Certains sauts ne sont pas détectés du tout
+
+Solution :
+- rendre le réseau plus profond
