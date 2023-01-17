@@ -1,4 +1,4 @@
-function add_new_scatter_graph(container, datasets, height){
+function addScatterGraph(container, datasets, xTitle="", yTitle="", height=GRAPH_DEFAULT_HEIGHT){
     let canvas = document.createElement("canvas")
     canvas.height = height
     canvas.width = "100%"
@@ -8,12 +8,21 @@ function add_new_scatter_graph(container, datasets, height){
     charts.push(new Chart(canvas, {
         type: 'scatter',
         data:{ datasets: datasets },
-        options: CHART_OPTIONS
+        options: {...CHART_OPTIONS, scales:{
+            x : {title : {
+                display : true,
+                text : xTitle
+            }},
+            y : {title : {
+                display : true,
+                text : yTitle
+            }}
+        }}
     }))
     container.appendChild(container_div)
 }
 
-function get_ttable_row_sums(ttable, keys){
+function getTTableRowSums(ttable, keys){
     let sum = Array(keys.length).fill(0)
     ttable.state.forEach(row => {
         for(let i=0; i<row.length; i++){
@@ -23,25 +32,23 @@ function get_ttable_row_sums(ttable, keys){
     return sum
 }
 
-function print_ttable(ttable, table_html, keys){
-    table_html.innerHTML = ""
-    let new_content = ""
-    let row_sums = get_ttable_row_sums(ttable, keys)
+function printTransitionTable(ttable, tableHtml, keys){
+    tableHtml.innerHTML = ""
+    let newContent = ""
+    let rowSums = getTTableRowSums(ttable, keys)
 
-    new_content += "<td>↙</td>"
-    keys.forEach(key => new_content += "<td>"+key+"</td>")
+    newContent += "<td>↙</td>"
+    keys.forEach(key => newContent += "<td>"+key+"</td>")
 
-    for(let i=0; i < keys.length; i++){    
-        new_content += "<tr><td>" + keys[i] + "</td>"
-        for(let j=0; j < keys.length; j++){
-            let value = (100*ttable.state[i][j]/row_sums[j]).toFixed(1)
-            if(value != 0){
-                new_content += "<td style='background-color:hsl(0, 100%, "+(100-value/2)+"%)'>" + value + "%</td>"
-            }else{
-                new_content += "<td></td>"
-            }
+    for(let i=0; i<keys.length; i++){    
+        newContent += "<tr><td>" + keys[i] + "</td>"
+        for(let j=0; j<keys.length; j++){
+            let value = rowSums[j] == 0 ? 0 : 100*ttable.state[i][j]/rowSums[j]
+            let textColor = value==0 ? "text-black-50" : "text-black"
+            let backgroundColor = "hsl(0, 100%, "+(100-value/2)+"%)"
+            newContent += "<td class='"+textColor+"' style='background-color:"+backgroundColor+"'>" + value.toFixed(1) + "%</td>"
         }
-        table_html.innerHTML += new_content + "</tr>"
-        new_content = ""
+        tableHtml.innerHTML += newContent + "</tr>"
+        newContent = ""
     }
 }

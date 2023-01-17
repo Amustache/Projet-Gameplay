@@ -86,13 +86,13 @@ class KeyLog{
         return ttables[index]
     }
 
-    get_ttable_graph_dataset(){
+    getGraphDataset(){
         let datasets = []
         let ttables = this.getTransitionTables()
 
         for(let i=0; i<ttables.length; i+=GRAPH_DECIMATE_FACTOR){
             let ttable = ttables[i]
-            let row_sums = get_ttable_row_sums(ttable, this.keys)
+            let row_sums = getTTableRowSums(ttable, this.keys)
             let index = 0
             for(let row=0; row<ttable.state.length; row++){
                 for(let col=0; col<ttable.state[row].length; col++){
@@ -104,8 +104,8 @@ class KeyLog{
                         }
                     }
                     datasets[index].data.push({
-                        x: ttable.frame/FPS,
-                        y: ttable.state[row][col]/row_sums[col]
+                        x: ttable.frame,
+                        y: 100*ttable.state[row][col]/row_sums[col]
                     })
                     index++
                 }

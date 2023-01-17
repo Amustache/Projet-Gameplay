@@ -16,10 +16,10 @@
                         <input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
                     </div>
                     <div class="grid11">
-                        <button class="btn btn-secondary m-1" onclick="move_frame(-1)">Previous frame</button>
-                        <button class="btn btn-secondary m-1" onclick="move_frame(1)">Next frame</button>
-                        <button class="btn btn-secondary m-1" onclick="move_frame(-10)">-10 frames</button>
-                        <button class="btn btn-secondary m-1" onclick="move_frame(10)">+10 frames</button>
+                        <button class="btn btn-secondary m-1" onclick="moveFrame(-1)">Previous frame</button>
+                        <button class="btn btn-secondary m-1" onclick="moveFrame(1)">Next frame</button>
+                        <button class="btn btn-secondary m-1" onclick="moveFrame(-10)">-10 frames</button>
+                        <button class="btn btn-secondary m-1" onclick="moveFrame(10)">+10 frames</button>
                     </div>
                 </div>
                 <div class="p-3">
@@ -37,11 +37,11 @@
                     <div class="grid11 fs-small">
                         <table class="table table-bordered text-center me-3">
                             <thead><tr><th>Prediction</th></tr></thead>
-                            <tbody id="analysis_prediction"></tbody>
+                            <tbody id="current_frame_prediction"></tbody>
                         </table>
                         <table class="table table-bordered text-center">
                             <thead><tr><th>Truth</th></tr></thead>
-                            <tbody id="analysis_truth"></tbody>
+                            <tbody id="current_frame_truth"></tbody>
                         </table>
                     </div>
                 </div>
@@ -52,8 +52,8 @@
             <details>
                 <summary>Keys analysis</summary>
                 <div id="parameters">
-                    <div id="current_frame_summary"></div>
-                    <div id="graph_ttable"></div>
+                    <div id="keys_accuracies"></div>
+                    <div id="keys_ttables"></div>
                 </div>
             </details>
 
@@ -75,15 +75,13 @@
         var predictions  = []
         var truth        = []
         var charts       = []
-
-        function getById(elem){
-            return document.getElementById(elem)
-        }
+        function getById(elem){ return document.getElementById(elem)}
     </script>
     <script src="libs/chart.js"></script>
     <script src="libs/hammer.min.js"></script>
     <script src="libs/chartjs-plugin-annotation.min.js"></script>
     <script src="libs/chartjs-plugin-zoom.min.js"></script>
+
     <script src="consts.js"></script>
     <script src="visualisation.js"></script>
     <script src="keylog.js"></script>
@@ -91,18 +89,11 @@
     <script src="AI.js"></script>
     <script src="prediction.js"></script>
     <script src="truth.js"></script>
+
     <script>
-        function getCurrentFrame(){
-            return parseInt(VIDEO.currentTime*FPS)
-        }
-
-        function getTotalFrames(){
-            return parseInt(VIDEO.duration*FPS)
-        }
-
-        function move_frame(nb=1){
-            VIDEO.currentTime += nb/FPS
-        }
+        function getCurrentFrame(){ return parseInt(VIDEO.currentTime*FPS) }
+        function getTotalFrames(){  return parseInt(VIDEO.duration*FPS) }
+        function moveFrame(nb=1){  VIDEO.currentTime += nb/FPS  }
 
         function updateSpeed(){
             const speed = getById("speedInput").value
@@ -111,8 +102,9 @@
         }
 
         VIDEO.ontimeupdate = (event) => {
+            let currentFrame = getCurrentFrame()
             getById("current_time").innerHTML  = VIDEO.currentTime
-            getById("current_frame").innerHTML = getCurrentFrame()
+            getById("current_frame").innerHTML = currentFrame
 
             KEYS.forEach(key => {
                 let truth_key     = truth.getCurrentFrame()[key]
@@ -121,8 +113,8 @@
                 getById(key+"_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>"+predicted_key+"<span>" : predicted_key
             })
 
-            print_ttable(predictions.getTransitionTableOfFrame(getCurrentFrame()), getById("analysis_prediction"), KEYS)
-            print_ttable(truth.getTransitionTableOfFrame(getCurrentFrame()), getById("analysis_truth"), KEYS)
+            printTransitionTable(predictions.getTransitionTableOfFrame(currentFrame), getById("current_frame_prediction"), KEYS)
+            printTransitionTable(truth.getTransitionTableOfFrame(currentFrame), getById("current_frame_truth"), KEYS)
         }
 
         function init(){
@@ -133,12 +125,10 @@
             predictions = new KeyLog(prediction_data, KEYS)
             truth       = new KeyLog(truth_data, KEYS)
 
-            //key_graphs = draw_key_graphs(predictions, truth)
+            let [totalAccuracy, accuracies] = computeAccuracies(predictions.getByFrame(), truth.getByFrame())
+            generateCurrentFrameSection(totalAccuracy)
+            generateKeysSection(accuracies, predictions, truth)
 
-            add_new_scatter_graph(getById("graph_ttable"), predictions.get_ttable_graph_dataset(), 300)
-            add_new_scatter_graph(getById("graph_ttable"), truth.get_ttable_graph_dataset(), 300)
-
-            generate_summary()
             update()
         }
 
@@ -148,41 +138,10 @@
                 chart.options.plugins.annotation.annotations.timeline.xMin = getCurrentFrame()
                 chart.update()
             })
-            setTimeout(update, 10000)
+            setTimeout(update, UPDATE_TIME)
         }
 
-        function generate_summary(){
-            let [total_accuracy, accuracies] = compute_accuracies(predictions.getByFrame(), truth.getByFrame())
-            KEYS.forEach(key =>
-                getById("table_summary").innerHTML += '\
-                    <tr>\
-                        <td>'+key+'</td>\
-                        <td id="'+key+'_prediction"></td>\
-                        <td id="'+key+'_truth"></td>\
-                        <td>'+ (100*total_accuracy[key]).toFixed(2) +'%</td>\
-                    </tr>'
-            )
-
-            let datasets = []
-            KEYS.forEach(key => {datasets.push({
-                label : key,
-                data : []
-            })})
-
-
-            for(let i=0; i<accuracies.length; i++){
-                for(let j=0; j<KEYS.length; j++){
-                    datasets[j].data.push({
-                        x : i*GRAPH_DECIMATE_FACTOR,
-                        y : accuracies[i][KEYS[j]]
-                    })
-                }
-            }
-            console.log(datasets)
-            add_new_scatter_graph(getById("current_frame_summary"), datasets, 300)
-        }
-
-        function compute_accuracies(prediction, truth){
+        function computeAccuracies(prediction, truth){
             let accuracies = []
             let total_accuracy = {}
             let state = {}
@@ -194,64 +153,49 @@
                     }
                 })
                 if(frame % GRAPH_DECIMATE_FACTOR == 0){
-                    KEYS.forEach(key => {
-                        state[key] == undefined ? state[key] = 0 : state[key] /= GRAPH_DECIMATE_FACTOR
-                    })
+                    KEYS.forEach(key => { state[key] == undefined ? state[key] = 0 : state[key]/=GRAPH_DECIMATE_FACTOR  })
                     accuracies.push(state)
                     state = {}
                 }
             }
-            KEYS.forEach(key => {
-                total_accuracy[key] /= truth.length
-            })
-            console.log(accuracies)
+            KEYS.forEach(key => {total_accuracy[key] /= truth.length})
             return [total_accuracy, accuracies]
         }
 
-        function draw_key_graphs(predictions, truth=undefined){
-            let predictions_frames = predictions.getByFrame()
-            let graphs = []
-            let points_colors = {}
-            let graphs_data = {}
-            let container = getById("key_graphs")
-
-            KEYS.forEach(key => {
-                graphs_data[key] = []
-                points_colors[key] = []
-            })
-
-            for(let i=0; i<predictions_frames.length; i++){
-                KEYS.forEach(key => {
-                    let current_prediction = predictions_frames[i][key]
-                    let correct = true
-                    if(truth != undefined && i < truth.getByFrame().length){
-                        correct = current_prediction == truth.getByFrame()[i][key]
-                    }
-
-                    if(/*i==0 || predictions_frames[i-1][key] != current_prediction ||*/ !correct){
-                        graphs_data[key].push({
-                            x: i/FPS,
-                            y: current_prediction == "DOWN" ? 1 : 0
-                        })
-                        points_colors[key].push(correct ? "#0000ff" : "#ff0000")
-                    }
-                })
-            }
-
-            KEYS.forEach(key => {
-                add_new_scatter_graph(getById("key_graphs"), [{
-                    label: key,
-                    data: graphs_data[key],
-                    borderWidth: 1,
-                    pointBackgroundColor: points_colors[key]
-                }], 100) 
-            })
-            return graphs
+        function generateCurrentFrameSection(totalAccuracy){
+            KEYS.forEach(key =>
+                getById("table_summary").innerHTML += '\
+                    <tr>\
+                        <td>'+key+'</td>\
+                        <td id="'+key+'_prediction"></td>\
+                        <td id="'+key+'_truth"></td>\
+                        <td>'+ (100*totalAccuracy[key]).toFixed(2) +'%</td>\
+                    </tr>'
+            )
         }
+
+        function generateKeysSection(accuracies, prediction, truth){
+            let datasets = []
+            KEYS.forEach(key => {datasets.push({label:key, data:[]})})
+
+            for(let i=0; i<accuracies.length; i++){
+                for(let j=0; j<KEYS.length; j++){
+                    datasets[j].data.push({
+                        x : i*GRAPH_DECIMATE_FACTOR,
+                        y : 100*accuracies[i][KEYS[j]]
+                    })
+                }
+            }
+            addScatterGraph(getById("keys_accuracies"), datasets, "Frame number", "% of correct predictions")
+            addScatterGraph(getById("keys_ttables"), prediction.getGraphDataset(), "Frame number", "% of transition")
+            addScatterGraph(getById("keys_ttables"), truth.getGraphDataset(),      "Frame number", "% of transition")
+        }
+
+    
 
         function run_NLP(){
             let [ttable, keys] = new NLP(predictions.parsed_data, KEYS).BPE(getById("nb_iter").value)
-            print_ttable(ttable, getById("BPE_table"), keys.map(e=>e[0]))
+            printTransitionTable(ttable, getById("BPE_table"), keys.map(e=>e[0]))
 
             let keys_table = ""
             for(let i=0; i<keys.length; i++){
@@ -262,8 +206,6 @@
             let ai = new AI(ttable.state, keys)
             let loops = ai.find_loop_in_ttable()
 
-            console.log(loops)
-
             let result = ""
             for(let i=0; i<3; i++){
                 result += "<p>"
@@ -272,5 +214,48 @@
             }
             getById("AI_result").innerHTML = result
         }
+
+        /*
+            function draw_key_graphs(predictions, truth=undefined){
+                let predictions_frames = predictions.getByFrame()
+                let graphs = []
+                let points_colors = {}
+                let graphs_data = {}
+                let container = getById("key_graphs")
+
+                KEYS.forEach(key => {
+                    graphs_data[key] = []
+                    points_colors[key] = []
+                })
+
+                for(let i=0; i<predictions_frames.length; i++){
+                    KEYS.forEach(key => {
+                        let current_prediction = predictions_frames[i][key]
+                        let correct = true
+                        if(truth != undefined && i < truth.getByFrame().length){
+                            correct = current_prediction == truth.getByFrame()[i][key]
+                        }
+
+                        if(i==0 || predictions_frames[i-1][key] != current_prediction || !correct){
+                            graphs_data[key].push({
+                                x: i/FPS,
+                                y: current_prediction == "DOWN" ? 1 : 0
+                            })
+                            points_colors[key].push(correct ? "#0000ff" : "#ff0000")
+                        }
+                    })
+                }
+
+                KEYS.forEach(key => {
+                    addScatterGraph(getById("key_graphs"), [{
+                        label: key,
+                        data: graphs_data[key],
+                        borderWidth: 1,
+                        pointBackgroundColor: points_colors[key]
+                    }], 100) 
+                })
+                return graphs
+            }
+        */
     </script>
 </html>

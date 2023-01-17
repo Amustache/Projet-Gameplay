@@ -38,10 +38,6 @@ td, th{
     display:inline-grid;
     margin:5px;
 }
-#parameters table{
-    justify-self: center;
-}
-
 /* Various */
 
 #NLP_div{

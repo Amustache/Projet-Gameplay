@@ -2,7 +2,7 @@ class AI{
     constructor(ttable, keys){
         this.keys = keys
         this.ttable = []
-        this.sums = get_ttable_row_sums({state:ttable}, this.keys)
+        this.sums = getTTableRowSums({state:ttable}, this.keys)
 
         for(let i=0; i<ttable.length; i++){
             this.ttable.push([])
