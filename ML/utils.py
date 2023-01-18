@@ -3,7 +3,7 @@ import cv2
 import pandas
 import json
 
-from KeyslogReader import KeyslogReader
+from inc.KeyslogReader import KeyslogReader
 
 def anotate():
     if len(sys.argv) != 3: 
@@ -40,17 +40,18 @@ def anotate():
     print("Finished.")
 
 
-def logsToJs():
+def csvToJs(file_path, dataName):
     output = []
-    f = open(sys.argv[2], "r")
+    f = open(file_path, "r")
     f.readline()
     for line in f:
-        line_split = line.strip().split(',')
-        line_split[0] = int(line_split[0])
-        output.append(line_split)
+        if line.strip() != "":
+            line_split = line.strip().split(',')
+            line_split[0] = int(line_split[0])
+            output.append(line_split)
 
-    f_output = open(sys.argv[2].split('.')[0]+".js", "w")
-    f_output.write("const data=")
+    f_output = open(file_path.split('.')[0]+".js", "w")
+    f_output.write("const "+dataName+"=")
     f_output.write(json.dumps(output))
 
     f.close()
@@ -62,8 +63,8 @@ def main():
         print("No action specified !")
     elif sys.argv[1] == "anotate" :
         anotate()
-    elif sys.argv[1] == "logsToJs":
-        logsToJs()
+    elif sys.argv[1] == "csvToJs":
+        csvToJs(sys.argv[2], sys.argv[3])
     else:
         print("Unknown command")
 
