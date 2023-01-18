@@ -14,3 +14,12 @@ Ensuite :
 1. Créer un nouvel environnement de travail: `python -m venv ./env`
 2. Activer l'environnement de travail: Linux: `source ./env/bin/activate` ; Windows: `.\env\Scripts\activate`
 3. Installer les dépendances: `pip install -Ur requirements.txt`
+
+## Usage
+### Prédiction
+* `cd ML/`
+* `python3 main.py predict <chemin/vers/la/video> model.pth`
+* Output is `video.csv`
+
+### Conversion vers JS
+* `python3 utils.py csvToJs <chemin/vers/le/video.csv> <prediction_data>`
