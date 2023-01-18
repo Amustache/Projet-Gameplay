@@ -55,6 +55,11 @@ def experience():
     return render_template("pages/experience.html")
 
 
+@app.route("/experience-show")
+def experience_show():
+    return render_template("pages/experience-show.html")
+
+
 # Error handlers.
 
 
