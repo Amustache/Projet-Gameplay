@@ -1,6 +1,6 @@
-import pandas as pd
-from matplotlib import pyplot as plt
 from helpers import *
+from matplotlib import pyplot as plt
+import pandas as pd
 
 
 def main():
@@ -11,7 +11,7 @@ def main():
     if not ret:
         exit(-1)
 
-    mask = cv2.imread('../inputs/mask_strict.png', 0)
+    mask = cv2.imread("../inputs/mask_strict.png", 0)
 
     # Initial values
     x_prev, y_prev = 0, 0
@@ -82,12 +82,18 @@ def main():
         # debug_list.append([i, x_prev - x_d, y_prev - y_d, x_d, y_d, x_prev, y_prev, theta_for_north - theta_relative, theta_relative, theta_for_north])
 
         # Show things
-        ref = cv2.resize(frame_1, (int(frame_1.shape[1] * 50 / 100), int(frame_1.shape[0] * 50 / 100)))
-        ref = cv2.putText(ref, f"d_x: {x_d}", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2, cv2.LINE_AA)
-        ref = cv2.putText(ref, f"d_y: {y_d}", (0, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2, cv2.LINE_AA)
+        ref = cv2.resize(
+            frame_1, (int(frame_1.shape[1] * 50 / 100), int(frame_1.shape[0] * 50 / 100))
+        )
+        ref = cv2.putText(
+            ref, f"d_x: {x_d}", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2, cv2.LINE_AA
+        )
+        ref = cv2.putText(
+            ref, f"d_y: {y_d}", (0, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2, cv2.LINE_AA
+        )
 
         # update data
-        plt.plot([x[0] for x in coordinates], [x[1] for x in coordinates], 'r.:')
+        plt.plot([x[0] for x in coordinates], [x[1] for x in coordinates], "r.:")
         # redraw the canvas
         fig_move.canvas.draw()
         # convert canvas to image
@@ -108,11 +114,11 @@ def main():
         rotated = cv2.warpAffine(bous, M, (w, h))
 
         cv2.imshow("Reference", ref)
-        cv2.imshow('Minimap 0', minimap_0)
-        cv2.imshow('Minimap 0 rotated', minimap_0_rotated)
-        cv2.imshow('Minimap 1', minimap_1)
-        cv2.imshow('Minimap 1 rotated', minimap_1_rotated)
-        cv2.imshow('Comparison', comparison)
+        cv2.imshow("Minimap 0", minimap_0)
+        cv2.imshow("Minimap 0 rotated", minimap_0_rotated)
+        cv2.imshow("Minimap 1", minimap_1)
+        cv2.imshow("Minimap 1 rotated", minimap_1_rotated)
+        cv2.imshow("Comparison", comparison)
         cv2.imshow("plot", img)
         cv2.imshow("Bousole", rotated)
 
@@ -121,7 +127,18 @@ def main():
             break
 
     # When we're done, extract to a file
-    fields = ["frame", "x_prev", "y_prev", "x_d", "y_d", "x_cur", "y_cur", "theta_prev", "theta_d", "theta_cur"]
+    fields = [
+        "frame",
+        "x_prev",
+        "y_prev",
+        "x_d",
+        "y_d",
+        "x_cur",
+        "y_cur",
+        "theta_prev",
+        "theta_d",
+        "theta_cur",
+    ]
     df = pd.DataFrame(debug_list, columns=fields)
     df.to_csv("../outputs/coordinates.csv", index=False)
 
