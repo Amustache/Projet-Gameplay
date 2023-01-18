@@ -1,10 +1,10 @@
 import random
 import time
 
-import cv2
-import pandas as pd
 
 from helpers import *
+import cv2
+import pandas as pd
 
 
 def main(show=False, verbatim=False):
@@ -15,7 +15,7 @@ def main(show=False, verbatim=False):
 
 def add_gaussian_noise(img):
     gauss = np.random.normal(0, 1, img.size)
-    gauss = gauss.reshape(img.shape[0], img.shape[1], img.shape[2]).astype('uint8')
+    gauss = gauss.reshape(img.shape[0], img.shape[1], img.shape[2]).astype("uint8")
 
     img_gauss = cv2.add(img, gauss)
 
@@ -23,15 +23,12 @@ def add_gaussian_noise(img):
 
 
 def get_random_translation():
-    return np.float32([
-        [1, 0, random.randint(-10, 10)],
-        [0, 1, random.randint(-10, 10)]
-    ])
+    return np.float32([[1, 0, random.randint(-10, 10)], [0, 1, random.randint(-10, 10)]])
 
 
 def test_translation_and_rotation(show=False, verbatim=False, iters=50):
     base = cv2.imread("../inputs/dummy_base.png")
-    mask = cv2.imread('../inputs/mask_strict.png', 0)
+    mask = cv2.imread("../inputs/mask_strict.png", 0)
 
     errors = list()
 
@@ -113,12 +110,9 @@ def test_translation_and_rotation(show=False, verbatim=False, iters=50):
 
 def test_translation(show=False, verbatim=False, iters=50):
     base = cv2.imread("../inputs/dummy_base.png")
-    mask = cv2.imread('../inputs/mask_strict.png', 0)
+    mask = cv2.imread("../inputs/mask_strict.png", 0)
 
-    neutral = np.float32([
-        [1, 0, 0],
-        [0, 1, 0]
-    ])
+    neutral = np.float32([[1, 0, 0], [0, 1, 0]])
     temp = cv2.warpAffine(base, neutral, (base.shape[1], base.shape[0]))
     test = cross_diff(base, temp)
     assert test == (0, 0)
@@ -157,11 +151,10 @@ def test_translation(show=False, verbatim=False, iters=50):
         assert x_d == x_truth and y_d == y_truth, "found values are not correct"
 
         # Translate image back
-        M_back = np.float32([
-            [1, 0, -x_d],
-            [0, 1, -y_d]
-        ])
-        minimap_1_translated = cv2.warpAffine(minimap_1, M_back, (minimap_1.shape[1], minimap_1.shape[0]))
+        M_back = np.float32([[1, 0, -x_d], [0, 1, -y_d]])
+        minimap_1_translated = cv2.warpAffine(
+            minimap_1, M_back, (minimap_1.shape[1], minimap_1.shape[0])
+        )
         test_x, test_y = cross_diff(minimap_0, minimap_1_translated)
         if verbatim:
             print(f"final cross: {test}")
@@ -176,7 +169,7 @@ def test_translation(show=False, verbatim=False, iters=50):
 
 def test_rotation(show=False, verbatim=False):
     base = cv2.imread("../inputs/dummy_base.png")
-    mask = cv2.imread('../inputs/mask_strict.png', 0)
+    mask = cv2.imread("../inputs/mask_strict.png", 0)
 
     temp = straighten_img(base, 0)
     test = cross_diff(base, temp)
@@ -215,7 +208,9 @@ def test_rotation(show=False, verbatim=False):
             continue
         if verbatim:
             print(f"theta found: {theta_relative}, expected: {-rot}")
-        assert abs(theta_relative + rot) < 0.2, f"found rotation is not correct: {theta_relative} should be {-rot}"
+        assert (
+            abs(theta_relative + rot) < 0.2
+        ), f"found rotation is not correct: {theta_relative} should be {-rot}"
 
         # Rotate picture for matching
         minimap_1_rotated = straighten_img(minimap_1, theta_relative)

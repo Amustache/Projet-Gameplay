@@ -14,4 +14,8 @@ opencv-contrib-python
 pandas
 pre-commit
 pre-commit-hooks
+scikit-learn
+torch
+torchaudio
+torchvision
 wordcloud

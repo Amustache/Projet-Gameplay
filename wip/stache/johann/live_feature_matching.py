@@ -1,6 +1,7 @@
-import pandas as pd
-from matplotlib import pyplot as plt
 from helpers import *
+from matplotlib import pyplot as plt
+import pandas as pd
+
 
 ### JP PARAMS FOR TEST ###
 
@@ -9,19 +10,20 @@ FORCE_ENHANCE_FG = True
 TEMPLATE_FILTER = True
 TEMPLATE_FILTER_K = 15
 
+
 def main():
     # cap = cv2.VideoCapture("../inputs/rotate.mp4")
     cap = cv2.VideoCapture("../inputs/video_test_extract_2.mp4")
 
-    fourcc = cv2.VideoWriter.fourcc(*'MP4V')
-    vid_writer = cv2.VideoWriter('../outputs/kp_path.mp4', fourcc, 20.0, (960, 540+322))
+    fourcc = cv2.VideoWriter.fourcc(*"MP4V")
+    vid_writer = cv2.VideoWriter("../outputs/kp_path.mp4", fourcc, 20.0, (960, 540 + 322))
 
     # cap = cv2.VideoCapture("../inputs/extract_pokemon.mp4")
     ret, frame_0 = cap.read()
     if not ret:
         exit(-1)
 
-    mask = cv2.imread('../inputs/mask_strict.png', 0)
+    mask = cv2.imread("../inputs/mask_strict.png", 0)
 
     # Initial values
     x_prev, y_prev = 0, 0
@@ -76,8 +78,12 @@ def main():
             kp2, des2 = kp_description(minimap_1, use_binary=USE_BINARY_KP)
 
             if TEMPLATE_FILTER:
-                kp1, des1 = filter_with_template(template_des, kp1, des1, k=TEMPLATE_FILTER_K, use_binary=USE_BINARY_KP)
-                kp2, des2 = filter_with_template(template_des, kp2, des2, k=TEMPLATE_FILTER_K, use_binary=USE_BINARY_KP)
+                kp1, des1 = filter_with_template(
+                    template_des, kp1, des1, k=TEMPLATE_FILTER_K, use_binary=USE_BINARY_KP
+                )
+                kp2, des2 = filter_with_template(
+                    template_des, kp2, des2, k=TEMPLATE_FILTER_K, use_binary=USE_BINARY_KP
+                )
 
             matches = kp_matching(des1, des2, use_binary=USE_BINARY_KP)
             matches = filter_matches(matches, ratio_test=not TEMPLATE_FILTER)
@@ -88,7 +94,7 @@ def main():
             comparison = draw_matches(minimap_0, kp1, minimap_1, kp2, matches)
 
             # SIFT magic
-            #src_pts, dst_pts, matchesMask, comparison = sift(minimap_0, minimap_1, True)
+            # src_pts, dst_pts, matchesMask, comparison = sift(minimap_0, minimap_1, True)
 
             # If we have no matches, we cannot compare
             # if not matchesMask:
@@ -96,10 +102,10 @@ def main():
             #     continue
 
             ## JP
-            m, _ = cv2.estimateAffinePartial2D(src_pts, dst_pts, method=cv2.LMEDS)        
+            m, _ = cv2.estimateAffinePartial2D(src_pts, dst_pts, method=cv2.LMEDS)
 
             # Get perspective matrix (for easier single point manipulation)
-            Mp = np.zeros([3,3])
+            Mp = np.zeros([3, 3])
             Mp[:2, :3] = m
             Mp[2, 2] = 1
 
@@ -120,10 +126,10 @@ def main():
                 failed_attempts += 1
             else:
                 break
-        
+
         frame_0 = frame_1
 
-                # Find new location on grid
+        # Find new location on grid
         new_loc = loc + delta.ravel()
         print(np.linalg.norm(delta), loc)
         loc = new_loc
@@ -161,17 +167,23 @@ def main():
         y_prev = y
 
         coordinates.append([x, y])
-        #theta_for_north += theta_relative
+        # theta_for_north += theta_relative
 
         # debug_list.append([i, x_prev - x_d, y_prev - y_d, x_d, y_d, x_prev, y_prev, theta_for_north - theta_relative, theta_relative, theta_for_north])
 
         # Show things
-        ref = cv2.resize(frame_1, (int(frame_1.shape[1] * 50 / 100), int(frame_1.shape[0] * 50 / 100)))
-        ref = cv2.putText(ref, f"d_x: {x_d}", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2, cv2.LINE_AA)
-        ref = cv2.putText(ref, f"d_y: {y_d}", (0, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2, cv2.LINE_AA)
+        ref = cv2.resize(
+            frame_1, (int(frame_1.shape[1] * 50 / 100), int(frame_1.shape[0] * 50 / 100))
+        )
+        ref = cv2.putText(
+            ref, f"d_x: {x_d}", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2, cv2.LINE_AA
+        )
+        ref = cv2.putText(
+            ref, f"d_y: {y_d}", (0, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2, cv2.LINE_AA
+        )
 
         # update data
-        plt.plot([x[0] for x in coordinates], [x[1] for x in coordinates], 'r.:')
+        plt.plot([x[0] for x in coordinates], [x[1] for x in coordinates], "r.:")
         # redraw the canvas
         fig_move.canvas.draw()
         # convert canvas to image
@@ -191,37 +203,48 @@ def main():
         # M = cv2.getRotationMatrix2D((cX, cY), -theta_for_north, 1.0)
         # rotated = cv2.warpAffine(bous, M, (w, h))
 
-        #cv2.imshow("Reference", ref)
-        #cv2.imshow('Minimap 0', minimap_0)
-        #cv2.imshow('Minimap 0 rotated', minimap_0_rotated)
-        #cv2.imshow('Minimap 1', minimap_1)
-        #cv2.imshow('Minimap 1 rotated', minimap_1_rotated)
-        #cv2.imshow('Comparison', comparison)
-        #cv2.imshow("plot", img)
-        #cv2.imshow("Bousole", rotated)
+        # cv2.imshow("Reference", ref)
+        # cv2.imshow('Minimap 0', minimap_0)
+        # cv2.imshow('Minimap 0 rotated', minimap_0_rotated)
+        # cv2.imshow('Minimap 1', minimap_1)
+        # cv2.imshow('Minimap 1 rotated', minimap_1_rotated)
+        # cv2.imshow('Comparison', comparison)
+        # cv2.imshow("plot", img)
+        # cv2.imshow("Bousole", rotated)
 
-        render = np.zeros([540+322,960,3])
-        render[:540,:960,:] = ref
-        render[540:742,:530] = cv2.resize(comparison, (530,202))
-        render[540:,530:] = cv2.resize(img, (430,322))
+        render = np.zeros([540 + 322, 960, 3])
+        render[:540, :960, :] = ref
+        render[540:742, :530] = cv2.resize(comparison, (530, 202))
+        render[540:, 530:] = cv2.resize(img, (430, 322))
 
         ## JP
         # cv2.imwrite("../inputs/mmap0.png", minimap_0)
         # cv2.imwrite("../inputs/mmap1.png", minimap_1)
-        vid_writer.write(render.astype('uint8'))
+        vid_writer.write(render.astype("uint8"))
 
-        #k = cv2.waitKey() & 0xFF
-        #if k == 27:
+        # k = cv2.waitKey() & 0xFF
+        # if k == 27:
         #    break
 
     # When we're done, extract to a file
-    fields = ["frame", "x_prev", "y_prev", "x_d", "y_d", "x_cur", "y_cur", "theta_prev", "theta_d", "theta_cur"]
+    fields = [
+        "frame",
+        "x_prev",
+        "y_prev",
+        "x_d",
+        "y_d",
+        "x_cur",
+        "y_cur",
+        "theta_prev",
+        "theta_d",
+        "theta_cur",
+    ]
     df = pd.DataFrame(debug_list, columns=fields)
     df.to_csv("../outputs/coordinates.csv", index=False)
 
     cap.release()
     vid_writer.release()
-    #cv2.destroyAllWindows()
+    # cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

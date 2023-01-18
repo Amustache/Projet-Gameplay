@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import scipy.signal
 
+
 ERROR_THRESHOLD = 0  # Number of digits kept
 
 
@@ -23,7 +24,7 @@ def get_affine_matrix(src_pts, dst_pts, threshold=ERROR_THRESHOLD):
     m, _ = cv2.estimateAffinePartial2D(src_pts, dst_pts)
 
     scale = round(np.sign(m[0, 0]) * np.sqrt(m[0, 0] ** 2 + m[0, 1] ** 2), threshold)
-    theta = round(np.degrees(np.arctan2(-m[0, 1], m[0, 0])), 1+threshold)
+    theta = round(np.degrees(np.arctan2(-m[0, 1], m[0, 0])), 1 + threshold)
     # if theta > 180:
     #     theta = -(180 - (180 - theta))
     x_d = round(m[0, 2], threshold)
@@ -39,7 +40,12 @@ def sift(frame1, frame2, comparison=False):
     src_pts, dst_pts, matchesMask = sift_find_matching_keypoints(kp1, kp2, good)
 
     if comparison:
-        return src_pts, dst_pts, matchesMask, sift_comparison(frame1, kp1, frame2, kp2, good, matchesMask)
+        return (
+            src_pts,
+            dst_pts,
+            matchesMask,
+            sift_comparison(frame1, kp1, frame2, kp2, good, matchesMask),
+        )
     return src_pts, dst_pts, matchesMask
 
 
@@ -56,15 +62,15 @@ def cross_diff(im1, im2):
 def cross_image(im1, im2):
     # get rid of the color channels by performing a grayscale transform
     # the type cast into 'float' is to avoid overflows
-    im1_gray = np.sum(im1.astype('float'), axis=2)
-    im2_gray = np.sum(im2.astype('float'), axis=2)
+    im1_gray = np.sum(im1.astype("float"), axis=2)
+    im2_gray = np.sum(im2.astype("float"), axis=2)
 
     # get rid of the averages, otherwise the results are not good
     im1_gray -= np.mean(im1_gray)
     im2_gray -= np.mean(im2_gray)
 
     # calculate the correlation image; note the flipping of onw of the images
-    return scipy.signal.fftconvolve(im1_gray, im2_gray[::-1, ::-1], mode='same')
+    return scipy.signal.fftconvolve(im1_gray, im2_gray[::-1, ::-1], mode="same")
 
 
 def ec(number, threshold=0.001):
@@ -194,10 +200,12 @@ def sift_comparison(frame1, kp1, frame2, kp2, good, matchesMask):
     :param matchesMask: Mask for the matches
     :return: Image array vector
     """
-    draw_params = dict(matchColor=(0, 255, 0),  # draw matches in green color
-                       singlePointColor=None,
-                       matchesMask=matchesMask,  # draw only inliers
-                       flags=2)
+    draw_params = dict(
+        matchColor=(0, 255, 0),  # draw matches in green color
+        singlePointColor=None,
+        matchesMask=matchesMask,  # draw only inliers
+        flags=2,
+    )
 
     comparison = cv2.drawMatches(frame1, kp1, frame2, kp2, good, None, **draw_params)
 

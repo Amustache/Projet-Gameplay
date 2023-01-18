@@ -1,14 +1,17 @@
-import torch
-import cv2
 import copy
-import numpy as np
+
+
 from torch import nn
+import cv2
+import numpy as np
+import torch
+
 
 class NeuralNetwork(nn.Module):
     def __init__(self, device, dimensions):
         super(NeuralNetwork, self).__init__()
-        self.input_width, self.input_height  = dimensions
-        self.device  = device
+        self.input_width, self.input_height = dimensions
+        self.device = device
         self.loss_fn = nn.BCELoss()
 
         conv_output_width = 2
@@ -27,24 +30,21 @@ class NeuralNetwork(nn.Module):
         self.init_time.apply(self.init_weights)
 
         self.forward_1 = nn.Sequential(
-
-            #nn.Conv2d(192, 64, 1),
+            # nn.Conv2d(192, 64, 1),
             nn.MaxPool2d(3),
             nn.Dropout2d(0.3),
-
             nn.Conv2d(192, 256, 3),
             nn.MaxPool2d(3),
             nn.Dropout2d(0.3),
-
             nn.Flatten(),
-            nn.Linear(256*conv_output_width*conv_output_height, 128),
+            nn.Linear(256 * conv_output_width * conv_output_height, 128),
             nn.ReLU(),
             nn.Dropout(0.4),
             nn.Linear(128, 64),
             nn.ReLU(),
             nn.Dropout(0.4),
             nn.Linear(64, 3),
-            nn.Sigmoid()
+            nn.Sigmoid(),
         )
         self.forward_1.apply(self.init_weights)
 
@@ -80,31 +80,30 @@ class NeuralNetwork(nn.Module):
         if isinstance(layer, nn.Conv2d):
             torch.nn.init.xavier_uniform_(layer.weight)
 
-
     def forward(self, x):
 
         frame_rgb, frame_time = x
 
-        #Print the shape at each layer
-        #x = x[:, 0:3]
-        #for layer in self.init_frame:
+        # Print the shape at each layer
+        # x = x[:, 0:3]
+        # for layer in self.init_frame:
         #    print(frame_rgb.shape)
         #    frame_rgb = layer(frame_rgb)
-        #for layer in self.init_time:
+        # for layer in self.init_time:
         #    print(frame_time.shape)
         #    frame_time = layer(frame_time)
-        #x = torch.cat((frame_rgb,frame_time), dim=1)
-        #for layer in self.forward_1:
+        # x = torch.cat((frame_rgb,frame_time), dim=1)
+        # for layer in self.forward_1:
         #    print(x.shape)
         #    x = layer(x )
-        #return x
+        # return x
 
-        #self.debug_frame(frame_rgb)
-        #print(frame_rgb.shape)
-        #print(frame_time.shape)
-        #self.debug_frame(torch.cat( (
-        #    frame_rgb[:, 0], 
-        #    frame_time[:, 0], 
+        # self.debug_frame(frame_rgb)
+        # print(frame_rgb.shape)
+        # print(frame_time.shape)
+        # self.debug_frame(torch.cat( (
+        #    frame_rgb[:, 0],
+        #    frame_time[:, 0],
         #    frame_time[:, 1],
         #    frame_time[:, 2],
         #    frame_time[:, 3],
@@ -112,19 +111,18 @@ class NeuralNetwork(nn.Module):
         #    ), dim=1 ))
 
         init_frame = self.init_frame(frame_rgb)
-        init_time  = self.init_time(frame_time)
-        init = torch.cat( (init_frame, init_time), dim=1 )
-        #f1 = self.forward_1( init )
-        #f2 = self.forward_2( init )
-        #f3 = self.forward_3( init )
-        #return torch.cat( (f1,f2,f3), dim=1)
-        return self.forward_1( init )
-
+        init_time = self.init_time(frame_time)
+        init = torch.cat((init_frame, init_time), dim=1)
+        # f1 = self.forward_1( init )
+        # f2 = self.forward_2( init )
+        # f3 = self.forward_3( init )
+        # return torch.cat( (f1,f2,f3), dim=1)
+        return self.forward_1(init)
 
     def process(self, data, is_train):
-        loss_sum      = 0
+        loss_sum = 0
         fully_correct = 0
-        part_correct  = torch.FloatTensor([0,0,0])
+        part_correct = torch.FloatTensor([0, 0, 0])
 
         self.train() if is_train else self.eval()
         with torch.set_grad_enabled(is_train):
@@ -133,7 +131,7 @@ class NeuralNetwork(nn.Module):
                 x[1] = x[1].to(self.device)
                 y = y.to(self.device)
 
-                #self.debug_frame(x[0],y)
+                # self.debug_frame(x[0],y)
 
                 # Forward
                 pred = self(x)
@@ -148,19 +146,25 @@ class NeuralNetwork(nn.Module):
 
                 for j in range(len(pred)):
                     for i in range(len(pred[j])):
-                        if round(float(pred[j][i])) == int(y[j][i]) :
+                        if round(float(pred[j][i])) == int(y[j][i]):
                             part_correct[i] += 1
-                    if torch.equal(torch.round(pred[j]), y[j]) : 
+                    if torch.equal(torch.round(pred[j]), y[j]):
                         fully_correct += 1
 
                 if is_train and batch % 50 == 0:
-                    print(f"loss:{loss.item():>3f} [{batch:>4d}/{len(data):>4d}] {100*batch/len(data):.1f}%")
-        
-        return loss_sum/len(data), part_correct/len(data.dataset), fully_correct/len(data.dataset)
+                    print(
+                        f"loss:{loss.item():>3f} [{batch:>4d}/{len(data):>4d}] {100*batch/len(data):.1f}%"
+                    )
 
+        return (
+            loss_sum / len(data),
+            part_correct / len(data.dataset),
+            fully_correct / len(data.dataset),
+        )
 
     def debug_frame(self, x, y=None):
         for i in range(x.shape[0]):
-            if y != None : print(y[i])
-            cv2.imshow('image', torch.permute(x[i], (1,2,0)).cpu().numpy())
+            if y != None:
+                print(y[i])
+            cv2.imshow("image", torch.permute(x[i], (1, 2, 0)).cpu().numpy())
             cv2.waitKey(0)

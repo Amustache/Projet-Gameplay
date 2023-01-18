@@ -1,11 +1,13 @@
-    import numpy as np
-    import cv2
 import copy
+
+
 from make_video import make_video
+import cv2
+import numpy as np
 
 
 def main():
-    capture = cv2.VideoCapture('test_video_full.mp4')
+    capture = cv2.VideoCapture("test_video_full.mp4")
     background_subtractor = cv2.bgsegm.createBackgroundSubtractorMOG()
     length = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
 
@@ -25,8 +27,8 @@ def main():
         else:
 
             filter = background_subtractor.apply(frame)  # remove the background
-            cv2.imwrite('./frame.jpg', frame)
-            cv2.imwrite('./diff-bkgnd-frame.jpg', filter)
+            cv2.imwrite("./frame.jpg", frame)
+            cv2.imwrite("./diff-bkgnd-frame.jpg", filter)
 
             threshold = 2
             maxValue = 2
@@ -34,7 +36,7 @@ def main():
 
             # add to the accumulated image
             accum_image = cv2.add(accum_image, th1)
-            cv2.imwrite('./mask.jpg', accum_image)
+            cv2.imwrite("./mask.jpg", accum_image)
 
             color_image_video = cv2.applyColorMap(accum_image, cv2.COLORMAP_SUMMER)
 
@@ -43,21 +45,21 @@ def main():
             name = "./frames/frame%d.jpg" % i
             cv2.imwrite(name, video_frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 
-    make_video('./frames/', './output.avi')
+    make_video("./frames/", "./output.avi")
 
     color_image = cv2.applyColorMap(accum_image, cv2.COLORMAP_HOT)
     result_overlay = cv2.addWeighted(first_frame, 0.7, color_image, 0.7, 0)
 
     # save the final heatmap
-    cv2.imwrite('diff-overlay.jpg', result_overlay)
+    cv2.imwrite("diff-overlay.jpg", result_overlay)
 
     # cleanup
     capture.release()
     cv2.destroyAllWindows()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
