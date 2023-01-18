@@ -1,25 +1,40 @@
 # Projet Gameplay
-README en cours de construction.
+Le Projet Gameplay est un projet de semestre visant à étudier la gramaire de plusieurs jeux vidéo.
 
-## Structure actuelle
-* Le fichier requirements.txt contient pour l'instant un peu un fourre-tout des packages que l'on sera susceptible d'utiliser. Ne pas hésiter à le compléter.
-* Le fichier .gitignore à la racine est configuré pour être le plus vaste possible, et éviter de push n'importe quoi de pas strictement utile.
-* Le dossier temp est ignoré par défaut, il ne faut pas hésiter à l'utiliser pour faire du bricolage directement.
-* Le reste, ce sont des fichiers de configuration que l'on peut totalement ignorer pour le moment - ce sera pour faire du joli code par la suite (;.
+## Setup
+### General
+Ce projet nécessite Python 3.10+ et Pip 22.3+.
 
-## Comment faire le Python
-Déjà, il faut avoir [Python](https://www.python.org/downloads/) d'installé ! Également, il faut avoir [pip](https://pip.pypa.io/en/stable/installation/) d'installé !
+1. Cloner ce repository : `git clone git@github.com:Amustache/Projet-Gameplay.git`
+2. Créer un nouvel environnement de travail : `python -m venv ./env`
+3. Activer l'environnement de travail :
+   * Linux : `source ./env/bin/activate`
+   * Windows : `.\env\Scripts\activate`
+4. Installer les dépendances : `pip install -Ur requirements.txt`
 
-Ensuite :
-1. Créer un nouvel environnement de travail: `python -m venv ./env`
-2. Activer l'environnement de travail: Linux: `source ./env/bin/activate` ; Windows: `.\env\Scripts\activate`
-3. Installer les dépendances: `pip install -Ur requirements.txt`
+### ML
+TODO
 
-## Usage
-### Prédiction
-* `cd ML/`
-* `python3 main.py predict <chemin/vers/la/video> model.pth`
-* Output is `video.csv`
+### Webapp
+Dans le dossier `Webapp` :
 
-### Conversion vers JS
+1. Copier le template de configuration : `cp config.dist.py`
+2. Éditer le fichier pour modifier `SECRET_KEY` avec quelque chose de secret.
+
+## Utilisation
+### General
+TODO
+
+### ML
+Dans le dossier `ML`.
+
+#### Prédiction
+1. Préparer la vidéo (n'importe quel format utilisable, exemple .mp4).
+2. Faire une prédiction : `python3 main.py predict <chemin/vers/la/video> model.pth`
+3. Le fichier de sorti est `<le nom de la video>.csv`
+
+#### Conversion vers JS
 * `python3 utils.py csvToJs <chemin/vers/le/video.csv> <prediction_data>`
+
+### Webapp
+Dans le dossier `Webapp`, lancer l'application avec `python app.py`.
