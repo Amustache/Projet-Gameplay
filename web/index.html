@@ -46,9 +46,7 @@
                     </div>
                 </div>
             </div>
-
             <hr>
-
             <details>
                 <summary>Keys analysis</summary>
                 <div id="parameters">
@@ -56,9 +54,7 @@
                     <div id="keys_ttables"></div>
                 </div>
             </details>
-
             <hr>
-
             <details>
                 <summary>Game Loop Analysis</summary>
                 <div id="NLP_div">
@@ -118,9 +114,7 @@
         }
 
         function init(){
-            for(let i=0; i<truth_data.length; i++){
-                truth_data[i][0] += 3
-            }
+            for(let i=0; i<truth_data.length; i++){truth_data[i][0] += 3}
             
             predictions = new KeyLog(prediction_data, KEYS)
             truth       = new KeyLog(truth_data, KEYS)
@@ -128,7 +122,6 @@
             let [totalAccuracy, accuracies] = computeAccuracies(predictions.getByFrame(), truth.getByFrame())
             generateCurrentFrameSection(totalAccuracy)
             generateKeysSection(accuracies, predictions, truth)
-
             update()
         }
 

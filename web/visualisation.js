@@ -2,9 +2,11 @@ function addScatterGraph(container, datasets, xTitle="", yTitle="", height=GRAPH
     let canvas = document.createElement("canvas")
     canvas.height = height
     canvas.width = "100%"
+
     let container_div = document.createElement("div")
     container_div.style.height = height+"px"
     container_div.appendChild(canvas)
+    
     charts.push(new Chart(canvas, {
         type: 'scatter',
         data:{ datasets: datasets },
