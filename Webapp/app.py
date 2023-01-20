@@ -33,8 +33,8 @@ def upload_file():
             flash("No selected file")
             return redirect(url_for("experience"))
         if file and allowed_file(file.filename):
-            fname = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(file.filename))
-            file.save(os.path.join(app.root_path, fname))
+            fname = secure_filename(file.filename)
+            file.save(os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], fname))
             return redirect(url_for("experience_show", filename=fname))
         flash("Wrong file, please use a video")
         return redirect(url_for("experience"))
@@ -47,7 +47,10 @@ def experience():
 
 @app.route("/experience-show")
 def experience_show():
-    return render_template("pages/experience-show.html", filename=request.args.get("filename"))
+    filename = os.path.join(
+        app.root_path, app.config["UPLOAD_FOLDER"], request.args.get("filename")
+    )
+    return render_template("pages/experience-show.html", filename=filename)
 
 
 # Results
