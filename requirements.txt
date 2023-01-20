@@ -16,4 +16,4 @@ scikit-learn
 torch
 torchaudio
 torchvision
-wordcloud
+werkzeug

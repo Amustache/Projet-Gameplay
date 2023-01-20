@@ -1,15 +1,53 @@
 from logging import FileHandler, Formatter
 import io
 import logging
+import os
 
 
 from datascience import *
-from flask import Flask, render_template, request, Response
+from flask import flash, Flask, redirect, render_template, request, Response, url_for
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from werkzeug.utils import secure_filename
 
+
+ALLOWED_EXTENSIONS = {"mkv", "mp4", "webm", "avi"}
 
 app = Flask(__name__)
+app.config["UPLOAD_FOLDER"] = os.path.join("static", "inputs")
+app.config["MAX_CONTENT_PATH"] = 200_000_000
 app.config.from_object("config")
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route("/uploader", methods=["GET", "POST"])
+def upload_file():
+    if request.method == "POST":
+        if "file" not in request.files:
+            flash("No file part")
+            return redirect(url_for("experience"))
+        file = request.files["file"]
+        if file.filename == "":
+            flash("No selected file")
+            return redirect(url_for("experience"))
+        if file and allowed_file(file.filename):
+            fname = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(file.filename))
+            file.save(os.path.join(app.root_path, fname))
+            return redirect(url_for("experience_show", filename=fname))
+        flash("Wrong file, please use a video")
+        return redirect(url_for("experience"))
+
+
+@app.route("/experience")
+def experience():
+    return render_template("pages/experience.html")
+
+
+@app.route("/experience-show")
+def experience_show():
+    return render_template("pages/experience-show.html", filename=request.args.get("filename"))
 
 
 # Results
@@ -48,16 +86,6 @@ def rapport():
 @app.route("/resultats")
 def resultats():
     return render_template("pages/resultats.html")
-
-
-@app.route("/experience")
-def experience():
-    return render_template("pages/experience.html")
-
-
-@app.route("/experience-show")
-def experience_show():
-    return render_template("pages/experience-show.html")
 
 
 # Error handlers.

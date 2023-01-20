@@ -1,7 +1,7 @@
+import os
 import re
 
 
-from wordcloud import STOPWORDS, WordCloud
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -9,6 +9,7 @@ import pandas as pd
 
 
 FILE = "inputs/2022-11-23-12_13_44.csv"
+MODEL = ""
 
 
 def get_df_trim():
