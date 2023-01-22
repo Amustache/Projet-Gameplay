@@ -4,96 +4,98 @@
 
 <h1 class="mt-5">Expérience en ligne - Résultats</h1>
 <section>
-  <div class="video_container">
-    <div class="m-auto">
-      <video id="video" height="440" controls>
-        <source src="{{filename}}" type="video/mp4">
-      </video>
-      <div class="text-center">
-        <span>Play Speed <span id="speedLabel">1</span>x</span>
-        <br>
-        <input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
-      </div>
-      <div class="grid11">
-        <button class="btn btn-secondary m-1" onclick="moveFrame(-1)">Previous frame</button>
-        <button class="btn btn-secondary m-1" onclick="moveFrame(1)">Next frame</button>
-        <button class="btn btn-secondary m-1" onclick="moveFrame(-10)">-10 frames</button>
-        <button class="btn btn-secondary m-1" onclick="moveFrame(10)">+10 frames</button>
-      </div>
-    </div>
-    <div class="p-3">
-      <p class="h5 text-center">Current Frame</p>
-      <div class="text-center">
-        <span class="me-4">Time : <span id="current_time">0</span>s</span>
-        <span>Frame : <span id="current_frame">0</span></span>
-      </div>
-      <br>
-      <div>
-        <table class="table" id="table_summary">
-          <tr>
-            <th></th>
-            <th>Prediction</th>
-            <th>Truth</th>
-            <th>Total Accuracy</th>
-          </tr>
-        </table>
-      </div>
-      <div class="grid11 fs-small">
-        <table class="table table-bordered text-center me-3">
-          <thead>
-          <tr>
-            <th>Prediction</th>
-          </tr>
-          </thead>
-          <tbody id="current_frame_prediction"></tbody>
-        </table>
-        <table class="table table-bordered text-center">
-          <thead>
-          <tr>
-            <th>Truth</th>
-          </tr>
-          </thead>
-          <tbody id="current_frame_truth"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <hr>
-  <details>
-    <summary>Keys analysis</summary>
-    <div id="parameters">
-      <div id="keys_accuracies"></div>
-      <div id="keys_ttables"></div>
-    </div>
-  </details>
-  <hr>
-  <details>
-    <summary>Game Loop Analysis</summary>
-    <div id="NLP_div">
-      <button onclick="run_NLP()">RUN NLP</button>
-      <input id="nb_iter" type="number" onchange="run_NLP()">
-      <div id="AI_result"></div>
-      <table id="BPE_table"></table>
-      <table id="BPE_keys"></table>
-    </div>
-  </details>
+	<div class="video_container">
+		<div class="m-auto">
+			<video id="video" height="440" controls>
+				<source src="{{filename}}" type="video/mp4">
+			</video>
+			<div class="text-center">
+				<span>Play Speed <span id="speedLabel">1</span>x</span>
+				<br>
+				<input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
+			</div>
+			<div class="grid11">
+				<button class="btn btn-secondary m-1" onclick="moveFrame(-1)">Previous frame</button>
+				<button class="btn btn-secondary m-1" onclick="moveFrame(1)">Next frame</button>
+				<button class="btn btn-secondary m-1" onclick="moveFrame(-10)">-10 frames</button>
+				<button class="btn btn-secondary m-1" onclick="moveFrame(10)">+10 frames</button>
+			</div>
+		</div>
+		<div class="p-3">
+			<p class="h5 text-center">Current Frame</p>
+			<div class="text-center">
+				<span class="me-4">Time : <span id="current_time">0</span>s</span>
+				<span>Frame : <span id="current_frame">0</span></span>
+			</div>
+			<br>
+			<div>
+				<table class="table" id="table_summary">
+					<tr>
+						<th></th>
+						<th>Prediction</th>
+						<th>Truth</th>
+						<th>Total Accuracy</th>
+					</tr>
+				</table>
+			</div>
+			<div class="grid11 fs-small">
+				<table class="table table-bordered text-center me-3">
+					<thead>
+						<tr>
+							<th>Prediction</th>
+						</tr>
+					</thead>
+					<tbody id="current_frame_prediction"></tbody>
+				</table>
+				<table class="table table-bordered text-center">
+					<thead>
+						<tr>
+							<th>Truth</th>
+						</tr>
+					</thead>
+					<tbody id="current_frame_truth"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<hr>
+	<details>
+		<summary>Keys analysis</summary>
+		<div id="keys_container">
+			<div id="keys_accuracies_params">
+				<input id="windowSize" type="range" min="0" max="2000" onchange="updateWindowSize()">Window size</input>
+			</div>
+			<div id="keys_accuracies"></div>
+			<div id="keys_ttables"></div>
+		</div>
+	</details>
+	<hr>
+	<details>
+		<summary>Game Loop Analysis</summary>
+		<div id="NLP_div">
+			<button onclick="generateGameLoopAnalysis()">RUN NLP</button>
+			<input id="nb_iter" type="number" value="10" onchange="generateGameLoopAnalysis()">
+			<div id="AI_result"></div>
+            <details>
+                <summary>Details</summary>
+                <table id="BPE_table"></table>
+                <table id="BPE_keys"></table>
+            </details>
+		</div>
+	</details>
 </section>
 
 {% endblock %}
 {% block javascript %}
 <script>
-        var predictions  = []
-        var truth        = []
-        var charts       = []
-        function getById(elem){ return document.getElementById(elem)}
+	var predictions = []
+	var truth = []
+	var graphs = []
+	function getById(elem) { return document.getElementById(elem) }
 
 </script>
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
-<!--<script src="/static/js/experience/libs/chart.js"></script>
-<script src="/static/js/experience/libs/hammer.min.js"></script>
-<script src="/static/js/experience/libs/chartjs-plugin-annotation.min.js"></script>
-<script src="/static/js/experience/libs/chartjs-plugin-zoom.min.js"></script>-->
+<script src="/static/js/experience/libs/d3.v7.min.js"></script>
+<script src="/static/js/experience/libs/plot@0.6.js"></script>
 
 <script src="/static/js/experience/consts.js"></script>
 <script src="/static/js/experience/visualisation.js"></script>
@@ -101,164 +103,124 @@
 <script src="/static/js/experience/NLP.js"></script>
 <script src="/static/js/experience/AI.js"></script>
 <script>
-    function getCurrentFrame(){ return parseInt(VIDEO.currentTime*FPS) }
-    function getTotalFrames(){  return parseInt(VIDEO.duration*FPS) }
-    function moveFrame(nb=1){  VIDEO.currentTime += nb/FPS  }
+	function getCurrentFrame() { return parseInt(VIDEO.currentTime * FPS) }
+	function getTotalFrames() { return parseInt(VIDEO.duration * FPS) }
+	function moveFrame(nb = 1) { VIDEO.currentTime += nb / FPS }
 
-    function updateSpeed(){
-        const speed = getById("speedInput").value
-        getById("speedLabel").innerHTML = speed
-        VIDEO.playbackRate = speed
+	function updateSpeed() {
+		const speed = getById("speedInput").value
+		getById("speedLabel").innerHTML = speed
+		VIDEO.playbackRate = speed
+	}
+
+	VIDEO.ontimeupdate = (event) => {
+		let currentFrame = getCurrentFrame()
+		getById("current_time").innerHTML = VIDEO.currentTime
+		getById("current_frame").innerHTML = currentFrame
+
+		KEYS.forEach(key => {
+			let truth_key = truth.getFrame(currentFrame)[key]
+			let predicted_key = prediction.getFrame(currentFrame)[key]
+			getById(key + "_truth").innerHTML = truth_key
+			getById(key + "_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>" + predicted_key + "<span>" : predicted_key
+		})
+
+		printTransitionTable(prediction.getTransitionTable(currentFrame), getById("current_frame_prediction"), KEYS)
+		printTransitionTable(truth.getTransitionTable(currentFrame), getById("current_frame_truth"), KEYS)
+		update()
+	}
+
+	function init() {
+		Promise.all([d3.csv("static/inputs/prediction.csv"), d3.csv("static/inputs/truth.csv")]).then((results) => {
+			prediction = new KeyLog(results[0], KEYS)
+			truth = new KeyLog(results[1], KEYS, 3)
+			let [averages, accuracies] = computeAccuracies(prediction, truth)
+			generateCurrentFrameSection(averages)
+			generateKeysSection(accuracies, prediction, truth)
+            generateGameLoopAnalysis()
+			update()
+		})
+	}
+	document.body.onload = init
+
+	function update() {
+        graphs.forEach(graph => graph.updateTimeLine(getCurrentFrame()))
+		//setTimeout(update, UPDATE_TIME)
+	}
+
+    function updateWindowSize(){
+        graphs.forEach(graph => graph.updateWindow(getById('windowSize').value))
     }
 
-    VIDEO.ontimeupdate = (event) => {
-        let currentFrame = getCurrentFrame()
-        getById("current_time").innerHTML  = VIDEO.currentTime
-        getById("current_frame").innerHTML = currentFrame
+	function computeAccuracies(prediction, truth) {
+		let accuracies = []
+		let avg_accuracies = {}
+		let state = {}
+		KEYS.forEach(key => avg_accuracies[key] = 0)
+		for (let frame = 0; frame < getTotalFrames(); frame++) {
+			KEYS.forEach(key => {
+				if (prediction.getFrame(frame)[key] == truth.getFrame(frame)[key]) {
+					avg_accuracies[key]++
+					state[key] = 1
+				} else {
+					state[key] = 0
+				}
+			})
+			accuracies.push({ ...state })
+		}
+		KEYS.forEach(key => avg_accuracies[key] /= getTotalFrames())
+		return [avg_accuracies, accuracies]
+	}
 
-        KEYS.forEach(key => {
-            let truth_key     = truth.getFrame(currentFrame)[key]
-            let predicted_key = prediction.getFrame(currentFrame)[key]
-            getById(key+"_truth").innerHTML = truth_key
-            getById(key+"_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>"+predicted_key+"<span>" : predicted_key
-        })
-
-        printTransitionTable(prediction.getTransitionTable(currentFrame), getById("current_frame_prediction"), KEYS)
-        printTransitionTable(truth.getTransitionTable(currentFrame), getById("current_frame_truth"), KEYS)
-    }
-
-    function init(){
-        Promise.all([d3.csv("static/inputs/prediction.csv"), d3.csv("static/inputs/truth.csv")]).then((results)=>{
-            prediction = new KeyLog(results[0], KEYS)
-            truth      = new KeyLog(results[1], KEYS, 3)
-            let [averages, accuracies] = computeAccuracies(prediction, truth)
-            generateCurrentFrameSection(averages)
-            generateKeysSection(accuracies, prediction, truth)
-            //update()
-        })
-    }
-    document.body.onload = init
-
-    function update() {
-        charts.forEach(chart => {
-            chart.options.plugins.annotation.annotations.timeline.xMax = getCurrentFrame()
-            chart.options.plugins.annotation.annotations.timeline.xMin = getCurrentFrame()
-            chart.update()
-        })
-        setTimeout(update, UPDATE_TIME)
-    }
-
-    function computeAccuracies(prediction, truth){
-        let accuracies = []
-        let avg_accuracies = {}
-        let state = {}
-        KEYS.forEach(key => avg_accuracies[key]=0)
-        for(let frame=0; frame<getTotalFrames(); frame++){
-            KEYS.forEach(key => {
-                if(prediction.getFrame(frame)[key] == truth.getFrame(frame)[key]){
-                    avg_accuracies[key]++
-                    state[key] = 1
-                }else{
-                    state[key] = 0
-                }
-            })
-            accuracies.push({...state})
-        }
-        KEYS.forEach(key => avg_accuracies[key] /= getTotalFrames())
-        return [avg_accuracies, accuracies]
-    }
-
-    function generateCurrentFrameSection(averages){
-        KEYS.forEach(key =>
-            getById("table_summary").innerHTML += '\
+	function generateCurrentFrameSection(averages) {
+		KEYS.forEach(key =>
+			getById("table_summary").innerHTML += '\
                 <tr>\
-                    <td>'+key+'</td>\
-                    <td id="'+key+'_prediction"></td>\
-                    <td id="'+key+'_truth"></td>\
-                    <td>'+ (100*averages[key]).toFixed(2) +'%</td>\
+                    <td>'+ key + '</td>\
+                    <td id="'+ key + '_prediction"></td>\
+                    <td id="'+ key + '_truth"></td>\
+                    <td>'+ (100 * averages[key]).toFixed(2) + '%</td>\
                 </tr>'
-        )
-    }
+		)
+	}
 
-    function generateKeysSection(accuracies, prediction, truth){
-        let datasets = []
-        for(let i=0; i<accuracies.length; i++){
-            KEYS.forEach(key => {
-              datasets.push({frame:i, y:100*accuracies[i][key], key:key}) 
-            })
-        }
-        console.log(accuracies)
-        addScatterGraph(getById("keys_accuracies"), datasets, "Frame number", "% of correct predictions")
-        addScatterGraph(getById("keys_ttables"), prediction.getGraphDataset(), "Frame number", "% of transition")
-        addScatterGraph(getById("keys_ttables"), truth.getGraphDataset(),      "Frame number", "% of transition")
-    }
+	function generateKeysSection(accuracies, prediction, truth) {
+		let datasets = []
+		for (let i = 0; i < accuracies.length; i++) {
+			KEYS.forEach(key => {
+				datasets.push({ frame: i, y: 100 * accuracies[i][key], key: key })
+			})
+		}
+		graphs.push(new Graph(getById("keys_accuracies"), datasets, "Frame number", "% of correct predictions"))
+		graphs.push(new Graph(getById("keys_ttables"), prediction.getGraphDataset(), "Frame number", "% of transition"))
+		graphs.push(new Graph(getById("keys_ttables"), truth.getGraphDataset(), "Frame number", "% of transition"))
+	}
+
+	function generateGameLoopAnalysis() {
+        let nbIter = getById("nb_iter").value
+		let [ttable, keys] = new NLP(prediction.getAllFrames(), KEYS).BPE(nbIter)
+
+		let keys_table = ""
+		for (let i = 0; i < keys.length; i++) {
+			keys_table += "<tr><td>" + i + "</td><td>" + keys[i][0] + "</td><td>" + keys[i][1] + "</td></tr>"
+		}
+
+        printTransitionTable(ttable, getById("BPE_table"), keys.map(e => e[0]))
+		getById("BPE_keys").innerHTML = keys_table
 
 
 
-    function run_NLP(){
-        let [ttable, keys] = new NLP(predictions.parsed_data, KEYS).BPE(getById("nb_iter").value)
-        printTransitionTable(ttable, getById("BPE_table"), keys.map(e=>e[0]))
+		let ai = new AI(ttable.state, keys)
+		let loops = ai.findLoopInTable()
 
-        let keys_table = ""
-        for(let i=0; i<keys.length; i++){
-            keys_table += "<tr><td>"+i+"</td><td>"+keys[i][0]+"</td><td>"+keys[i][1]+"</td></tr>"
-        }
-        getById("BPE_keys").innerHTML = keys_table
-
-        let ai = new AI(ttable.state, keys)
-        let loops = ai.find_loop_in_ttable()
-
-        let result = ""
-        for(let i=0; i<3; i++){
-            result += "<p>"
-            loops[i].path.forEach(index => result += keys[index][1].toString().replaceAll("],[", "] ⟶  [")+" <b style='color:red'>⟶</b> ")
-            result += "</p>"
-        }
-        getById("AI_result").innerHTML = result
-    }
-
-    /*
-        function draw_key_graphs(predictions, truth=undefined){
-            let predictions_frames = predictions.getByFrame()
-            let graphs = []
-            let points_colors = {}
-            let graphs_data = {}
-            let container = getById("key_graphs")
-
-            KEYS.forEach(key => {
-                graphs_data[key] = []
-                points_colors[key] = []
-            })
-
-            for(let i=0; i<predictions_frames.length; i++){
-                KEYS.forEach(key => {
-                    let current_prediction = predictions_frames[i][key]
-                    let correct = true
-                    if(truth != undefined && i < truth.getByFrame().length){
-                        correct = current_prediction == truth.getByFrame()[i][key]
-                    }
-
-                    if(i==0 || predictions_frames[i-1][key] != current_prediction || !correct){
-                        graphs_data[key].push({
-                            x: i/FPS,
-                            y: current_prediction == "DOWN" ? 1 : 0
-                        })
-                        points_colors[key].push(correct ? "#0000ff" : "#ff0000")
-                    }
-                })
-            }
-
-            KEYS.forEach(key => {
-                addScatterGraph(getById("key_graphs"), [{
-                    label: key,
-                    data: graphs_data[key],
-                    borderWidth: 1,
-                    pointBackgroundColor: points_colors[key]
-                }], 100)
-            })
-            return graphs
-        }
-    */
+		let result = ""
+		for (let i = 0; i < 3; i++) {
+			result += "<p>"
+			loops[i].path.forEach(index => result += keys[index][1].toString().replaceAll("],[", "] ⟶  [") + " <b style='color:red'>⟶</b> ")
+			result += "</p>"
+		}
+		getById("AI_result").innerHTML = result
+	}
 
 </script>
 {% endblock %}

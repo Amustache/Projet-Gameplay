@@ -59,6 +59,10 @@ class KeyLog{
         }
     }
 
+    getAllFrames(){
+        return this.byFrame
+    }
+
     getFrame(frame){
         return this.byFrame[frame]
     }

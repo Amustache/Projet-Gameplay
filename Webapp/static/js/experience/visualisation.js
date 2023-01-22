@@ -1,43 +1,43 @@
-function addScatterGraph(container, datasets, xTitle="", yTitle="", height=GRAPH_DEFAULT_HEIGHT){
-    /*let canvas = document.createElement("canvas")
-    canvas.height = height
-    canvas.width = "100%"
+class Graph{
+    constructor(container, data, xTitle="", yTitle="", height=GRAPH_DEFAULT_HEIGHT){
+        this.container = container
+        this.data = data
+        this.xTitle = xTitle
+        this.yTitle = yTitle
+        this.height = height
 
-    let container_div = document.createElement("div")
-    container_div.style.height = height+"px"
-    container_div.appendChild(canvas)
-    
-    charts.push(new Chart(canvas, {
-        type: 'scatter',
-        data:{ datasets: datasets },
-        options: {...CHART_OPTIONS, scales:{
-            x : {title : {
-                display : true,
-                text : xTitle
-            }},
-            y : {title : {
-                display : true,
-                text : yTitle
-            }}
-        }}
-    }))
-    container.appendChild(container_div)*/
-    console.log(datasets)
-    let axes = {x:"frame", y:"y", z:"key" , stroke:"key"}
-    container.appendChild(Plot.plot({
-        y:{
-            grid:true,
-            label:"Accuracy [%]"
-        },
-        marks:[
-            //Plot.line(datasets, axes),
-            Plot.line(
-                datasets, 
-                Plot.windowY({k:200, anchor:"middle", strict:false}, axes )
-            ),
-            Plot.line([{x:5000,y:0},{x:5000,y:100}],{x:'x',y:'y',stroke: "#FF0000"})
-        ]
-    }))
+        this.windowSize = 200
+
+        this.axes = {x:"frame", y:"y", z:"key" , stroke:"key"}
+        this.timeLine = [{x:0,y:0},{x:0,y:100}]
+        this.render()
+    }
+
+    updateWindow(windowSize=0){
+        this.windowSize = windowSize
+        this.render()
+    }
+
+    updateTimeLine(currentFrame){
+        this.timeLine = [{x:currentFrame,y:0},{x:currentFrame,y:100}]
+        this.render()
+    }
+
+    render(){
+        this.container.innerHTML = ""
+        this.container.appendChild(Plot.plot({
+            width: this.container.clientWidth,
+            margin:50,
+            y:{
+                grid:true,
+                label:"Accuracy [%]"
+            },
+            marks:[
+                Plot.line(this.data, Plot.windowY({k:this.windowSize, anchor:"middle", strict:false}, this.axes )),
+                Plot.line(this.timeLine,{x:'x',y:'y',stroke: "#FF0000"})
+            ]
+        }))
+    }
 }
 
 function getTTableRowSums(ttable, keys){
