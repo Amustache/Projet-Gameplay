@@ -89,10 +89,6 @@
                href="{{ url_for('rapport') }}">Rapport</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'resultats' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('resultats') }}">Exploration des résultats</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'experience' %}active{% endif %}" aria-current="page"
                href="{{ url_for('experience') }}">Expérience en ligne</a>
           </li>

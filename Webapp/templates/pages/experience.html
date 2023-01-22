@@ -3,10 +3,11 @@
 {% block content %}
 
 <h1 class="mt-5">Expérience en ligne</h1>
-<form action="/uploader" method="POST"
-      enctype="multipart/form-data">
-  <input type="file" name="file"/>
-  <input type="submit"/>
+<form action="/uploader" method="POST" enctype="multipart/form-data">
+<div class="input-group">
+  <input class="form-control form-control-lg" id="formFileLg" type="file" name="file">
+  <button class="btn btn-outline-primary" type="submit">Envoyer</button>
+</div>
 </form>
 
 {% endblock %}

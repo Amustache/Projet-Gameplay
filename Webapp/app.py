@@ -47,9 +47,7 @@ def experience():
 
 @app.route("/experience-show")
 def experience_show():
-    filename = os.path.join(
-        app.root_path, app.config["UPLOAD_FOLDER"], request.args.get("filename")
-    )
+    filename = os.path.join(app.config["UPLOAD_FOLDER"], request.args.get("filename"))
     return render_template("pages/experience-show.html", filename=filename)
 
 
