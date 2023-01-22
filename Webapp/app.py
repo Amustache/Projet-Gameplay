@@ -26,17 +26,28 @@ def allowed_file(filename):
 def upload_file():
     if request.method == "POST":
         if "file" not in request.files:
-            flash("No file part")
+            flash("Pas de fichier téléversé")
             return redirect(url_for("experience"))
         file = request.files["file"]
         if file.filename == "":
-            flash("No selected file")
+            flash("Pas de fichier sélectionné")
             return redirect(url_for("experience"))
         if file and allowed_file(file.filename):
+            # Delete all files in the directory
+            for f in os.listdir(os.path.join(app.root_path, app.config["UPLOAD_FOLDER"])):
+                if f != ".gitkeep":
+                    os.remove(os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], f))
+
+            # Save the new file
             fname = secure_filename(file.filename)
             file.save(os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], fname))
+
+            # Process the video and extract the data
+            print("TODO")  # TODO
+
+            # Show the result
             return redirect(url_for("experience_show", filename=fname))
-        flash("Wrong file, please use a video")
+        flash("Merci d'utiliser une vidéo valide")
         return redirect(url_for("experience"))
 
 
@@ -47,31 +58,15 @@ def experience():
 
 @app.route("/experience-show")
 def experience_show():
+    if not request.args.get("filename"):
+        flash("Il faut d'abord téléverser une vidéo !")
+        return redirect(url_for("experience"))
     filename = os.path.join(app.config["UPLOAD_FOLDER"], request.args.get("filename"))
+    if not os.path.isfile(os.path.join(app.root_path, filename)):
+        flash("Le ficiher sélectionné semble invalide")
+        return redirect(url_for("experience"))
+
     return render_template("pages/experience-show.html", filename=filename)
-
-
-# Results
-@app.route("/barcode.png")
-def barcode_png():
-    data = get_data()
-    fig = fig_generate_barcode(data)
-
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype="image/png")
-
-
-@app.route("/patterns.png")
-def patterns_png():
-    df_trim = get_df_trim()
-    all_keys = extract_pattern_from_df(df_trim)
-    all_patterns = find_all_patterns(all_keys)
-    fig = fig_10_patterns(all_patterns)
-
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype="image/png")
 
 
 @app.route("/")

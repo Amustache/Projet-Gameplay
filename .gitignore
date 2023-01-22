@@ -359,6 +359,11 @@ $RECYCLE.BIN/
 # Videos
 *.webm
 *.mp4
+*.mkv
 
 # ML data
 ML/data
+
+# Inputs
+/Webapp/static/inputs/*
+!/Webapp/static/inputs/.gitkeep
