@@ -1,35 +1,14 @@
 class KeyLog{
-    constructor(input, keys){
-        this.raw_input   = input
-        this.length      = input.length
-        this.keys        = keys
-        this.parsed_data = undefined
-        this.ttable      = undefined
-    }
+    constructor(input, keys, offset=0){
+        this.rawInput = input
+        this.keys     = keys
+        this.offset   = offset
 
-    getEntry(index){
-        if(index >= this.length){
-            return undefined
-        }else{
-            return {
-                index: index,
-                frame: this.raw_input[index][0],
-                key:   this.raw_input[index][1],
-                state: this.raw_input[index][2]
-            }
-        }
-    }
-
-    getByFrame(){
-        if(this.parsed_data != undefined){
-            return this.parsed_data
-        }else{
-            this.parsed_data = []
+        this.byFrame = []
+        {
             let current_state = {}
             let entry = this.getEntry(0)
-
             this.keys.forEach(e => current_state[e] = DEFAULT_VALUE)
-        
             for(let frame=0; frame<VIDEO.duration*FPS; frame++){
                 while(entry != undefined && entry.frame == frame){
                     if(this.keys.includes(entry.key)){
@@ -37,21 +16,12 @@ class KeyLog{
                     }
                     entry = this.getEntry(entry.index+1)
                 }
-                this.parsed_data.push({...current_state}) // Make a copy
+                this.byFrame.push({...current_state}) // Make a copy
             }
-            return this.parsed_data
         }
-    }
 
-    getCurrentFrame(){
-        return this.getByFrame()[getCurrentFrame()]
-    }
-
-    getTransitionTables(){
-        if(this.ttable != undefined){
-            return this.ttable
-        }else{
-            this.ttable = []
+        this.ttable = []
+        {
             let state = []
             for(let i=0; i<this.keys.length; i++){
                 state.push([])
@@ -61,7 +31,7 @@ class KeyLog{
             }
 
             let prev_index = this.keys.indexOf(this.getEntry(0).key)
-            for(let i=0; i<this.length; i++){
+            for(let i=0; i<this.rawInput.length; i++){
                 let entry = this.getEntry(i)
                 if(this.keys.includes(entry.key) && entry.state == "DOWN"){
                     let index = this.keys.indexOf(entry.key)
@@ -73,25 +43,43 @@ class KeyLog{
                     prev_index = index
                 }
             }
-            return this.ttable
         }
     }
 
-    getTransitionTableOfFrame(frame){
+    getEntry(index){
+        if(index >= this.rawInput.length){
+            return undefined
+        }
+        let index_corrected = Math.min(index+this.offset, this.rawInput.length-1)
+        return {
+            index: index,
+            frame: parseInt(this.rawInput[index_corrected].FRAME),
+            key:   this.rawInput[index_corrected].KEY,
+            state: this.rawInput[index_corrected].STATUS
+        }
+    }
+
+    getFrame(frame){
+        return this.byFrame[frame]
+    }
+
+    getTransitionTables(){
+        return this.ttable
+    }
+
+    getTransitionTable(frame){
         let index = 0
-        let ttables = this.getTransitionTables()
-        while(index < ttables.length && ttables[index].frame <= frame){
+        while(index < this.ttable.length && this.ttable[index].frame <= frame){
             index++
         }
-        return ttables[index]
+        return this.ttable[index]
     }
 
     getGraphDataset(){
         let datasets = []
-        let ttables = this.getTransitionTables()
 
-        for(let i=0; i<ttables.length; i+=GRAPH_DECIMATE_FACTOR){
-            let ttable = ttables[i]
+        for(let i=0; i<this.ttable.length; i+=GRAPH_DECIMATE_FACTOR){
+            let ttable = this.ttable[i]
             let row_sums = getTTableRowSums(ttable, this.keys)
             let index = 0
             for(let row=0; row<ttable.state.length; row++){

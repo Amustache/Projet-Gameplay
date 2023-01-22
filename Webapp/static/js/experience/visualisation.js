@@ -1,5 +1,5 @@
 function addScatterGraph(container, datasets, xTitle="", yTitle="", height=GRAPH_DEFAULT_HEIGHT){
-    let canvas = document.createElement("canvas")
+    /*let canvas = document.createElement("canvas")
     canvas.height = height
     canvas.width = "100%"
 
@@ -21,7 +21,23 @@ function addScatterGraph(container, datasets, xTitle="", yTitle="", height=GRAPH
             }}
         }}
     }))
-    container.appendChild(container_div)
+    container.appendChild(container_div)*/
+    console.log(datasets)
+    let axes = {x:"frame", y:"y", z:"key" , stroke:"key"}
+    container.appendChild(Plot.plot({
+        y:{
+            grid:true,
+            label:"Accuracy [%]"
+        },
+        marks:[
+            //Plot.line(datasets, axes),
+            Plot.line(
+                datasets, 
+                Plot.windowY({k:200, anchor:"middle", strict:false}, axes )
+            ),
+            Plot.line([{x:5000,y:0},{x:5000,y:100}],{x:'x',y:'y',stroke: "#FF0000"})
+        ]
+    }))
 }
 
 function getTTableRowSums(ttable, keys){
