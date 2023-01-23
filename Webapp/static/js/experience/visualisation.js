@@ -1,10 +1,10 @@
 class Graph{
-    constructor(container, data, xTitle="", yTitle="", height=GRAPH_DEFAULT_HEIGHT){
+    constructor(container, data, title="", xTitle="", yTitle=""){
         this.container = container
         this.data = data
+        this.title = title
         this.xTitle = xTitle
         this.yTitle = yTitle
-        this.height = height
 
         this.windowSize = 200
 
@@ -26,16 +26,45 @@ class Graph{
     render(){
         this.container.innerHTML = ""
         this.container.appendChild(Plot.plot({
+            caption: this.title,
             width: this.container.clientWidth,
-            margin:50,
             y:{
                 grid:true,
-                label:"Accuracy [%]"
+                label:this.yTitle
+            },
+            x:{
+                label:this.xTitle
             },
             marks:[
                 Plot.line(this.data, Plot.windowY({k:this.windowSize, anchor:"middle", strict:false}, this.axes )),
                 Plot.line(this.timeLine,{x:'x',y:'y',stroke: "#FF0000"})
-            ]
+            ],
+            color:{
+                legend: true
+            }
+        }))
+    }
+}
+
+class Markov{
+    constructor(container, data, title=""){
+        this.container = container
+        this.data = data
+        this.title = title
+    }
+
+    render(){
+        this.container.innerHTML = ""
+        this.container.appendChild(Plot.plot({
+            caption: this.title,
+            width: this.container.clientWidth,
+            marks:[
+                Plot.text(data,  {x:"",  y:"",  text:"", fontSize:10}),
+                Plot.arrow(data, {x1:"", x2:"", y1:"",   y2:""})
+            ],
+            color:{
+                legend: true
+            }
         }))
     }
 }

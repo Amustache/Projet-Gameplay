@@ -4,9 +4,6 @@ const VIDEO         = getById("video")
 
 const UPDATE_TIME   = 3000
 
-const GRAPH_DECIMATE_FACTOR = 20
-const GRAPH_DEFAULT_HEIGHT  = 300
-
 const KEYS = [
     "Key.right",
     "Key.left",

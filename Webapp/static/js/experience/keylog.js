@@ -80,29 +80,22 @@ class KeyLog{
     }
 
     getGraphDataset(){
-        let datasets = []
-
-        for(let i=0; i<this.ttable.length; i+=GRAPH_DECIMATE_FACTOR){
-            let ttable = this.ttable[i]
+        let dataset = []
+        this.ttable.forEach(ttable => {
             let row_sums = getTTableRowSums(ttable, this.keys)
             let index = 0
-            for(let row=0; row<ttable.state.length; row++){
-                for(let col=0; col<ttable.state[row].length; col++){
-                    if(datasets[index] == undefined){
-                        datasets[index] = {
-                            label: this.keys[index%this.keys.length] + "→" + this.keys[Math.floor(index/this.keys.length)],
-                            data: [],
-                            borderWidth: 1
-                        }
-                    }
-                    datasets[index].data.push({
-                        x: ttable.frame,
-                        y: 100*ttable.state[row][col]/row_sums[col]
+            ttable.state.forEach(row => {
+                for(let col=0; col<row.length; col++){
+                    let label = this.keys[index%this.keys.length] + "→" + this.keys[Math.floor(index/this.keys.length)]
+                    dataset.push({
+                        frame: ttable.frame,
+                        y: 100*row[col]/row_sums[col],
+                        key: label
                     })
                     index++
                 }
-            }
-        }
-        return datasets
+            })
+        })
+        return dataset
     }
 }

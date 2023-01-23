@@ -63,10 +63,11 @@
 		<summary>Keys analysis</summary>
 		<div id="keys_container">
 			<div id="keys_accuracies_params">
-				<input id="windowSize" type="range" min="0" max="2000" onchange="updateWindowSize()">Window size</input>
+				<input id="windowSize" type="range" min="1" max="4000" onchange="updateWindowSize()">Window size</input>
 			</div>
-			<div id="keys_accuracies"></div>
-			<div id="keys_ttables"></div>
+			<div id="keys_accuracies" class="p-4"></div>
+			<div id="keys_ttables_truth"></div>
+			<div id="keys_ttables_prediction"></div>
 		</div>
 	</details>
 	<hr>
@@ -191,9 +192,9 @@
 				datasets.push({ frame: i, y: 100 * accuracies[i][key], key: key })
 			})
 		}
-		graphs.push(new Graph(getById("keys_accuracies"), datasets, "Frame number", "% of correct predictions"))
-		graphs.push(new Graph(getById("keys_ttables"), prediction.getGraphDataset(), "Frame number", "% of transition"))
-		graphs.push(new Graph(getById("keys_ttables"), truth.getGraphDataset(), "Frame number", "% of transition"))
+		graphs.push(new Graph(getById("keys_accuracies"), datasets, "Accuracy per key", "Frame number", "Prediction accuracy [%]"))
+		graphs.push(new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"))
+		graphs.push(new Graph(getById("keys_ttables_truth"), truth.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
 	}
 
 	function generateGameLoopAnalysis() {
