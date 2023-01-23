@@ -81,6 +81,14 @@
         <summary>Details</summary>
         <table id="BPE_table"></table>
         <table id="BPE_keys"></table>
+
+		<div id="content">
+			<svg width="400" height="300">
+			  <g class="links"></g>
+			  <g class="nodes"></g>
+			</svg>
+		</div>
+
       </details>
     </div>
   </details>
@@ -223,10 +231,12 @@
         printTransitionTable(ttable, getById("BPE_table"), keys.map(e => e[0]))
 		getById("BPE_keys").innerHTML = keys_table
 
-
+		let graph = new Markov()
 
 		let ai = new AI(ttable.state, keys)
 		let loops = ai.findLoopInTable()
+
+		console.log(loops)
 
 		let result = ""
 		for (let i = 0; i < 3; i++) {
@@ -235,6 +245,15 @@
 			result += "</p>"
 		}
 		getById("AI_result").innerHTML = result
+
+
+		for (let i = 0; i < 3; i++) {
+			loops[i].path.forEach(index => {
+				let states = keys[index][1]
+				console.log(states)
+
+			})
+		}
 	}
 
 

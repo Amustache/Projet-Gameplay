@@ -51,21 +51,59 @@ class Markov{
         this.container = container
         this.data = data
         this.title = title
+
+        this.width = 400
+        this.height = 300
+
+        this.nodes = [
+            {name: 'A'},
+            {name: 'B'},
+            {name: 'C'},
+            {name: 'D'},
+            {name: 'E'},
+            {name: 'F'},
+            {name: 'G'},
+            {name: 'H'},
+        ]
+        
+        this.links = [
+            {source: 0, target: 1},
+            {source: 0, target: 2},
+            {source: 0, target: 3},
+            {source: 1, target: 6},
+            {source: 3, target: 4},
+            {source: 3, target: 7},
+            {source: 4, target: 5},
+            {source: 4, target: 7}
+        ]
     }
 
     render(){
-        this.container.innerHTML = ""
-        this.container.appendChild(Plot.plot({
-            caption: this.title,
-            width: this.container.clientWidth,
-            marks:[
-                Plot.text(data,  {x:"",  y:"",  text:"", fontSize:10}),
-                Plot.arrow(data, {x1:"", x2:"", y1:"",   y2:""})
-            ],
-            color:{
-                legend: true
-            }
-        }))
+        d3.forceSimulation(nodes)
+        .force('charge', d3.forceManyBody().strength(-100))
+        .force('center', d3.forceCenter(this.width/2, this.height/2))
+        .force('link', d3.forceLink().links(this.links))
+        .on('tick', this.tick);
+    }
+
+    tick(){
+        d3.select('.links')
+        .selectAll('line')
+        .data(this.links)
+        .join('line')
+        .attr('x1', function(d) { return d.source.x })
+        .attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.target.x })
+        .attr('y2', function(d) { return d.target.y })
+
+        d3.select('.nodes')
+        .selectAll('text')
+        .data(this.nodes)
+        .join('text')
+        .text(function(d) { return d.name })
+        .attr('x',  function(d) { return d.x })
+        .attr('y',  function(d) { return d.y })
+        .attr('dy', function(d) { return 5 })
     }
 }
 
