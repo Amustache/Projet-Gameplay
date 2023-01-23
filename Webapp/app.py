@@ -76,6 +76,43 @@ def experience():
     return render_template("pages/experience.html")
 
 
+@app.route("/barcode.png")
+def barcode():
+    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], "keylog.csv")
+    df_trim = extract_keys_from_file(file)
+    data = extract_timeline_from_df(df_trim)
+
+    fig = fig_generate_barcode(data)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype="image/png")
+
+
+@app.route("/tenpatterns.png")
+def tenpatterns():
+    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], "keylog.csv")
+    df_trim = extract_keys_from_file(file)
+    all_keys = extract_pattern_from_df(df_trim)
+    all_patterns = find_all_patterns(all_keys)
+
+    fig = fig_10_patterns(all_patterns)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype="image/png")
+
+
+@app.route("/markov.png")
+def markov():
+    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], "keylog.csv")
+    df_trim = extract_keys_from_file(file)
+    data = extract_timeline_from_df(df_trim)
+
+    fig = create_figure()
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype="image/png")
+
+
 @app.route("/experience-show")
 def experience_show():
     if not request.args.get("filename"):
