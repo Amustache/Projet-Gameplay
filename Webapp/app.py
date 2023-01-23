@@ -67,7 +67,7 @@ def example():
                 os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], f),
             )
 
-    fname = "demo_video.webm"
+    fname = "video.webm"
 
     return redirect(url_for("experience_show", filename=fname))
 
