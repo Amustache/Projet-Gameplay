@@ -18,6 +18,8 @@ app.config["UPLOAD_FOLDER"] = os.path.join("static", "inputs")
 app.config["MAX_CONTENT_PATH"] = 200_000_000
 app.config.from_object("config")
 
+DEMO_TRUTH = "truth.csv"
+
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -79,7 +81,7 @@ def experience():
 
 @app.route("/barcode.png")
 def barcode():
-    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], "truth.csv")
+    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], DEMO_TRUTH)
     df_trim = extract_keys_from_file(file)
     data = extract_timeline_from_df(df_trim)
 
@@ -91,7 +93,7 @@ def barcode():
 
 @app.route("/tenpatterns.png")
 def tenpatterns():
-    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], "keylog.csv")
+    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], DEMO_TRUTH)
     df_trim = extract_keys_from_file(file)
     all_keys = extract_pattern_from_df(df_trim)
     all_patterns = find_all_patterns(all_keys)
@@ -104,7 +106,7 @@ def tenpatterns():
 
 @app.route("/markov.png")
 def markov():
-    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], "keylog.csv")
+    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], DEMO_TRUTH)
     df_trim = extract_keys_from_file(file)
     data = extract_timeline_from_df(df_trim)
 
