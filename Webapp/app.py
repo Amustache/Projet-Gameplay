@@ -166,4 +166,7 @@ if not app.debug:
     app.logger.info("errors")
 
 if __name__ == "__main__":
-    app.run()
+    if app.config["DEBUG"]:
+        app.run()
+    else:
+        app.run(port=5000, host="0.0.0.0")
