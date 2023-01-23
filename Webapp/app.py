@@ -2,6 +2,7 @@ from logging import FileHandler, Formatter
 import io
 import logging
 import os
+import shutil
 
 
 from datascience import *
@@ -49,6 +50,25 @@ def upload_file():
             return redirect(url_for("experience_show", filename=fname))
         flash("Merci d'utiliser une vidéo valide")
         return redirect(url_for("experience"))
+
+
+@app.route("/example")
+def example():
+    # Delete all files in the directory
+    for f in os.listdir(os.path.join(app.root_path, app.config["UPLOAD_FOLDER"])):
+        if f != ".gitkeep":
+            os.remove(os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], f))
+
+    # Copy example data
+    for f in os.listdir(os.path.join(app.root_path, "demo_inputs")):
+        shutil.copyfile(
+            os.path.join(app.root_path, "demo_inputs", f),
+            os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], f),
+        )
+
+    fname = "demo_video.webm"
+
+    return redirect(url_for("experience_show", filename=fname))
 
 
 @app.route("/experience")
