@@ -24,13 +24,9 @@ let sVg = d3.select('#area')
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
 // X scale and Axis
-var startTime = new Date(0,0,0);
-var endTime = new Date(startTime.getTime() + (31.3 * 60 * 1000));
-
-var x = d3.scaleTime()
-    .domain([startTime, endTime])
+var x = d3.scaleLinear()
+    .domain([0, 31.3*60])
     .range([0, width])
-    .nice();   
 
 let xAxis = sVg.append("g")
     .attr("transform", "translate(" + 2*radius + "," + height + ")")
