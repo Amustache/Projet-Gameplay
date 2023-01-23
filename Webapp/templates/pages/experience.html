@@ -3,15 +3,24 @@
 {% block content %}
 
 <h1 class="mt-5">Expérience en ligne</h1>
+<p class="text-center"><img width="33%" src="static/img/supermariopreview.png" alt="supermariopreview"><br/><br/>
+<p class="lead">Expérimentez vous-même la prédiction des inputs dans votre jeu !</p>
+<p>Nous vous invitons à enregistrer un enregistrement plein écran du jeu Super Mario Bros. au format mp4. Pour cela,
+  vous pouvez par exemple utiliser <a href="https://obsproject.com/fr/" target="_blank">OBS</a> ou bien Windows+Alt+R
+  sur Windows.</p>
+<p>Ensuite, il vous suffit de le téléverser ci-après :</p>
 <form action="/uploader" method="POST" enctype="multipart/form-data">
-<div class="input-group">
-  <input class="form-control form-control-lg" id="formFileLg" type="file" name="file">
-  <button class="btn btn-outline-primary" type="submit">Envoyer</button>
-</div>
-<div>
-  ... Ou bien utilisez les données d'exemples.
-  <a class="btn btn-outline-secondary" href="/example">Cliquez ici</a>
-</div>
+  <div class="input-group">
+    <input class="form-control" id="formFileLg" type="file" name="file">
+    <button class="btn btn-outline-primary" type="submit">Envoyer</button>
+  </div>
+  <hr class="mt-4 mb-4"/>
+  <div>
+    <p class="lead">... Ou bien utilisez les données d'exemples.</p>
+    <p>Nous mettons à disposition un enregistrement déjà traité, avec des données d'exemples associées. Cela permet
+      d'utiliser l'outil de visualisation sans devoir fournir votre propre vidéo.</p>
+    <p><a class="btn btn-outline-secondary" href="/example">Cliquez ici</a></p>
+  </div>
 </form>
 
 {% endblock %}

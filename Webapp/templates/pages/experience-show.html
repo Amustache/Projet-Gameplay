@@ -4,86 +4,86 @@
 
 <h1 class="mt-5">Expérience en ligne - Résultats</h1>
 <section>
-	<div class="video_container">
-		<div class="m-auto">
-			<video id="video" height="440" controls>
-				<source src="{{filename}}" type="video/mp4">
-			</video>
-			<div class="text-center">
-				<span>Play Speed <span id="speedLabel">1</span>x</span>
-				<br>
-				<input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
-			</div>
-			<div class="grid11">
-				<button class="btn btn-secondary m-1" onclick="moveFrame(-1)">Previous frame</button>
-				<button class="btn btn-secondary m-1" onclick="moveFrame(1)">Next frame</button>
-				<button class="btn btn-secondary m-1" onclick="moveFrame(-10)">-10 frames</button>
-				<button class="btn btn-secondary m-1" onclick="moveFrame(10)">+10 frames</button>
-			</div>
-		</div>
-		<div class="p-3">
-			<p class="h5 text-center">Current Frame</p>
-			<div class="text-center">
-				<span class="me-4">Time : <span id="current_time">0</span>s</span>
-				<span>Frame : <span id="current_frame">0</span></span>
-			</div>
-			<br>
-			<div>
-				<table class="table" id="table_summary">
-					<tr>
-						<th></th>
-						<th>Prediction</th>
-						<th>Truth</th>
-						<th>Total Accuracy</th>
-					</tr>
-				</table>
-			</div>
-			<div class="grid11 fs-small">
-				<table class="table table-bordered text-center me-3">
-					<thead>
-						<tr>
-							<th>Prediction</th>
-						</tr>
-					</thead>
-					<tbody id="current_frame_prediction"></tbody>
-				</table>
-				<table class="table table-bordered text-center">
-					<thead>
-						<tr>
-							<th>Truth</th>
-						</tr>
-					</thead>
-					<tbody id="current_frame_truth"></tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-	<hr>
-	<details>
-		<summary>Keys analysis</summary>
-		<div id="keys_container">
-			<div id="keys_accuracies_params">
-				<input id="windowSize" type="range" min="1" max="4000" onchange="updateWindowSize()">Window size</input>
-			</div>
-			<div id="keys_accuracies" class="p-4"></div>
-			<div id="keys_ttables_truth"></div>
-			<div id="keys_ttables_prediction"></div>
-		</div>
-	</details>
-	<hr>
-	<details>
-		<summary>Game Loop Analysis</summary>
-		<div id="NLP_div">
-			<button onclick="generateGameLoopAnalysis()">RUN NLP</button>
-			<input id="nb_iter" type="number" value="10" onchange="generateGameLoopAnalysis()">
-			<div id="AI_result"></div>
-            <details>
-                <summary>Details</summary>
-                <table id="BPE_table"></table>
-                <table id="BPE_keys"></table>
-            </details>
-		</div>
-	</details>
+  <div class="video_container">
+    <div class="m-auto">
+      <video id="video" height="440" controls>
+        <source src="{{filename}}" type="video/mp4">
+      </video>
+      <div class="text-center">
+        <span>Play Speed <span id="speedLabel">1</span>x</span>
+        <br>
+        <input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
+      </div>
+      <div class="grid11">
+        <button class="btn btn-secondary m-1" onclick="moveFrame(-1)">Previous frame</button>
+        <button class="btn btn-secondary m-1" onclick="moveFrame(1)">Next frame</button>
+        <button class="btn btn-secondary m-1" onclick="moveFrame(-10)">-10 frames</button>
+        <button class="btn btn-secondary m-1" onclick="moveFrame(10)">+10 frames</button>
+      </div>
+    </div>
+    <div class="p-3">
+      <p class="h5 text-center">Current Frame</p>
+      <div class="text-center">
+        <span class="me-4">Time : <span id="current_time">0</span>s</span>
+        <span>Frame : <span id="current_frame">0</span></span>
+      </div>
+      <br>
+      <div>
+        <table class="table" id="table_summary">
+          <tr>
+            <th></th>
+            <th>Prediction</th>
+            <th>Truth</th>
+            <th>Total Accuracy</th>
+          </tr>
+        </table>
+      </div>
+      <div class="grid11 fs-small">
+        <table class="table table-bordered text-center me-3">
+          <thead>
+          <tr>
+            <th>Prediction</th>
+          </tr>
+          </thead>
+          <tbody id="current_frame_prediction"></tbody>
+        </table>
+        <table class="table table-bordered text-center">
+          <thead>
+          <tr>
+            <th>Truth</th>
+          </tr>
+          </thead>
+          <tbody id="current_frame_truth"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <details>
+    <summary>Keys analysis</summary>
+    <div id="keys_container">
+      <div id="keys_accuracies_params">
+        <input id="windowSize" type="range" min="1" max="4000" onchange="updateWindowSize()">Window size</input>
+      </div>
+      <div id="keys_accuracies" class="p-4"></div>
+      <div id="keys_ttables_truth"></div>
+      <div id="keys_ttables_prediction"></div>
+    </div>
+  </details>
+  <hr>
+  <details>
+    <summary>Game Loop Analysis</summary>
+    <div id="NLP_div">
+      <button onclick="generateGameLoopAnalysis()">RUN NLP</button>
+      <input id="nb_iter" type="number" value="10" onchange="generateGameLoopAnalysis()">
+      <div id="AI_result"></div>
+      <details>
+        <summary>Details</summary>
+        <table id="BPE_table"></table>
+        <table id="BPE_keys"></table>
+      </details>
+    </div>
+  </details>
 </section>
 
 {% endblock %}
@@ -93,6 +93,7 @@
 	var truth = []
 	var graphs = []
 	function getById(elem) { return document.getElementById(elem) }
+
 
 </script>
 <script src="/static/js/experience/libs/d3.v7.min.js"></script>
@@ -222,6 +223,7 @@
 		}
 		getById("AI_result").innerHTML = result
 	}
+
 
 </script>
 {% endblock %}
