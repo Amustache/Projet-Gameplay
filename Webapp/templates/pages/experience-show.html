@@ -73,6 +73,7 @@
   <hr>
   <details>
     <summary>Game Loop Analysis</summary>
+	<div id="loops_graph" style="height:500px"></div>
     <div id="NLP_div">
       <button onclick="generateGameLoopAnalysis()">RUN NLP</button>
       <input id="nb_iter" type="number" value="10" onchange="generateGameLoopAnalysis()">
@@ -81,14 +82,6 @@
         <summary>Details</summary>
         <table id="BPE_table"></table>
         <table id="BPE_keys"></table>
-
-		<div id="content">
-			<svg width="400" height="300">
-			  <g class="links"></g>
-			  <g class="nodes"></g>
-			</svg>
-		</div>
-
       </details>
     </div>
   </details>
@@ -112,11 +105,6 @@
 	var truth = []
 	var graphs = []
 	function getById(elem) { return document.getElementById(elem) }
-
-
-
-
-
 </script>
 <script src="/static/js/experience/libs/d3.v7.min.js"></script>
 <script src="/static/js/experience/libs/plot@0.6.js"></script>
@@ -232,12 +220,10 @@
         printTransitionTable(ttable, getById("BPE_table"), keys.map(e => e[0]))
 		getById("BPE_keys").innerHTML = keys_table
 
-		let graph = new Markov()
-
 		let ai = new AI(ttable.state, keys)
 		let loops = ai.findLoopInTable()
 
-		console.log(loops)
+		//console.log(loops)
 
 		let result = ""
 		for (let i = 0; i < 3; i++) {
@@ -248,18 +234,23 @@
 		getById("AI_result").innerHTML = result
 
 
+		getById("loops_graph").innerHTML = ""
 		for (let i = 0; i < 3; i++) {
 			loops[i].path.forEach(index => {
-				let states = keys[index][1]
-				console.log(states)
+				let states = []
+				let links = []
+				let current = 0
+				keys[index][1].forEach(e => {
+					states.push({name: e})
+					links.push({source: current, target: (current+1)%keys[index][1].length})
+					current++
+				})
+
+				let graph = new Loops(getById("loops_graph"), states, links)
 
 			})
 		}
 	}
-
-
-
-
 
 </script>
 {% endblock %}

@@ -46,57 +46,44 @@ class Graph{
     }
 }
 
-class Markov{
-    constructor(container, data, title=""){
-        this.container = container
-        this.data = data
-        this.title = title
-
+class Loops{
+    constructor(container, nodes, links){
         this.width = 400
         this.height = 300
+        this.nodes = nodes
+        this.links = links
 
-        this.nodes = [
-            {name: 'A'},
-            {name: 'B'},
-            {name: 'C'},
-            {name: 'D'},
-            {name: 'E'},
-            {name: 'F'},
-            {name: 'G'},
-            {name: 'H'},
-        ]
+        this.svg = d3.select(container)
+        .append("svg")
+        .attr("width", this.width)
+        .attr("height", this.height)
         
-        this.links = [
-            {source: 0, target: 1},
-            {source: 0, target: 2},
-            {source: 0, target: 3},
-            {source: 1, target: 6},
-            {source: 3, target: 4},
-            {source: 3, target: 7},
-            {source: 4, target: 5},
-            {source: 4, target: 7}
-        ]
+        this.svg.append("g").attr("class", "links")
+        this.svg.append("g").attr("class", "nodes")
+
+        this.render()
     }
 
     render(){
-        d3.forceSimulation(nodes)
+        d3.forceSimulation(this.nodes)
         .force('charge', d3.forceManyBody().strength(-100))
         .force('center', d3.forceCenter(this.width/2, this.height/2))
-        .force('link', d3.forceLink().links(this.links))
-        .on('tick', this.tick);
+        .force('link',   d3.forceLink().links(this.links))
+        .on('tick', this.tick.bind(this))
     }
 
     tick(){
-        d3.select('.links')
+        this.svg.select('.links')
         .selectAll('line')
         .data(this.links)
         .join('line')
+        .style("stroke", "black")
         .attr('x1', function(d) { return d.source.x })
         .attr('y1', function(d) { return d.source.y })
         .attr('x2', function(d) { return d.target.x })
         .attr('y2', function(d) { return d.target.y })
 
-        d3.select('.nodes')
+        this.svg.select('.nodes')
         .selectAll('text')
         .data(this.nodes)
         .join('text')
