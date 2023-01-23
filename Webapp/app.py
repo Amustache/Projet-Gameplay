@@ -61,10 +61,11 @@ def example():
 
     # Copy example data
     for f in os.listdir(os.path.join(app.root_path, "demo_inputs")):
-        shutil.copyfile(
-            os.path.join(app.root_path, "demo_inputs", f),
-            os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], f),
-        )
+        if f != ".gitignore":
+            shutil.copyfile(
+                os.path.join(app.root_path, "demo_inputs", f),
+                os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], f),
+            )
 
     fname = "demo_video.webm"
 
