@@ -79,7 +79,7 @@ def experience():
 
 @app.route("/barcode.png")
 def barcode():
-    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], "keylog.csv")
+    file = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], "truth.csv")
     df_trim = extract_keys_from_file(file)
     data = extract_timeline_from_df(df_trim)
 
