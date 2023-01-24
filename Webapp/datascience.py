@@ -70,7 +70,7 @@ def extract_timeline_from_df(df_trim):
 
 # Generate "barcode"
 def fig_generate_barcode(data):
-    fig, ax = plt.subplots()
+    #fig, ax = plt.subplots()
     ax.broken_barh(data["R"], (10, 9), facecolors="tab:red")
     ax.broken_barh(data["L"], (20, 9), facecolors="tab:green")
     ax.broken_barh(data["J"], (30, 9), facecolors="tab:blue")
@@ -135,7 +135,7 @@ def fig_10_patterns(all_patterns):
         keys.append(k)
         values.append(v)
 
-    fig, ax = plt.subplots()
+    #fig, ax = plt.subplots()
     ax.bar(keys, values)
     return fig
 

@@ -61,6 +61,18 @@ class Loops{
         this.svg.append("g").attr("class", "links")
         this.svg.append("g").attr("class", "nodes")
 
+        this.svg.append('defs')
+        .append('marker')
+        .attr('id', 'arrow')
+        .attr('viewBox', [0, 0, 20, 20])
+        .attr('refX', 10).attr('refY', 10)
+        .attr('markerWidth', 10)
+        .attr('markerHeight', 10)
+        .attr('orient', 'auto-start-reverse')
+        .append('path')
+        .attr('d', d3.line()([[0, 0], [0, 20], [20, 10]]))
+        .attr('stroke', 'black');
+
         this.render()
     }
 
@@ -82,6 +94,7 @@ class Loops{
         .attr('y1', function(d) { return d.source.y })
         .attr('x2', function(d) { return d.target.x })
         .attr('y2', function(d) { return d.target.y })
+        .attr('marker-end', 'url(#arrow)')
 
         this.svg.select('.nodes')
         .selectAll('text')

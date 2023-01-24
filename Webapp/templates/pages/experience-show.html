@@ -73,10 +73,11 @@
   <hr>
   <details>
     <summary>Game Loop Analysis</summary>
-	<div id="loops_graph" style="height:500px"></div>
     <div id="NLP_div">
       <button onclick="generateGameLoopAnalysis()">RUN NLP</button>
       <input id="nb_iter" type="number" value="10" onchange="generateGameLoopAnalysis()">
+	  <br>
+	  <div id="loops_graph"></div>
       <div id="AI_result"></div>
       <details>
         <summary>Details</summary>
@@ -223,10 +224,8 @@
 		let ai = new AI(ttable.state, keys)
 		let loops = ai.findLoopInTable()
 
-		//console.log(loops)
-
 		let result = ""
-		for (let i = 0; i < 3; i++) {
+		for (let i = 0; i < 4; i++) {
 			result += "<p>"
 			loops[i].path.forEach(index => result += keys[index][1].toString().replaceAll("],[", "] ⟶  [") + " <b style='color:red'>⟶</b> ")
 			result += "</p>"
@@ -235,20 +234,21 @@
 
 
 		getById("loops_graph").innerHTML = ""
-		for (let i = 0; i < 3; i++) {
-			loops[i].path.forEach(index => {
+		for (let i = 0; i < 4; i++) {
+			console.log(loops[i].path)
+			for(let j=0; j<loops[i].path.length-1; j++){
 				let states = []
 				let links = []
 				let current = 0
-				keys[index][1].forEach(e => {
+				let loop_states = keys[loops[i].path[j]][1]
+				loop_states.forEach(e => {
 					states.push({name: e})
-					links.push({source: current, target: (current+1)%keys[index][1].length})
+					links.push({source: current, target: (current+1)%loop_states.length})
 					current++
 				})
 
 				let graph = new Loops(getById("loops_graph"), states, links)
-
-			})
+			}
 		}
 	}
 
