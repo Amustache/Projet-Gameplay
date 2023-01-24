@@ -24,7 +24,7 @@ def extract_keys_from_file(file):
     df = pd.read_csv(file)
 
     # Only keep keys that are of our interest
-    df_trim = df[(df["KEY"] == "Key.left") | (df["KEY"] == "Key.right") | (df["KEY"] == "'d'")]
+    df_trim = df[(df["KEY"] == "Key.left") | (df["KEY"] == "Key.right") | (df["KEY"] == "x")]
 
     df_trim.loc[(df_trim["KEY"] == "Key.right") & (df_trim["STATUS"] == "DOWN"), "action"] = "R"
     df_trim.loc[(df_trim["KEY"] == "Key.right") & (df_trim["STATUS"] == "UP"), "action"] = "r"
@@ -32,8 +32,8 @@ def extract_keys_from_file(file):
     df_trim.loc[(df_trim["KEY"] == "Key.left") & (df_trim["STATUS"] == "DOWN"), "action"] = "L"
     df_trim.loc[(df_trim["KEY"] == "Key.left") & (df_trim["STATUS"] == "UP"), "action"] = "l"
 
-    df_trim.loc[(df_trim["KEY"] == "'d'") & (df_trim["STATUS"] == "DOWN"), "action"] = "J"
-    df_trim.loc[(df_trim["KEY"] == "'d'") & (df_trim["STATUS"] == "UP"), "action"] = "j"
+    df_trim.loc[(df_trim["KEY"] == "x") & (df_trim["STATUS"] == "DOWN"), "action"] = "J"
+    df_trim.loc[(df_trim["KEY"] == "x") & (df_trim["STATUS"] == "UP"), "action"] = "j"
 
     df_trim = df_trim[["FRAME", "action"]].reset_index(drop=True)
 
@@ -71,9 +71,10 @@ def extract_timeline_from_df(df_trim):
 # Generate "barcode"
 def fig_generate_barcode(data):
     fig, ax = plt.subplots()
-    ax.broken_barh(data["R"], (10, 9), facecolors="tab:red")
-    ax.broken_barh(data["L"], (20, 9), facecolors="tab:green")
-    ax.broken_barh(data["J"], (30, 9), facecolors="tab:blue")
+    ax.broken_barh(data["R"], (10, 9), facecolors="tab:red", label="Right")
+    ax.broken_barh(data["L"], (20, 9), facecolors="tab:green", label="Left")
+    ax.broken_barh(data["J"], (30, 9), facecolors="tab:blue", label="Jump")
+    plt.legend(loc="upper right")
     return fig
 
 
