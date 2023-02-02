@@ -3,3 +3,4 @@
 env
 venv
 config.py
+config.dist.py
