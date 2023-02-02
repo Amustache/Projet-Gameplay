@@ -81,7 +81,7 @@ class AI {
             if (this.ttable[i][entry_index] != 0) {
                 result.push({
                     path: candidate.path.concat([i]),
-                    heuristic: candidate.heuristic * this.ttable[i][entry_index].probability,
+                    heuristic: candidate.heuristic * this.ttable[i][entry_index].probability * this.keys[entry_index][1].length,
                     visited: false
                 })
             }

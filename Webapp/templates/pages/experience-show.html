@@ -48,34 +48,48 @@
           <tbody id="current_frame_prediction"></tbody>
         </table>
         <table class="table table-bordered text-center">
-          <thead>
-          <tr>
-            <th>Truth</th>
-          </tr>
-          </thead>
+          <thead><tr><th>Truth</th></tr></thead>
           <tbody id="current_frame_truth"></tbody>
         </table>
       </div>
     </div>
   </div>
   <hr>
-  <details>
+  <details id="key_analysis_details">
     <summary>Keys analysis</summary>
     <div id="keys_container">
       <div id="keys_accuracies_params">
-        <input id="windowSize" type="range" min="1" max="4000" onchange="updateWindowSize()">Window size</input>
+        <label>Smoothing : </label><input id="windowSize_accuracies" type="range" min="1" max="4000" onchange="updateWindowSize('accuracies')"></input>
       </div>
       <div id="keys_accuracies" class="p-4"></div>
-      <div id="keys_ttables_truth"></div>
-      <div id="keys_ttables_prediction"></div>
+	  <div id="keys_ttables_params">
+        <label>Smoothing : </label><input id="windowSize_ttables" type="range" min="1" max="400" onchange="updateWindowSize('ttables')"></input>
+      </div>
+	  <table class="table">
+		<tr>
+			<td><div id="keys_ttables_truth"></div></td>
+			<td><div id="keys_ttables_prediction"></div></td>
+		</tr>
+	  </table>
     </div>
   </details>
   <hr>
   <details>
     <summary>Game Loop Analysis</summary>
     <div id="NLP_div">
-      <button onclick="generateGameLoopAnalysis()">RUN NLP</button>
-      <input id="nb_iter" type="number" value="10" onchange="generateGameLoopAnalysis()">
+		<div class="m-3 row">
+			<div class="col-md-4">
+				<label for="nb_iter" class="form-label">Number of iterations</label>
+				<input id="nb_iter" class="form-control" type="number" value="10" onchange="generateGameLoopAnalysis()">
+			</div>
+			<div class="col-md-4">
+				<label for="nb_loops" class="form-label">Number of loops shown</label>
+				<input id="nb_loops" class="form-control" type="number" min="1" max="10" onchange="generateGameLoopAnalysis()">
+			</div>
+			<div class="col-md-4">
+				<button class="btn btn-primary" onclick="generateGameLoopAnalysis()">Execute algorithm</button>
+			</div>
+		</div>
 	  <br>
 	  <div id="loops_graph"></div>
       <div id="AI_result"></div>
@@ -89,12 +103,8 @@
   <hr>
   <div class="container">
     <div class="row gx-1 ">
-      <div class="col-lg-6">
-        <img src="/barcode.png">
-      </div>
-      <div class="col-lg-6">
-        <img src="/tenpatterns.png">
-      </div>
+      <div class="col-lg-6"><img src="/barcode.png"></div>
+      <div class="col-lg-6"><img src="/tenpatterns.png"></div>
     </div>
   </div>
 </section>
@@ -104,7 +114,7 @@
 <script>
 	var predictions = []
 	var truth = []
-	var graphs = []
+	var graphs = {}
 	function getById(elem) { return document.getElementById(elem) }
 </script>
 <script src="/static/js/experience/libs/d3.v7.min.js"></script>
@@ -149,20 +159,33 @@
 			truth = new KeyLog(results[1], KEYS, 3)
 			let [averages, accuracies] = computeAccuracies(prediction, truth)
 			generateCurrentFrameSection(averages)
-			generateKeysSection(accuracies, prediction, truth)
+			graphs = generateKeysSection(accuracies, prediction, truth)
             generateGameLoopAnalysis()
-			update()
 		})
 	}
 	document.body.onload = init
 
+	getById("key_analysis_details").addEventListener("toggle", e => {
+		if (getById("key_analysis_details").open) {
+			updateWindowSize()
+			update()
+		}
+	});
+
 	function update() {
-        graphs.forEach(graph => graph.updateTimeLine(getCurrentFrame()))
-		//setTimeout(update, UPDATE_TIME)
+		for(const type in graphs){
+			graphs[type].forEach(graph => graph.updateTimeLine(getCurrentFrame()))
+		}
 	}
 
-    function updateWindowSize(){
-        graphs.forEach(graph => graph.updateWindow(getById('windowSize').value))
+    function updateWindowSize(type=null){
+		if(type==null){
+			for(const type in graphs){
+				updateWindowSize(type)
+			}
+		}else{
+			graphs[type].forEach(graph => graph.updateWindow(getById('windowSize_'+type).value))
+		}
     }
 
 	function computeAccuracies(prediction, truth) {
@@ -204,53 +227,49 @@
 				datasets.push({ frame: i, y: 100 * accuracies[i][key], key: key })
 			})
 		}
-		graphs.push(new Graph(getById("keys_accuracies"), datasets, "Accuracy per key", "Frame number", "Prediction accuracy [%]"))
-		graphs.push(new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"))
-		graphs.push(new Graph(getById("keys_ttables_truth"), truth.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
+		return {
+			accuracies : [
+				new Graph(getById("keys_accuracies"), datasets, "Accuracy per key", "Frame number", "Prediction accuracy [%]")
+			],
+			ttables : [
+				new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"),
+				new Graph(getById("keys_ttables_truth"), truth.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition")
+			]
+		}
 	}
 
 	function generateGameLoopAnalysis() {
-        let nbIter = getById("nb_iter").value
-		let [ttable, keys] = new NLP(prediction.getAllFrames(), KEYS).BPE(nbIter)
+		let [ttable, keys] = new NLP(truth.getAllFrames(), KEYS).BPE(getById("nb_iter").value)
+		printTransitionTable(ttable, getById("BPE_table"), keys.map(e => e[0]))
 
-		let keys_table = ""
+		getById("BPE_keys").innerHTML = ""
 		for (let i = 0; i < keys.length; i++) {
-			keys_table += "<tr><td>" + i + "</td><td>" + keys[i][0] + "</td><td>" + keys[i][1] + "</td></tr>"
+			getById("BPE_keys").innerHTML += "<tr><td>" + i + "</td><td>" + keys[i][0] + "</td><td>" + keys[i][1] + "</td></tr>"
 		}
 
-        printTransitionTable(ttable, getById("BPE_table"), keys.map(e => e[0]))
-		getById("BPE_keys").innerHTML = keys_table
-
-		let ai = new AI(ttable.state, keys)
-		let loops = ai.findLoopInTable()
-
+		let loops = new AI(ttable.state, keys).findLoopInTable()
 		let result = ""
-		for (let i = 0; i < 4; i++) {
+		getById("loops_graph").innerHTML = ""
+		for (let i = 0; i < getById("nb_loops").value; i++) {
 			result += "<p>"
-			loops[i].path.forEach(index => result += keys[index][1].toString().replaceAll("],[", "] ⟶  [") + " <b style='color:red'>⟶</b> ")
+			let current = 0
+			let states = []
+			let links = []
+
+			for(let j=0; j < loops[i].path.length-1; j++){
+				let loop_states = keys[loops[i].path[j]][1]
+				result += loop_states.toString().replaceAll("],[", "] ⟶  [") + " <b style='color:red'>⟶</b> "
+				loop_states.forEach(e => {
+					states.push({name: e})
+					links.push({source: current, target: current+1})
+					current++
+				})
+			}
+			links[links.length-1]["target"] = 0
+			new Loops(getById("loops_graph"), states, links)
 			result += "</p>"
 		}
 		getById("AI_result").innerHTML = result
-
-
-		getById("loops_graph").innerHTML = ""
-		for (let i = 0; i < 4; i++) {
-			console.log(loops[i].path)
-			for(let j=0; j<loops[i].path.length-1; j++){
-				let states = []
-				let links = []
-				let current = 0
-				let loop_states = keys[loops[i].path[j]][1]
-				loop_states.forEach(e => {
-					states.push({name: e})
-					links.push({source: current, target: (current+1)%loop_states.length})
-					current++
-				})
-
-				let graph = new Loops(getById("loops_graph"), states, links)
-			}
-		}
 	}
-
 </script>
 {% endblock %}

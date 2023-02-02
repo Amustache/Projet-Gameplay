@@ -2,7 +2,6 @@ class NLP {
     constructor(raw_data, keys) {
         this.keys = keys
         this.data = []
-
         let previous = undefined
         raw_data.forEach(elem => {
             let processed = this.elemToStr(elem)
@@ -83,22 +82,6 @@ class NLP {
                     keys.push(elem)
                 }
             })
-
-            /*
-            let table = document.createElement("table")
-            show_transition_table(trans_table, table, keys)
-    
-            let table_keys = document.createElement("table")
-            let unproc_keys = unprocess_keys(keys)
-            unproc_keys.forEach(key => table_keys.innerHTML += "<tr><td>"+JSON.stringify(key)+"</td></tr>")
-    
-            let div = document.createElement("div")
-            div.appendChild(table)
-            div.appendChild(table_keys)
-            getById("parameters").appendChild(div)
-    
-            find_loop_in_ttable(convert_table_to_column_percent(trans_table.state))
-            */
         }
 
         let keys_result = []
@@ -116,8 +99,6 @@ class NLP {
 
         let prev_index = keys.indexOf(data[0])
         data.forEach(elem => {
-            //console.log(elem)
-            //console.log(keys)
             let index = keys.indexOf(elem)
             state[index][prev_index] += 1
             prev_index = index
