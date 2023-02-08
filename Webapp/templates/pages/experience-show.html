@@ -112,8 +112,8 @@
 {% endblock %}
 {% block javascript %}
 <script>
-	var predictions = []
-	var truth = []
+	var prediction = null
+	var truth = null
 	var graphs = {}
 	function getById(elem) { return document.getElementById(elem) }
 </script>
@@ -142,28 +142,55 @@
 		getById("current_frame").innerHTML = currentFrame
 
 		KEYS.forEach(key => {
-			let truth_key = truth.getFrame(currentFrame)[key]
 			let predicted_key = prediction.getFrame(currentFrame)[key]
-			getById(key + "_truth").innerHTML = truth_key
-			getById(key + "_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>" + predicted_key + "<span>" : predicted_key
+
+			if(truth.length != 0){
+				let truth_key = truth.getFrame(currentFrame)[key]
+				getById(key + "_truth").innerHTML = truth_key
+				getById(key + "_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>" + predicted_key + "<span>" : predicted_key
+			}else{
+				getById(key + "_prediction").innerHTML = predicted_key
+			}
 		})
 
 		printTransitionTable(prediction.getTransitionTable(currentFrame), getById("current_frame_prediction"), KEYS)
-		printTransitionTable(truth.getTransitionTable(currentFrame), getById("current_frame_truth"), KEYS)
+		if(truth.length != 0){
+			printTransitionTable(truth.getTransitionTable(currentFrame), getById("current_frame_truth"), KEYS)
+		}
 		update()
 	}
 
 	function init() {
-		Promise.all([d3.csv("static/inputs/prediction.csv"), d3.csv("static/inputs/truth.csv")]).then((results) => {
-			prediction = new KeyLog(results[0], KEYS)
-			truth = new KeyLog(results[1], KEYS, 3)
-			let [averages, accuracies] = computeAccuracies(prediction, truth)
-			generateCurrentFrameSection(averages)
-			graphs = generateKeysSection(accuracies, prediction, truth)
-            generateGameLoopAnalysis()
+		d3.csv("static/inputs/prediction.csv").then(r => {
+			prediction = r
+			process()
+		})
+		d3.csv("static/inputs/truth.csv").then(r => {
+			truth = r
+			process()
+		}).catch(err => {
+			truth = []
+			process()
 		})
 	}
 	document.body.onload = init
+
+	function process(){
+		if(prediction != null && truth != null){
+			prediction = new KeyLog(prediction, KEYS)
+			let averages = null
+			let accuracies = null
+
+			if(truth.length != 0){
+				truth = new KeyLog(truth, KEYS, 3)
+				[averages, accuracies] = computeAccuracies(prediction, truth)
+			}
+			
+			generateCurrentFrameSection(averages)
+			graphs = generateKeysSection(prediction, accuracies, truth)
+			generateGameLoopAnalysis(prediction)
+		}
+	}
 
 	getById("key_analysis_details").addEventListener("toggle", e => {
 		if (getById("key_analysis_details").open) {
@@ -209,7 +236,8 @@
 	}
 
 	function generateCurrentFrameSection(averages) {
-		KEYS.forEach(key =>
+		if(averages != null){
+			KEYS.forEach(key =>
 			getById("table_summary").innerHTML += '\
                 <tr>\
                     <td>'+ key + '</td>\
@@ -217,29 +245,43 @@
                     <td id="'+ key + '_truth"></td>\
                     <td>'+ (100 * averages[key]).toFixed(2) + '%</td>\
                 </tr>'
-		)
+			)
+		}else{
+			KEYS.forEach(key =>
+			getById("table_summary").innerHTML += '\
+                <tr>\
+                    <td>'+ key + '</td>\
+                    <td id="'+ key + '_prediction"></td>\
+                </tr>'
+			)
+		}
 	}
 
-	function generateKeysSection(accuracies, prediction, truth) {
+	function generateKeysSection(prediction, accuracies, truth) {
 		let datasets = []
-		for (let i = 0; i < accuracies.length; i++) {
-			KEYS.forEach(key => {
-				datasets.push({ frame: i, y: 100 * accuracies[i][key], key: key })
-			})
+		ttables = []
+		accuracies = []
+		ttables.push(new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"))
+		
+		if(truth.length != 0){
+			ttables.push(new Graph(getById("keys_ttables_truth"), truth.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
+		
+			for (let i = 0; i < accuracies.length; i++) {
+				KEYS.forEach(key => {
+					datasets.push({ frame: i, y: 100 * accuracies[i][key], key: key })
+				})
+			}
+			accuracies.push(new Graph(getById("keys_accuracies"), datasets, "Accuracy per key", "Frame number", "Prediction accuracy [%]"))
 		}
+
 		return {
-			accuracies : [
-				new Graph(getById("keys_accuracies"), datasets, "Accuracy per key", "Frame number", "Prediction accuracy [%]")
-			],
-			ttables : [
-				new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"),
-				new Graph(getById("keys_ttables_truth"), truth.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition")
-			]
+			accuracies : accuracies,
+			ttables : ttables
 		}
 	}
 
-	function generateGameLoopAnalysis() {
-		let [ttable, keys] = new NLP(truth.getAllFrames(), KEYS).BPE(getById("nb_iter").value)
+	function generateGameLoopAnalysis(keylog) {
+		let [ttable, keys] = new NLP(keylog.getAllFrames(), KEYS).BPE(getById("nb_iter").value)
 		printTransitionTable(ttable, getById("BPE_table"), keys.map(e => e[0]))
 
 		getById("BPE_keys").innerHTML = ""

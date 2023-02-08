@@ -3,9 +3,9 @@ import os
 import sys
 
 
-from inc.KeyslogReader import KeyslogReader
-from inc.NeuralNetwork import NeuralNetwork
-from inc.VideoLoader import VideoLoader
+from .inc.KeyslogReader import KeyslogReader
+from .inc.NeuralNetwork import NeuralNetwork
+from .inc.VideoLoader import VideoLoader
 from sklearn.model_selection import KFold
 from torch.utils.data import DataLoader, Subset
 from torch.utils.tensorboard import SummaryWriter
@@ -47,11 +47,9 @@ class VideoKeysLogMerge(torch.utils.data.IterableDataset):
             self.next_element = 0
             raise StopIteration
 
-
 def start_tensorboard():
     global tensorboardWriter
     tensorboardWriter = SummaryWriter(comment="Neural Network")
-
 
 def write_tensorboard(name, epoch, results):
     global tensorboardWriter
@@ -63,30 +61,23 @@ def write_tensorboard(name, epoch, results):
     tensorboardWriter.add_scalar(name + "/Loss", loss, epoch)
     tensorboardWriter.flush()
 
-
 def save_model(model, suffix):
     torch.save(model.state_dict(), datetime.now().strftime("%Y-%m-%d-%H:%M") + suffix)
-
 
 def get_video(path, preload):
     return VideoLoader(path, VIDEO_DIMENSIONS, START_FRAME, END_FRAME, FPS, preload)
 
-
 def get_keylog(path, frameStep):
     return KeyslogReader(path, frameStep, START_FRAME, offset=OFFSET)
-
 
 def get_model():
     return NeuralNetwork(DEVICE, VIDEO_DIMENSIONS)
 
-
 def get_dataloader(data):
     return DataLoader(data, batch_size=BATCH_SIZE, shuffle=SHUFFLE_DATASETS)
 
-
 def print_epoch(epoch):
     print(f"--------------  Epoch {epoch+1}  -----------------")
-
 
 def test(video_path, keylog_path):
     print("Start testing...")
@@ -133,8 +124,11 @@ def train(video_path, keylog_path):
     print("Train finished")
 
 
-def predict(video_path, model_path):
+def predict(video_path, model_path=None):
     if os.path.isfile(video_path):
+        if model_path == None :
+            model_path = os.path.join(os.path.dirname(__file__), "model.pth")
+
         print("Predicting " + video_path)
         keys_dict = ["Key.left", "Key.right", "x"]
         current_state = [0, 0, 0]
@@ -147,7 +141,8 @@ def predict(video_path, model_path):
         dataloader = get_dataloader(data)
 
         frame = START_FRAME
-        f = open((os.path.basename(video_path).split(".")[0]) + ".csv", "w")
+        file_path = os.path.join(os.path.dirname(video_path), "prediction.csv")
+        f = open(file_path, "w")
         f.write("FRAME,KEY,STATUS\n")
         with torch.no_grad():
             i = 0
@@ -174,8 +169,7 @@ def predict(video_path, model_path):
     else:
         print("Path is not a file or a directory")
 
-
-def main():
+if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("No action specified !")
     elif sys.argv[1] == "train":
@@ -186,7 +180,3 @@ def main():
         predict(sys.argv[2], sys.argv[3])
     else:
         print("Unknown command")
-
-
-if __name__ == "__main__":
-    main()
