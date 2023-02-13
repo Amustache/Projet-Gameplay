@@ -366,4 +366,5 @@ ML/data
 
 # Inputs
 /Webapp/static/inputs/*
+!/Webapp/static/inputs/demo/*
 !/Webapp/static/inputs/.gitkeep
