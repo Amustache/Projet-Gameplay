@@ -16,4 +16,5 @@ scikit-learn
 torch
 torchaudio
 torchvision
+torchinfo
 werkzeug
