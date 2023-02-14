@@ -9,6 +9,7 @@
       <video id="video" height="440" controls>
         <source src="{{filename}}" type="video/mp4">
       </video>
+	  <div id="area"></div>
       <div class="text-center">
         <span>Play Speed <span id="speedLabel">1</span>x</span>
         <br>
@@ -114,6 +115,8 @@
 <script>
 	var prediction = null
 	var truth = null
+	var prediction_data = null
+	var truth_data = null
 	var graphs = {}
 	function getById(elem) { return document.getElementById(elem) }
 </script>
@@ -125,6 +128,8 @@
 <script src="/static/js/experience/keylog.js"></script>
 <script src="/static/js/experience/NLP.js"></script>
 <script src="/static/js/experience/AI.js"></script>
+<script src='/static/js/experience/partition/partition.js'></script>        
+
 <script>
 	function getCurrentFrame() { return parseInt(VIDEO.currentTime * FPS) }
 	function getTotalFrames() { return parseInt(VIDEO.duration * FPS) }
@@ -144,7 +149,7 @@
 		KEYS.forEach(key => {
 			let predicted_key = prediction.getFrame(currentFrame)[key]
 
-			if(truth.length != 0){
+			if(truth != null && truth.length != 0){
 				let truth_key = truth.getFrame(currentFrame)[key]
 				getById(key + "_truth").innerHTML = truth_key
 				getById(key + "_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>" + predicted_key + "<span>" : predicted_key
@@ -161,34 +166,44 @@
 	}
 
 	function init() {
-		d3.csv("static/inputs/prediction.csv").then(r => {
-			prediction = r
+  		d3.csv("static/inputs/prediction.csv").then(r => {
+			prediction_data = r
+			console.log("pred")
 			process()
 		})
 		d3.csv("static/inputs/truth.csv").then(r => {
-			truth = r
+			truth_data = r
+			console.log("truth")
 			process()
 		}).catch(err => {
-			truth = []
+			truth_data = []
+			console.log("error")
 			process()
 		})
 	}
 	document.body.onload = init
 
 	function process(){
-		if(prediction != null && truth != null){
-			prediction = new KeyLog(prediction, KEYS)
+		console.log("prediction :" + prediction_data)
+		
+		console.log("truth :" + truth_data)
+
+		if(prediction_data != null && truth_data != null){
+			prediction = new KeyLog(prediction_data, KEYS)
 			let averages = null
 			let accuracies = null
 
-			if(truth.length != 0){
-				truth = new KeyLog(truth, KEYS, 3)
+			if(truth_data.length != 0){
+				truth = new KeyLog(truth_data, KEYS, 3)
 				[averages, accuracies] = computeAccuracies(prediction, truth)
+			} else {
+				truth = []
 			}
 			
 			generateCurrentFrameSection(averages)
 			graphs = generateKeysSection(prediction, accuracies, truth)
 			generateGameLoopAnalysis(prediction)
+			compute_partition(prediction_data)
 		}
 	}
 

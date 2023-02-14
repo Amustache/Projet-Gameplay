@@ -14,6 +14,12 @@ ALLOWED_EXTENSIONS = {"mkv", "mp4", "webm", "avi"}
 DEMO_TRUTH = "truth.csv"
 DEMO_FNAME = "video.webm"
 
+app = Flask(__name__)
+app.config["UPLOAD_FOLDER"] = os.path.join("static", "inputs")
+app.config["DEMO_FOLDER"]   = os.path.join("static", "inputs", "demo")
+app.config["MAX_CONTENT_PATH"] = 200_000_000
+app.config.from_object("config")
+
 def root_path_join(*args):
     return os.path.join(app.root_path, *args)
 
@@ -29,12 +35,6 @@ def flash_and_redirect(dest, msg):
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = os.path.join("static", "inputs")
-app.config["DEMO_FOLDER"]   = os.path.join("static", "demo")
-app.config["MAX_CONTENT_PATH"] = 200_000_000
-app.config.from_object("config")
 
 @app.route("/uploader", methods=["GET", "POST"])
 def upload_file():
