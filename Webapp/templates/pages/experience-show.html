@@ -114,6 +114,8 @@
 <script>
 	var prediction = null
 	var truth = null
+	var prediction_data = null
+	var truth_data = null
 	var graphs = {}
 	function getById(elem) { return document.getElementById(elem) }
 </script>
@@ -144,7 +146,7 @@
 		KEYS.forEach(key => {
 			let predicted_key = prediction.getFrame(currentFrame)[key]
 
-			if(truth.length != 0){
+			if(truth_data.length != 0){
 				let truth_key = truth.getFrame(currentFrame)[key]
 				getById(key + "_truth").innerHTML = truth_key
 				getById(key + "_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>" + predicted_key + "<span>" : predicted_key
@@ -154,35 +156,36 @@
 		})
 
 		printTransitionTable(prediction.getTransitionTable(currentFrame), getById("current_frame_prediction"), KEYS)
-		if(truth.length != 0){
+		if(truth_data.length != 0){
 			printTransitionTable(truth.getTransitionTable(currentFrame), getById("current_frame_truth"), KEYS)
 		}
 		update()
 	}
 
 	function init() {
+		let context = this
 		d3.csv("static/inputs/prediction.csv").then(r => {
-			prediction = r
-			process()
+			prediction_data = r
+			process.bind(context)()
 		})
 		d3.csv("static/inputs/truth.csv").then(r => {
-			truth = r
-			process()
+			truth_data = r
+			process.bind(context)()
 		}).catch(err => {
-			truth = []
-			process()
+			truth_data = []
+			process.bind(context, true)()
 		})
 	}
 	document.body.onload = init
 
-	function process(){
-		if(prediction != null && truth != null){
-			prediction = new KeyLog(prediction, KEYS)
+	function process(ignoreTruth=false){
+		if(prediction_data != null && (truth_data != null || ignoreTruth)){
+			prediction = new KeyLog(prediction_data, KEYS)
 			let averages = null
 			let accuracies = null
 
-			if(truth.length != 0){
-				truth = new KeyLog(truth, KEYS, 3)
+			if(!ignoreTruth){
+				truth = new KeyLog(truth_data, KEYS, 3)
 				[averages, accuracies] = computeAccuracies(prediction, truth)
 			}
 			
@@ -263,7 +266,7 @@
 		accuracies = []
 		ttables.push(new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"))
 		
-		if(truth.length != 0){
+		if(truth != null){
 			ttables.push(new Graph(getById("keys_ttables_truth"), truth.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
 		
 			for (let i = 0; i < accuracies.length; i++) {
