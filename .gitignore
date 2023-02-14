@@ -366,3 +366,7 @@ ML/data
 /Webapp/static/inputs/*
 !/Webapp/static/inputs/demo
 !/Webapp/static/inputs/.gitkeep
+
+# random
+
+/wip/kevin/old/data/analysis/sliced_logs

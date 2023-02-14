@@ -3,6 +3,7 @@ class KeyLog{
         this.rawInput = input
         this.keys     = keys
         this.offset   = offset
+        this.length = input.length
 
         this.byFrame = []
         {
