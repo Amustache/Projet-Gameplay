@@ -142,12 +142,12 @@ def train(video_path, keylog_path):
     print("Train finished")
 
 
-def predict(video_path, model_path=None):
+def predict(video_path, model_path=None, callback=None):
     if os.path.isfile(video_path):
         if model_path == None :
             model_path = os.path.join(os.path.dirname(__file__), "model.pth")
 
-        print("Predicting " + video_path)
+        print("Predicting " + video_path + " with" + str(model_path))
         keys_dict = ["Key.left", "Key.right", "x"]
         current_state = [0, 0, 0]
 
@@ -165,7 +165,7 @@ def predict(video_path, model_path=None):
         with torch.no_grad():
             i = 0
             for x in dataloader:
-                print(f"{i}/{len(dataloader)}")
+                if callback != None : callback(i/len(dataloader))
                 pred_batch = torch.round(model(x.to(DEVICE)))
                 for pred in pred_batch:
                     for j in range(len(current_state)):
@@ -176,6 +176,7 @@ def predict(video_path, model_path=None):
                     frame += data.fps_step
                 i += 1
         f.close()
+        if callback != None : callback(1)
         print("Prediction finished")
 
     elif os.path.isdir(video_path):

@@ -3,6 +3,7 @@ import io
 import logging
 import os
 import shutil
+import threading
 import ML.model
 
 from datascience import *
@@ -20,6 +21,9 @@ app.config["DEMO_FOLDER"]   = os.path.join("static", "inputs", "demo")
 app.config["MAX_CONTENT_PATH"] = 200_000_000
 app.config.from_object("config")
 
+current_ML_thread = None
+current_ML_progress = 0
+
 def root_path_join(*args):
     return os.path.join(app.root_path, *args)
 
@@ -36,8 +40,17 @@ def flash_and_redirect(dest, msg):
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def run_ML(path):
+    ML.model.predict(path, callback=run_ML_callback)
+
+def run_ML_callback(progress):
+    global current_ML_progress
+    print("Progress "+str(round(progress*100,2))+"% ...")
+    current_ML_progress = progress
+
 @app.route("/uploader", methods=["GET", "POST"])
 def upload_file():
+    global current_ML_thread
     if request.method == "POST":
         if "file" not in request.files:
             return flash_and_redirect("experience", "Pas de fichier téléversé")
@@ -49,19 +62,19 @@ def upload_file():
         if not (file and allowed_file(file.filename)):
             return flash_and_redirect("experience", "Merci d'utiliser une vidéo valide")
             
-        clean_upload_folder()
-        fname = secure_filename(file.filename)
-        full_path = root_path_join(app.config["UPLOAD_FOLDER"], fname)
 
-        # Save the new file
-        file.save(full_path)
+        if current_ML_thread == None :
+            clean_upload_folder()
+            fname = secure_filename(file.filename)
+            full_path = root_path_join(app.config["UPLOAD_FOLDER"], fname)
 
-        # Process the video and extract the data
-        ML.model.predict(full_path)
-
-        # Show the result
-        return redirect(url_for("experience_show", filename=fname))
-
+            # Save the new file
+            file.save(full_path)
+            current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
+            current_ML_thread.start()
+            return redirect(url_for("waiting", filename=fname))
+        else:
+            return redirect(url_for("overloaded"))
 
 @app.route("/example")
 def example():
@@ -80,6 +93,58 @@ def example():
 @app.route("/experience")
 def experience():
     return render_template("pages/experience.html")
+
+@app.route("/")
+def home():
+    return render_template("pages/home.html")
+
+@app.route("/recording")
+def recording():
+    return render_template("pages/recording.html")
+
+@app.route("/report")
+def report():
+    return render_template("pages/report.html")
+
+@app.route("/results")
+def results():
+    return render_template("pages/results.html")
+
+@app.route("/overloaded")
+def overloaded():
+    return render_template("pages/overloaded.html")
+
+@app.route("/waiting")
+def waiting():
+    return render_template("pages/waiting.html")
+
+@app.route("/progression")
+def progression():
+    global current_ML_progress
+    return {"progression":current_ML_progress}
+
+@app.route("/markov.png")
+def markov():
+    file = os.path.join(app.config["UPLOAD_FOLDER"], DEMO_TRUTH)
+    df_trim = extract_keys_from_file(file)
+    data = extract_timeline_from_df(df_trim)
+
+    fig = create_figure()
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype="image/png")
+
+
+@app.route("/experience-show")
+def experience_show():
+    if not request.args.get("filename"):
+        return flash_and_redirect("experience", "Il faut d'abord téléverser une vidéo !")
+        
+    filename = os.path.join(app.config["UPLOAD_FOLDER"], request.args.get("filename"))
+    if not os.path.isfile(filename):
+        return flash_and_redirect("experience", "Le fichier sélectionné semble invalide")
+
+    return render_template("pages/experience-show.html", filename=filename)
 
 """
 @app.route("/barcode.png")
@@ -107,41 +172,6 @@ def tenpatterns():
     return Response(output.getvalue(), mimetype="image/png")
 """
 
-@app.route("/markov.png")
-def markov():
-    file = os.path.join(app.config["UPLOAD_FOLDER"], DEMO_TRUTH)
-    df_trim = extract_keys_from_file(file)
-    data = extract_timeline_from_df(df_trim)
-
-    fig = create_figure()
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype="image/png")
-
-
-@app.route("/experience-show")
-def experience_show():
-    if not request.args.get("filename"):
-        return flash_and_redirect("experience", "Il faut d'abord téléverser une vidéo !")
-        
-    filename = os.path.join(app.config["UPLOAD_FOLDER"], request.args.get("filename"))
-    if not os.path.isfile(filename):
-        return flash_and_redirect("experience", "Le fichier sélectionné semble invalide")
-
-    return render_template("pages/experience-show.html", filename=filename)
-
-@app.route("/")
-def home():
-    return render_template("pages/home.html")
-
-@app.route("/rapport")
-def rapport():
-    return render_template("pages/rapport.html")
-
-@app.route("/resultats")
-def resultats():
-    return render_template("pages/resultats.html")
-
 # Error handlers.
 
 @app.errorhandler(500)
@@ -154,9 +184,7 @@ def not_found_error(error):
 
 if not app.debug:
     file_handler = FileHandler("error.log")
-    file_handler.setFormatter(
-        Formatter("%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]")
-    )
+    file_handler.setFormatter(Formatter("%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"))
     app.logger.setLevel(logging.INFO)
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)

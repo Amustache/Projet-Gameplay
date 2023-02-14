@@ -1,5 +1,4 @@
 function compute_partition(prediction_data) {
-    console.log('yo')
     const FPS = 30
     let window_size = 5
 

@@ -87,8 +87,12 @@
                href="{{ url_for('home') }}">Accueil</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'rapport' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('rapport') }}">Rapport</a>
+            <a class="nav-link {% if request.endpoint == 'recording' %}active{% endif %}" aria-current="page"
+               href="{{ url_for('recording') }}">Script pour enregistrement</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'report' %}active{% endif %}" aria-current="page"
+               href="{{ url_for('report') }}">Rapport</a>
           </li>
           <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'experience' %}active{% endif %}" aria-current="page"

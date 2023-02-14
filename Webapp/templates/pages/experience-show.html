@@ -6,10 +6,7 @@
 <section>
   <div class="video_container">
     <div class="m-auto">
-      <video id="video" height="440" controls>
-        <source src="{{filename}}" type="video/mp4">
-      </video>
-	  <div id="area"></div>
+      <video id="video" height="440" controls><source src="{{filename}}" type="video/mp4"></video>
       <div class="text-center">
         <span>Play Speed <span id="speedLabel">1</span>x</span>
         <br>
@@ -29,31 +26,10 @@
         <span>Frame : <span id="current_frame">0</span></span>
       </div>
       <br>
-      <div>
-        <table class="table" id="table_summary">
-          <tr>
-            <th></th>
-            <th>Prediction</th>
-            <th>Truth</th>
-            <th>Total Accuracy</th>
-          </tr>
-        </table>
-      </div>
-      <div class="grid11 fs-small">
-        <table class="table table-bordered text-center me-3">
-          <thead>
-          <tr>
-            <th>Prediction</th>
-          </tr>
-          </thead>
-          <tbody id="current_frame_prediction"></tbody>
-        </table>
-        <table class="table table-bordered text-center">
-          <thead><tr><th>Truth</th></tr></thead>
-          <tbody id="current_frame_truth"></tbody>
-        </table>
-      </div>
+      <div><table class="table" id="table_summary"></table></div>
+      <div class="grid11 fs-small" id="current_frame_tables"></div>
     </div>
+	<div id="area"></div>
   </div>
   <hr>
   <details id="key_analysis_details">
@@ -136,6 +112,56 @@
 	function getCurrentFrame() { return parseInt(VIDEO.currentTime * FPS) }
 	function getTotalFrames() { return parseInt(VIDEO.duration * FPS) }
 	function moveFrame(nb = 1) { VIDEO.currentTime += nb / FPS }
+	VIDEO.ontimeupdate = event => update()
+
+	function init() {
+		let context = this
+		d3.csv("static/inputs/prediction.csv").then(r => {
+			prediction_data = r
+			process.bind(context)()
+		})
+		d3.csv("static/inputs/truth.csv").then(r => {
+			truth_data = r
+			process.bind(context)()
+		}).catch(err => {
+			truth_data = []
+			process.bind(context)()
+		})
+	}
+	document.body.onload = init
+
+	function process(ignoreTruth=false){
+		if(prediction_data != null && truth_data != null){
+			prediction = new KeyLog(prediction_data, KEYS)
+			let averages = null
+			let accuracies = null
+
+			getById("current_frame_tables").innerHTML = "\
+				<table class=\"table table-bordered text-center me-3\">\
+         			<thead><tr><th>Prediction</th></tr></thead>\
+          			<tbody id=\"current_frame_prediction\"></tbody>\
+        		</table>"
+
+			if(truth_data.length != 0){
+				truth = new KeyLog(truth_data, KEYS, 3)
+				[averages, accuracies] = computeAccuracies(prediction, truth)
+
+				getById("current_frame_tables").innerHTML += "\
+					<table class=\"table table-bordered text-center\">\
+          				<thead><tr><th>Truth</th></tr></thead>\
+          				<tbody id=\"current_frame_truth\"></tbody>\
+        			</table>"
+			} else {
+				truth = []
+			}
+			
+			generateCurrentFrameSection(averages)
+			graphs = generateKeysSection(prediction, accuracies, truth)
+			generateGameLoopAnalysis(prediction)
+			compute_partition(prediction_data)
+			update()
+		}
+	}
 
 	function updateSpeed() {
 		const speed = getById("speedInput").value
@@ -143,7 +169,14 @@
 		VIDEO.playbackRate = speed
 	}
 
-	VIDEO.ontimeupdate = (event) => {
+	getById("key_analysis_details").addEventListener("toggle", e => {
+		if (getById("key_analysis_details").open) {
+			updateWindowSize()
+			update()
+		}
+	});
+
+	function update() {
 		let currentFrame = getCurrentFrame()
 		getById("current_time").innerHTML = VIDEO.currentTime
 		getById("current_frame").innerHTML = currentFrame
@@ -161,56 +194,10 @@
 		})
 
 		printTransitionTable(prediction.getTransitionTable(currentFrame), getById("current_frame_prediction"), KEYS)
-		if(truth_data.length != 0){
+		if(truth.length != 0){
 			printTransitionTable(truth.getTransitionTable(currentFrame), getById("current_frame_truth"), KEYS)
 		}
-		update()
-	}
 
-	function init() {
-		let context = this
-		d3.csv("static/inputs/prediction.csv").then(r => {
-			prediction_data = r
-			process.bind(context)()
-		})
-		d3.csv("static/inputs/truth.csv").then(r => {
-			truth_data = r
-			process.bind(context)()
-		}).catch(err => {
-			truth_data = []
-			process.bind(context, true)()
-		})
-	}
-	document.body.onload = init
-
-	function process(ignoreTruth=false){
-		if(prediction_data != null && (truth_data != null || ignoreTruth)){
-			prediction = new KeyLog(prediction_data, KEYS)
-			let averages = null
-			let accuracies = null
-
-			if(!ignoreTruth){
-				truth = new KeyLog(truth_data, KEYS, 3)
-				[averages, accuracies] = computeAccuracies(prediction, truth)
-			} else {
-				truth = []
-			}
-			
-			generateCurrentFrameSection(averages)
-			graphs = generateKeysSection(prediction, accuracies, truth)
-			generateGameLoopAnalysis(prediction)
-			compute_partition(prediction_data)
-		}
-	}
-
-	getById("key_analysis_details").addEventListener("toggle", e => {
-		if (getById("key_analysis_details").open) {
-			updateWindowSize()
-			update()
-		}
-	});
-
-	function update() {
 		for(const type in graphs){
 			graphs[type].forEach(graph => graph.updateTimeLine(getCurrentFrame()))
 		}
@@ -248,6 +235,7 @@
 
 	function generateCurrentFrameSection(averages) {
 		if(averages != null){
+			getById("table_summary").innerHTML = "<tr><th></th><th>Prediction</th><th>Truth</th><th>Total Accuracy</th></tr>"
 			KEYS.forEach(key =>
 			getById("table_summary").innerHTML += '\
                 <tr>\
@@ -258,6 +246,7 @@
                 </tr>'
 			)
 		}else{
+			getById("table_summary").innerHTML = "<tr><th></th><th>Prediction</th></tr>"
 			KEYS.forEach(key =>
 			getById("table_summary").innerHTML += '\
                 <tr>\
@@ -274,7 +263,7 @@
 		accuracies = []
 		ttables.push(new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"))
 		
-		if(truth != null){
+		if(truth.length != 0){
 			ttables.push(new Graph(getById("keys_ttables_truth"), truth.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
 		
 			for (let i = 0; i < accuracies.length; i++) {

@@ -1,0 +1,30 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Chargement{% endblock %}
+{% block content %}
+
+<h1 class="mt-5">Chargement en cours</h1>
+<p class="mt-5">Avancement : <span id="progress">0%</span></p>
+
+<script>
+  setInterval(() => {
+    const request = new XMLHttpRequest()
+    request.open("GET", "/progression")
+    request.responseType = "json"
+    request.send()
+    request.onload = () => {
+      let result
+      if (request.readyState == 4 && request.status == 200) {
+        result = (parseInt(request.response.progression*1000)/10) + "%"
+        if(request.response.progression == 1){
+          filename = (new URLSearchParams(window.location.search)).get("filename")
+          window.location.replace("{{ url_for('experience_show') }}?filename="+filename);
+        }
+      } else {
+        result = "Impossible de communiquer avec le serveur"
+      }
+      document.getElementById("progress").innerHTML = result
+    };
+  }, 3000)
+</script>
+
+{% endblock %}
