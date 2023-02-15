@@ -68,6 +68,23 @@
   <!-- Custom styles for this template -->
   <link type="text/css" href="/static/css/experience.css" rel="stylesheet">
   <link type="text/css" href="/static/css/sticky-footer-navbar.css" rel="stylesheet">
+  <script>
+    function change_lang(new_lang){
+      let url = "{{request.url}}".replaceAll("amp;", "")
+      const reg1 = new RegExp('&lang=..', 'g')
+      const reg2 = new RegExp('lang=..', 'g')
+      if(reg1.test(url)){
+        url = url.replaceAll(reg1, '&lang='+new_lang)
+      }else if(reg2.test(url)){
+        url = url.replaceAll(reg1, 'lang='+new_lang)
+      }else if(url.includes("?")){
+        url = url + "&lang="+new_lang
+      }else{
+        url = url + "?lang="+new_lang
+      }
+      window.location.replace(url)
+    }
+  </script>
 </head>
 <body class="d-flex flex-column h-100">
 
@@ -98,6 +115,10 @@
             <a class="nav-link {% if request.endpoint == 'experience' %}active{% endif %}" aria-current="page"
                href="{{ url_for('experience') }}">Expérience en ligne</a>
           </li>
+        </ul>
+        <ul class="navbar-nav d-flex">
+          <li class="nav-item"><a onclick="change_lang('fr')" href="#" class="nav-link">Français</a></li>
+          <li class="nav-item"><a onclick="change_lang('en')" href="#" class="nav-link">English</a></li>
         </ul>
       </div>
     </div>

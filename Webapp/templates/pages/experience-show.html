@@ -1,8 +1,8 @@
 {% extends 'layouts/main.html' %}
-{% block title %}Expérience en ligne - Résultats{% endblock %}
+{% block title %}{{_('Online experiment - Results')}}{% endblock %}
 {% block content %}
 
-<h1 class="mt-5">Expérience en ligne - Résultats</h1>
+<h1 class="mt-5">{{_('Online experiment - Results')}}</h1>
 <section>
   <div class="video_container">
     <div class="m-auto">
@@ -13,16 +13,16 @@
         <input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
       </div>
       <div class="grid11">
-        <button class="btn btn-secondary m-1" onclick="moveFrame(-1)">Previous frame</button>
-        <button class="btn btn-secondary m-1" onclick="moveFrame(1)">Next frame</button>
-        <button class="btn btn-secondary m-1" onclick="moveFrame(-10)">-10 frames</button>
-        <button class="btn btn-secondary m-1" onclick="moveFrame(10)">+10 frames</button>
+        <button class="btn btn-secondary m-1" onclick="moveFrame(-1)">{{_('Previous frame')}}</button>
+        <button class="btn btn-secondary m-1" onclick="moveFrame(1)">{{_('Next frame')}}</button>
+        <button class="btn btn-secondary m-1" onclick="moveFrame(-10)">{{_('-10 frames')}}</button>
+        <button class="btn btn-secondary m-1" onclick="moveFrame(10)">{{_('+10 frames')}}</button>
       </div>
     </div>
     <div class="p-3">
-      <p class="h5 text-center">Current Frame</p>
+      <p class="h5 text-center">{{_('Current Frame')}}</p>
       <div class="text-center">
-        <span class="me-4">Time : <span id="current_time">0</span>s</span>
+        <span class="me-4">{{_('Time')}} : <span id="current_time">0</span>s</span>
         <span>Frame : <span id="current_frame">0</span></span>
       </div>
       <br>
@@ -36,11 +36,11 @@
     <summary>Keys analysis</summary>
     <div id="keys_container">
       <div id="keys_accuracies_params">
-        <label>Smoothing : </label><input id="windowSize_accuracies" type="range" min="1" max="4000" onchange="updateWindowSize('accuracies')"></input>
+        <label>{{_('Smoothing')}} : </label><input id="windowSize_accuracies" type="range" min="1" max="4000" onchange="updateWindowSize('accuracies')"></input>
       </div>
       <div id="keys_accuracies" class="p-4"></div>
 	  <div id="keys_ttables_params">
-        <label>Smoothing : </label><input id="windowSize_ttables" type="range" min="1" max="400" onchange="updateWindowSize('ttables')"></input>
+        <label>{{_('Smoothing')}} : </label><input id="windowSize_ttables" type="range" min="1" max="400" onchange="updateWindowSize('ttables')"></input>
       </div>
 	  <table class="table">
 		<tr>
@@ -52,19 +52,19 @@
   </details>
   <hr>
   <details>
-    <summary>Game Loop Analysis</summary>
+    <summary>{{_('Game Loop Analysis')}}</summary>
     <div id="NLP_div">
 		<div class="m-3 row">
 			<div class="col-md-4">
-				<label for="nb_iter" class="form-label">Number of iterations</label>
+				<label for="nb_iter" class="form-label">{{_('Number of iterations')}}</label>
 				<input id="nb_iter" class="form-control" type="number" value="10" onchange="generateGameLoopAnalysis()">
 			</div>
 			<div class="col-md-4">
-				<label for="nb_loops" class="form-label">Number of loops shown</label>
+				<label for="nb_loops" class="form-label">{{_('Number of loops shown')}}</label>
 				<input id="nb_loops" class="form-control" type="number" min="1" max="10" onchange="generateGameLoopAnalysis()">
 			</div>
 			<div class="col-md-4">
-				<button class="btn btn-primary" onclick="generateGameLoopAnalysis()">Execute algorithm</button>
+				<button class="btn btn-primary" onclick="generateGameLoopAnalysis()">{{_('Execute algorithm')}}</button>
 			</div>
 		</div>
 	  <br>

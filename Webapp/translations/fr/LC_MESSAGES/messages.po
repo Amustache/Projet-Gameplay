@@ -1,0 +1,70 @@
+# French translations for PROJECT.
+# Copyright (C) 2023 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2023-02-14 23:47+0100\n"
+"PO-Revision-Date: 2023-02-14 23:47+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.11.0\n"
+
+#: templates/pages/experience-show.html:2
+#: templates/pages/experience-show.html:5
+msgid "Online experiment - Results"
+msgstr "Expérience en ligne - Résultats"
+
+#: templates/pages/experience-show.html:16
+msgid "Previous frame"
+msgstr "Frame précédente"
+
+#: templates/pages/experience-show.html:17
+msgid "Next frame"
+msgstr "Frame suivante"
+
+#: templates/pages/experience-show.html:18
+msgid "-10 frames"
+msgstr "-10 frames"
+
+#: templates/pages/experience-show.html:19
+msgid "+10 frames"
+msgstr "+10 frames"
+
+#: templates/pages/experience-show.html:23
+msgid "Current Frame"
+msgstr "Frame actuelle"
+
+#: templates/pages/experience-show.html:25
+msgid "Time"
+msgstr "Temps"
+
+#: templates/pages/experience-show.html:39
+#: templates/pages/experience-show.html:43
+msgid "Smoothing"
+msgstr "Lissage"
+
+#: templates/pages/experience-show.html:55
+msgid "Game Loop Analysis"
+msgstr "Analyse de la game loop"
+
+#: templates/pages/experience-show.html:59
+msgid "Number of iterations"
+msgstr "Nombre d'itérations"
+
+#: templates/pages/experience-show.html:63
+msgid "Number of loops shown"
+msgstr "Nombre d'itérations affichés"
+
+#: templates/pages/experience-show.html:67
+msgid "Execute algorithm"
+msgstr "Executer l'algorithme"
+

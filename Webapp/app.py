@@ -1,4 +1,3 @@
-from logging import FileHandler, Formatter
 import io
 import logging
 import os
@@ -6,8 +5,10 @@ import shutil
 import threading
 import ML.model
 
+from logging import FileHandler, Formatter
 from datascience import *
-from flask import flash, Flask, redirect, render_template, request, Response, url_for
+from flask import flash, Flask, redirect, render_template, request, Response, url_for, g
+from flask_babel import Babel
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from werkzeug.utils import secure_filename
 
@@ -15,7 +16,11 @@ ALLOWED_EXTENSIONS = {"mkv", "mp4", "webm", "avi"}
 DEMO_TRUTH = "truth.csv"
 DEMO_FNAME = "video.webm"
 
+def get_locale():
+    return getattr(g, 'lang', request.accept_languages.best_match(['fr', 'en']))
+
 app = Flask(__name__)
+babel = Babel(app, locale_selector=get_locale)
 app.config["UPLOAD_FOLDER"] = os.path.join("static", "inputs")
 app.config["DEMO_FOLDER"]   = os.path.join("static", "inputs", "demo")
 app.config["MAX_CONTENT_PATH"] = 200_000_000
@@ -47,6 +52,13 @@ def run_ML_callback(progress):
     global current_ML_progress
     print("Progress "+str(round(progress*100,2))+"% ...")
     current_ML_progress = progress
+
+@app.before_request
+def before_request():
+    lang = request.args.get('lang')
+    print(lang)
+    if lang != None:
+        setattr(g, "lang", lang)
 
 @app.route("/uploader", methods=["GET", "POST"])
 def upload_file():
