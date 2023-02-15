@@ -1,8 +1,8 @@
 {% extends 'layouts/main.html' %}
-{% block title %}Serveur surchargé{% endblock %}
+{% block title %}{{_('Server overloaded')}}{% endblock %}
 {% block content %}
 
-<h1 class="mt-5">Serveur surchargé</h1>
-<p class="mt-5">Désolé, le serveur a actuellement atteint sa limite de calcul. <br> Merci de réessayer plus tard</p>
+<h1 class="mt-5">{{_('Server overloaded')}}</h1>
+<p class="mt-5">{{_('Sorry, the server is currently at its maximum capacity. <br> Please, try again later.')}}</p>
 
 {% endblock %}

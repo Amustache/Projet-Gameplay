@@ -17,7 +17,13 @@ DEMO_TRUTH = "truth.csv"
 DEMO_FNAME = "video.webm"
 
 def get_locale():
-    return getattr(g, 'lang', request.accept_languages.best_match(['fr', 'en']))
+    print("GET ", request.cookies.get('lang') )
+    if request.args.get('lang') != None:
+        return request.args.get('lang')
+    if request.cookies.get('lang') != None:
+        return request.cookies.get('lang')
+    else:
+        return request.accept_languages.best_match(['fr', 'en'])
 
 app = Flask(__name__)
 babel = Babel(app, locale_selector=get_locale)
@@ -53,12 +59,11 @@ def run_ML_callback(progress):
     print("Progress "+str(round(progress*100,2))+"% ...")
     current_ML_progress = progress
 
-@app.before_request
-def before_request():
-    lang = request.args.get('lang')
-    print(lang)
-    if lang != None:
-        setattr(g, "lang", lang)
+@app.after_request
+def after_request(response):
+    if request.args.get('lang') != None:
+        response.set_cookie('lang', request.args.get('lang'))
+    return response
 
 @app.route("/uploader", methods=["GET", "POST"])
 def upload_file():

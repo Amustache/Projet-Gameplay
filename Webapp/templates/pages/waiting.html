@@ -1,9 +1,9 @@
 {% extends 'layouts/main.html' %}
-{% block title %}Chargement{% endblock %}
+{% block title %}{{_('Loading')}}{% endblock %}
 {% block content %}
 
-<h1 class="mt-5">Chargement en cours</h1>
-<p class="mt-5">Avancement : <span id="progress">0%</span></p>
+<h1 class="mt-5">{{_('Loading in progress')}}</h1>
+<p class="mt-5">{{_('Progress : ')}}<span id="progress">0%</span></p>
 
 <script>
   setInterval(() => {

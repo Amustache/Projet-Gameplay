@@ -60,10 +60,7 @@
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
       }
-
-
   </style>
-
 
   <!-- Custom styles for this template -->
   <link type="text/css" href="/static/css/experience.css" rel="stylesheet">
@@ -76,7 +73,7 @@
       if(reg1.test(url)){
         url = url.replaceAll(reg1, '&lang='+new_lang)
       }else if(reg2.test(url)){
-        url = url.replaceAll(reg1, 'lang='+new_lang)
+        url = url.replaceAll(reg2, 'lang='+new_lang)
       }else if(url.includes("?")){
         url = url + "&lang="+new_lang
       }else{
@@ -92,7 +89,7 @@
   <!-- Fixed navbar -->
   <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-danger">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Analyse de Gameplay</a>
+      <a class="navbar-brand" href="#">{{_('Gameplay Analysis')}}</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
               aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -101,19 +98,19 @@
         <ul class="navbar-nav me-auto mb-2 mb-md-0">
           <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('home') }}">Accueil</a>
+               href="{{ url_for('home') }}">{{_('Home')}}</a>
           </li>
           <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'recording' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('recording') }}">Script pour enregistrement</a>
+               href="{{ url_for('recording') }}">{{_('Recording script')}}</a>
           </li>
           <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'report' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('report') }}">Rapport</a>
+               href="{{ url_for('report') }}">{{_('Report')}}</a>
           </li>
           <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'experience' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('experience') }}">Expérience en ligne</a>
+               href="{{ url_for('experience') }}">{{_('Online experiment')}}</a>
           </li>
         </ul>
         <ul class="navbar-nav d-flex">
@@ -148,7 +145,6 @@
     <span class="text-muted">Made with love by a bunch of geeks!</span>
   </div>
 </footer>
-
 
 <script type="text/javascript" src="/static/js/bootstrap.bundle.min.js"></script>
 {% block javascript %}{% endblock %}

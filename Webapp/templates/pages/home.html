@@ -1,27 +1,23 @@
 {% extends 'layouts/main.html' %}
-{% block title %}Accueil{% endblock %}
+{% block title %}{{_('Home')}}{% endblock %}
 {% block content %}
 
-<h1 class="mt-5">Analyse et Préservation de Gameplay</h1>
-<p class="lead">Le projet considéré consiste à extraire des données de jeu à partir de vidéos de <em>gameplay</em> (&quot;partie
-  de
-  jeu&quot;) d’un jeu vidéo afin d’en faire une analyse comparative entre joueuses, cela dans le but de classifier si
-  possible les joueuses par leur façon d’aborder et jouer à un jeu donné.</p>
+<h1 class="mt-5">{{_('Gameplay Analysis and Preservation')}}</h1>
+<p class="lead">{{_('This project aims at extracting gameplay data from game recordings. The goal is to compare players between each others and provide an comparative analysis')}}</p>
 <div class="container">
   <div class="row">
     <div class="col-sm text-center">
       <a href="/rapport"><img src="static/img/read.png" width="66%"><br>
-        <button class="btn btn-danger btn-lg">Lire le rapport</button>
+        <button class="btn btn-danger btn-lg">{{_('Read the report')}}</button>
       </a>
     </div>
     <div class="col-sm text-center">
       <a href="/experience"><img src="static/img/play.png" width="66%"><br>
-        <button class="btn btn-danger btn-lg">Réaliser l'expérience</button>
+        <button class="btn btn-danger btn-lg">{{_('Try the experiment')}}</button>
       </a>
     </div>
   </div>
 </div>
-<p class="mt-5">Ce projet a été réalisé par Kévin Faustini, pour le Collège des Humanités, dirigé par Frédéric Kaplan.
-  Supervision de Selim Krichane, avec l'aide de Magalie Vetter, Hugo Hueber, Corentin Junod.</p>
+<p class="mt-5">{{_('This project was made by Kévin Faustini, for the College of Humanities, directed by Frédéric Kaplan.\n Supervised by Selim Krichane with the help of Magalie Vetter, Hugo Hueber and Corentin Junod')}}</p>
 
 {% endblock %}

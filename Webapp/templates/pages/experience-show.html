@@ -93,8 +93,6 @@
 	var truth = null
 	var prediction_data = null
 	var truth_data = null
-	var prediction_data = null
-	var truth_data = null
 	var graphs = {}
 	function getById(elem) { return document.getElementById(elem) }
 </script>
@@ -115,22 +113,16 @@
 	VIDEO.ontimeupdate = event => update()
 
 	function init() {
-		let context = this
 		d3.csv("static/inputs/prediction.csv").then(r => {
 			prediction_data = r
-			process.bind(context)()
-		})
+		}).finally(() => process())
 		d3.csv("static/inputs/truth.csv").then(r => {
 			truth_data = r
-			process.bind(context)()
-		}).catch(err => {
-			truth_data = []
-			process.bind(context)()
-		})
+		}).finally(() => process())
 	}
 	document.body.onload = init
 
-	function process(ignoreTruth=false){
+	function process(){
 		if(prediction_data != null && truth_data != null){
 			prediction = new KeyLog(prediction_data, KEYS)
 			let averages = null
@@ -142,17 +134,17 @@
           			<tbody id=\"current_frame_prediction\"></tbody>\
         		</table>"
 
-			if(truth_data.length != 0){
+			if(truth_data != null){
 				truth = new KeyLog(truth_data, KEYS, 3)
-				[averages, accuracies] = computeAccuracies(prediction, truth)
+				let res = computeAccuracies(prediction, new KeyLog(truth_data, KEYS, 3))
+				averages = res[0]
+				accuracies = res[1]
 
 				getById("current_frame_tables").innerHTML += "\
 					<table class=\"table table-bordered text-center\">\
           				<thead><tr><th>Truth</th></tr></thead>\
           				<tbody id=\"current_frame_truth\"></tbody>\
         			</table>"
-			} else {
-				truth = []
 			}
 			
 			generateCurrentFrameSection(averages)
@@ -184,7 +176,7 @@
 		KEYS.forEach(key => {
 			let predicted_key = prediction.getFrame(currentFrame)[key]
 
-			if(truth.length != 0){
+			if(truth_data != null){
 				let truth_key = truth.getFrame(currentFrame)[key]
 				getById(key + "_truth").innerHTML = truth_key
 				getById(key + "_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>" + predicted_key + "<span>" : predicted_key
@@ -194,7 +186,7 @@
 		})
 
 		printTransitionTable(prediction.getTransitionTable(currentFrame), getById("current_frame_prediction"), KEYS)
-		if(truth.length != 0){
+		if(truth_data != null){
 			printTransitionTable(truth.getTransitionTable(currentFrame), getById("current_frame_truth"), KEYS)
 		}
 
@@ -213,14 +205,14 @@
 		}
     }
 
-	function computeAccuracies(prediction, truth) {
+	function computeAccuracies(prediction_keylog, truth_keylog) {
 		let accuracies = []
 		let avg_accuracies = {}
 		let state = {}
 		KEYS.forEach(key => avg_accuracies[key] = 0)
 		for (let frame = 0; frame < getTotalFrames(); frame++) {
 			KEYS.forEach(key => {
-				if (prediction.getFrame(frame)[key] == truth.getFrame(frame)[key]) {
+				if (prediction_keylog.getFrame(frame)[key] == truth_keylog.getFrame(frame)[key]) {
 					avg_accuracies[key]++
 					state[key] = 1
 				} else {
@@ -257,14 +249,14 @@
 		}
 	}
 
-	function generateKeysSection(prediction, accuracies, truth) {
+	function generateKeysSection(prediction, accuracies, truth_keylog) {
 		let datasets = []
 		ttables = []
 		accuracies = []
 		ttables.push(new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"))
 		
-		if(truth.length != 0){
-			ttables.push(new Graph(getById("keys_ttables_truth"), truth.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
+		if(truth_keylog != null){
+			ttables.push(new Graph(getById("keys_ttables_truth"), truth_keylog.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
 		
 			for (let i = 0; i < accuracies.length; i++) {
 				KEYS.forEach(key => {

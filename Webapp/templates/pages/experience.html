@@ -1,25 +1,22 @@
 {% extends 'layouts/main.html' %}
-{% block title %}Expérience en ligne{% endblock %}
+{% block title %}{{_('Online experiment')}}{% endblock %}
 {% block content %}
 
-<h1 class="mt-5">Expérience en ligne</h1>
+<h1 class="mt-5">{{_('Online experiment')}}</h1>
 <p class="text-center"><img width="33%" src="static/img/supermariopreview.png" alt="supermariopreview"><br/><br/>
-<p class="lead">Expérimentez vous-même la prédiction des inputs dans votre jeu !</p>
-<p>Nous vous invitons à enregistrer un enregistrement plein écran du jeu Super Mario Bros. au format mp4. Pour cela,
-  vous pouvez par exemple utiliser <a href="https://obsproject.com/fr/" target="_blank">OBS</a> ou bien Windows+Alt+R
-  sur Windows.</p>
-<p>Ensuite, il vous suffit de le téléverser ci-après :</p>
+<p class="lead">{{_('Experiment yourself the input prediction !')}}</p>
+<p>{{_('We invite you to record a fullscreen video of a Super Mario Bros gameplay in MP4. To do so, you can use <a href="https://obsproject.com/fr/" target="_blank">OBS</a> or do Windows+Alt+R in Windows')}}</p>
+<p>{{_('Then, you only have to upload the file here : ')}}</p>
 <form action="/uploader" method="POST" enctype="multipart/form-data">
   <div class="input-group">
     <input class="form-control" id="formFileLg" type="file" name="file">
-    <button class="btn btn-danger" type="submit">Envoyer</button>
+    <button class="btn btn-danger" type="submit">{{_('Send')}}</button>
   </div>
   <hr class="mt-4 mb-4"/>
   <div>
-    <p class="lead">... Ou bien utilisez les données d'exemples.</p>
-    <p>Nous mettons à disposition un enregistrement déjà traité, avec des données d'exemples associées. Cela permet
-      d'utiliser l'outil de visualisation sans devoir fournir votre propre vidéo.</p>
-    <p><a class="btn btn-danger" href="/example">Cliquez ici</a></p>
+    <p class="lead">{{_('... Or you can also use the example data.')}}</p>
+    <p>{{_('We provided an example video with data, so that you can use the tool without providing your own data.')}}</p>
+    <p><a class="btn btn-danger" href="/example">{{_('Clic here')}}</a></p>
   </div>
 </form>
 

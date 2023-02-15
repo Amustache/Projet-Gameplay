@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-02-14 23:47+0100\n"
-"PO-Revision-Date: 2023-02-14 23:47+0100\n"
+"POT-Creation-Date: 2023-02-15 23:07+0100\n"
+"PO-Revision-Date: 2023-02-15 21:27+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
 "Language-Team: fr <LL@li.org>\n"
@@ -17,6 +17,27 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.11.0\n"
+
+#: templates/layouts/main.html:92
+msgid "Gameplay Analysis"
+msgstr "Analyse de Gameplay"
+
+#: templates/layouts/main.html:101 templates/pages/home.html:2
+msgid "Home"
+msgstr "Accueil"
+
+#: templates/layouts/main.html:105
+msgid "Recording script"
+msgstr "Script pour enregistrement"
+
+#: templates/layouts/main.html:109
+msgid "Report"
+msgstr "Rapport"
+
+#: templates/layouts/main.html:113 templates/pages/experience.html:2
+#: templates/pages/experience.html:5
+msgid "Online experiment"
+msgstr "Expérience en ligne"
 
 #: templates/pages/experience-show.html:2
 #: templates/pages/experience-show.html:5
@@ -54,7 +75,7 @@ msgstr "Lissage"
 
 #: templates/pages/experience-show.html:55
 msgid "Game Loop Analysis"
-msgstr "Analyse de la game loop"
+msgstr "Analyse de game loop"
 
 #: templates/pages/experience-show.html:59
 msgid "Number of iterations"
@@ -62,9 +83,131 @@ msgstr "Nombre d'itérations"
 
 #: templates/pages/experience-show.html:63
 msgid "Number of loops shown"
-msgstr "Nombre d'itérations affichés"
+msgstr "Nombre de boucles affichées"
 
 #: templates/pages/experience-show.html:67
 msgid "Execute algorithm"
 msgstr "Executer l'algorithme"
+
+#: templates/pages/experience.html:7
+msgid "Experiment yourself the input prediction !"
+msgstr "Expérimentez vous-même la prédiction des inputs dans votre jeu !"
+
+#: templates/pages/experience.html:8
+msgid ""
+"We invite you to record a fullscreen video of a Super Mario Bros gameplay"
+" in MP4. To do so, you can use <a href=\"https://obsproject.com/fr/\" "
+"target=\"_blank\">OBS</a> or do Windows+Alt+R in Windows"
+msgstr ""
+"Nous vous invitons à enregistrer un enregistrement plein écran du jeu "
+"Super Mario Bros. au format mp4. Pour cela, vous pouvez par exemple "
+"utiliser <a href=\"https://obsproject.com/fr/\" target=\"_blank\">OBS</a>"
+" ou bien Windows+Alt+R sur Windows."
+
+#: templates/pages/experience.html:9
+msgid "Then, you only have to upload the file here : "
+msgstr "Ensuite, il vous suffit de le téléverser ci-après :"
+
+#: templates/pages/experience.html:13
+msgid "Send"
+msgstr "Envoyer"
+
+#: templates/pages/experience.html:17
+msgid "... Or you can also use the example data."
+msgstr "... Ou bien utilisez les données d'exemples."
+
+#: templates/pages/experience.html:18
+msgid ""
+"We provided an example video with data, so that you can use the tool "
+"without providing your own data."
+msgstr ""
+"Nous mettons à disposition un enregistrement déjà traité, avec des "
+"données d'exemples associées. Cela permet d'utiliser l'outil de "
+"visualisation sans devoir fournir votre propre vidéo."
+
+#: templates/pages/experience.html:19
+msgid "Clic here"
+msgstr "Cliquez ici"
+
+#: templates/pages/home.html:5
+msgid "Gameplay Analysis and Preservation"
+msgstr "Analyse de Gameplay"
+
+#: templates/pages/home.html:6
+msgid ""
+"This project aims at extracting gameplay data from game recordings. The "
+"goal is to compare players between each others and provide an comparative"
+" analysis"
+msgstr ""
+"Le projet considéré consiste à extraire des données de jeu à partir de "
+"vidéos de <em>gameplay</em> (\"partie de\n"
+"  jeu\") d'un jeu vidéo afin d'en faire une analyse comparative entre "
+"joueuses, cela dans le but de classifier si\n"
+"  possible les joueuses par leur façon d'aborder et jouer à un jeu donné."
+
+#: templates/pages/home.html:11
+msgid "Read the report"
+msgstr "Lire le rapport"
+
+#: templates/pages/home.html:16
+msgid "Try the experiment"
+msgstr "Réaliser l'expérience"
+
+#: templates/pages/home.html:21
+msgid ""
+"This project was made by Kévin Faustini, for the College of Humanities, "
+"directed by Frédéric Kaplan.\n"
+" Supervised by Selim Krichane with the help of Magalie Vetter, Hugo "
+"Hueber and Corentin Junod"
+msgstr ""
+"Ce projet a été réalisé par Kévin Faustini, pour le Collège des "
+"Humanités, dirigé par Frédéric Kaplan.\n"
+"  Supervision de Selim Krichane, avec l'aide de Magalie Vetter, Hugo "
+"Hueber, Corentin Junod."
+
+#: templates/pages/overloaded.html:2 templates/pages/overloaded.html:5
+msgid "Server overloaded"
+msgstr "Serveur surchargé"
+
+#: templates/pages/overloaded.html:6
+msgid ""
+"Sorry, the server is currently at its maximum capacity. <br> Please, try "
+"again later."
+msgstr ""
+"Désolé, le serveur a actuellement atteint sa limite de calcul. <br> Merci"
+" de réessayer plus tard"
+
+#: templates/pages/recording.html:5
+msgid "OBS recording script"
+msgstr "Script OBS pour enregistrement"
+
+#: templates/pages/recording.html:6
+msgid "We made a recording script for the software "
+msgstr ""
+"Nous avons développé un script pour l'enregistrement de vidéos avec le "
+"logiciel"
+
+#: templates/pages/recording.html:7
+msgid "The script is available"
+msgstr "Le script est disponible"
+
+#: templates/pages/recording.html:7
+msgid "ici"
+msgstr "ici"
+
+#: templates/pages/recording.html:8
+msgid "Explanations : ..."
+msgstr "Marche à suivre : ..."
+
+#: templates/pages/waiting.html:2
+msgid "Loading"
+msgstr "Chargement"
+
+#: templates/pages/waiting.html:5
+msgid "Loading in progress"
+msgstr "Chargement en cours"
+
+#: templates/pages/waiting.html:6
+msgid "Progress : "
+msgstr "Avancement : "
 
