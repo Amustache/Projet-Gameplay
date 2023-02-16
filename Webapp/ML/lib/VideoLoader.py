@@ -207,10 +207,3 @@ class VideoLoader:
         hsv[1, ...] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
         return hsv
 
-    """
-    def _get_augmented(self, frames):
-        h_shift = np.random.randint(-40,40)
-        v_shift = np.random.randint(-15,15)
-        return torch.roll(frames, shifts=(v_shift, h_shift), dims=(1, 2))
-    """
-

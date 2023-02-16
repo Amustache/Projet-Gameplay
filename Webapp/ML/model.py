@@ -12,6 +12,8 @@ from .lib.NeuralNetwork import NeuralNetwork
 from .lib.VideoLoader import VideoLoader
 from .lib.KeyslogReader import KeyslogReader
 
+import time
+
 from torch.utils.tensorboard import SummaryWriter
 
 DEVICE           = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -149,7 +151,7 @@ def predict(video_path, model_path=None, callback=None):
 
         print("Predicting " + video_path + " with" + str(model_path))
         keys_dict = ["Key.left", "Key.right", "x"]
-        current_state = [0, 0, 0]
+        current_state = np.array([0, 0, 0])
 
         model = get_model()
         model.load_state_dict(torch.load(model_path))
@@ -157,6 +159,8 @@ def predict(video_path, model_path=None, callback=None):
 
         data = get_video(video_path, preload=False)
         dataloader = get_dataloader(data)
+        """
+        result = np.zeros( (len(dataloader)*BATCH_SIZE, 3) )
 
         frame = START_FRAME
         file_path = os.path.join(os.path.dirname(video_path), "prediction.csv")
@@ -166,15 +170,65 @@ def predict(video_path, model_path=None, callback=None):
             i = 0
             for x in dataloader:
                 if callback != None : callback(i/len(dataloader))
-                pred_batch = torch.round(model(x.to(DEVICE)))
+                t2 = time.time()
+                pred_batch = torch.round(model(x.to(DEVICE))).cpu()
+                t3 = time.time()
                 for pred in pred_batch:
                     for j in range(len(current_state)):
                         if current_state[j] != pred[j]:
-                            state = "DOWN" if pred[j] == 1 else "UP"
-                            f.write(f"{frame},{keys_dict[j]},{state}\n")
+                            result[i] = [frame, j, pred[j]]
                             current_state[j] = pred[j]
                     frame += data.fps_step
+                t4 = time.time()
+                print("T+2 - T3 :", t3-t2)
+                print("T+3 - T4 :", t4-t3)
                 i += 1
+
+            for line in result:
+                state = "DOWN" if line[2] == 1 else "UP"
+                f.write(f"{line[0]},{keys_dict[line[1]]},{state}\n")
+        """
+        
+        result = np.zeros( (len(dataloader)*BATCH_SIZE, 3), dtype=int )
+        accumulator_size = 15
+        accumulator = torch.zeros( (accumulator_size*BATCH_SIZE, 3) ).to(DEVICE)
+
+        frame = START_FRAME
+        file_path = os.path.join(os.path.dirname(video_path), "prediction.csv")
+        f = open(file_path, "w")
+        f.write("FRAME,KEY,STATUS\n")
+        with torch.no_grad():
+            i = 0
+            result_index = 0
+            acc = 0
+            for x in dataloader:
+                #t2 = time.time()
+                prediction = torch.round(model(x.to(DEVICE)))
+                accumulator[acc:acc+len(prediction)] = prediction
+                #t3 = time.time()
+                if acc == (accumulator_size-1)*BATCH_SIZE :
+                    if callback != None : callback(i/len(dataloader))
+                    for pred in accumulator.cpu():
+                        for j in range(len(current_state)):
+                            if current_state[j] != pred[j]:
+                                result[result_index] = [frame, j, pred[j]]
+                                result_index += 1
+                        current_state = pred
+                        frame += data.fps_step
+                    acc = 0
+                else :
+                    acc += BATCH_SIZE
+                #t4 = time.time()
+                #print("T+2 - T3 :", t3-t2)
+                #print("T+3 - T4 :", t4-t3)
+                i += 1
+
+            for line_i in range(result_index):
+                line = result[line_i]
+                state = "DOWN" if line[2] == 1 else "UP"
+                f.write(f"{line[0]},{keys_dict[line[1]]},{state}\n")
+        
+
         f.close()
         if callback != None : callback(1)
         print("Prediction finished")
