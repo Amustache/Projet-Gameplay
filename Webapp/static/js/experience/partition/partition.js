@@ -139,6 +139,7 @@ function compute_partition(prediction_data) {
                     return (row["STATUS"] == 'DOWN' ? [row["FRAME"], 'L'] : [row["FRAME"], 'l'])
             }
         })
+        console.log(array_clean)
         return array_clean
 
     }
