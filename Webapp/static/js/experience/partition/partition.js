@@ -139,7 +139,6 @@ function compute_partition(prediction_data) {
                     return (row["STATUS"] == 'DOWN' ? [row["FRAME"], 'L'] : [row["FRAME"], 'l'])
             }
         })
-        console.log(array_clean)
         return array_clean
 
     }
@@ -147,9 +146,8 @@ function compute_partition(prediction_data) {
     function getKeysFromArray(array){
         let keys = ''
         array.forEach(elem => {
-            keys = keys + elem["KEY"]
+            keys = keys + elem[1]
         });
-
         return keys
     }
 
