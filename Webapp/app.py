@@ -70,14 +70,14 @@ def upload_file():
     global current_ML_thread
     if request.method == "POST":
         if "file" not in request.files:
-            return flash_and_redirect("experience", "Pas de fichier téléversé")
+            return flash_and_redirect("experience", gettext("No file to uploaded"))
 
         file = request.files["file"]
         if file.filename == "":
-            return flash_and_redirect("experience", "Pas de fichier sélectionné")
+            return flash_and_redirect("experience", gettext("No file selected"))
 
         if not (file and allowed_file(file.filename)):
-            return flash_and_redirect("experience", "Merci d'utiliser une vidéo valide")
+            return flash_and_redirect("experience", gettext("Please, use a video in a valid format"))
             
 
         if current_ML_thread == None :
@@ -155,11 +155,11 @@ def markov():
 @app.route("/experience-show")
 def experience_show():
     if not request.args.get("filename"):
-        return flash_and_redirect("experience", "Il faut d'abord téléverser une vidéo !")
+        return flash_and_redirect("experience", gettext("Please, upload a video first"))
         
     filename = os.path.join(app.config["UPLOAD_FOLDER"], request.args.get("filename"))
     if not os.path.isfile(filename):
-        return flash_and_redirect("experience", "Le fichier sélectionné semble invalide")
+        return flash_and_redirect("experience", gettext("The file seems to be invalid"))
 
     return render_template("pages/experience-show.html", filename=filename)
 
