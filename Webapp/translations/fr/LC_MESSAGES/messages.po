@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-02-15 23:07+0100\n"
+"POT-Creation-Date: 2023-02-19 18:41+0100\n"
 "PO-Revision-Date: 2023-02-15 21:27+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -17,6 +17,26 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.11.0\n"
+
+#: app.py:73
+msgid "No file to uploaded"
+msgstr "Pas de fichier téléversé"
+
+#: app.py:77
+msgid "No file selected"
+msgstr "Pas de fichier sélectionné"
+
+#: app.py:80
+msgid "Please, use a video in a valid format"
+msgstr "Merci d'utiliser une vidéo valide"
+
+#: app.py:158
+msgid "Please, upload a video first"
+msgstr "Il faut d'abord téléverser une vidéo !"
+
+#: app.py:162
+msgid "The file seems to be invalid"
+msgstr "Le fichier sélectionné semble invalide"
 
 #: templates/layouts/main.html:92
 msgid "Gameplay Analysis"
@@ -134,6 +154,7 @@ msgid "Gameplay Analysis and Preservation"
 msgstr "Analyse de Gameplay"
 
 #: templates/pages/home.html:6
+#, fuzzy
 msgid ""
 "This project aims at extracting gameplay data from game recordings. The "
 "goal is to compare players between each others and provide an comparative"
@@ -145,25 +166,24 @@ msgstr ""
 "joueuses, cela dans le but de classifier si\n"
 "  possible les joueuses par leur façon d'aborder et jouer à un jeu donné."
 
-#: templates/pages/home.html:11
+#: templates/pages/home.html:12
 msgid "Read the report"
 msgstr "Lire le rapport"
 
-#: templates/pages/home.html:16
+#: templates/pages/home.html:17
 msgid "Try the experiment"
 msgstr "Réaliser l'expérience"
 
-#: templates/pages/home.html:21
+#: templates/pages/home.html:22
+#, fuzzy
 msgid ""
 "This project was made by Kévin Faustini, for the College of Humanities, "
-"directed by Frédéric Kaplan.\n"
-" Supervised by Selim Krichane with the help of Magalie Vetter, Hugo "
-"Hueber and Corentin Junod"
+"directed by Frédéric Kaplan. <br> Supervised by Selim Krichane with the "
+"help of Magalie Vetter, Hugo Hueber and Corentin Junod"
 msgstr ""
 "Ce projet a été réalisé par Kévin Faustini, pour le Collège des "
-"Humanités, dirigé par Frédéric Kaplan.\n"
-"  Supervision de Selim Krichane, avec l'aide de Magalie Vetter, Hugo "
-"Hueber, Corentin Junod."
+"Humanités, dirigé par Frédéric Kaplan. <br> Supervision de Selim "
+"Krichane, avec l'aide de Magalie Vetter, Hugo Hueber, Corentin Junod."
 
 #: templates/pages/overloaded.html:2 templates/pages/overloaded.html:5
 msgid "Server overloaded"

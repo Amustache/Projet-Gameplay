@@ -57,11 +57,11 @@
 		<div class="m-3 row">
 			<div class="col-md-4">
 				<label for="nb_iter" class="form-label">{{_('Number of iterations')}}</label>
-				<input id="nb_iter" class="form-control" type="number" value="10" onchange="generateGameLoopAnalysis()">
+				<input id="nb_iter" class="form-control" type="number" value="10" onchange="generateGameLoopAnalysis(prediction)">
 			</div>
 			<div class="col-md-4">
 				<label for="nb_loops" class="form-label">{{_('Number of loops shown')}}</label>
-				<input id="nb_loops" class="form-control" type="number" min="1" max="10" onchange="generateGameLoopAnalysis()">
+				<input id="nb_loops" class="form-control" type="number" min="1" max="10" onchange="generateGameLoopAnalysis(prediction)">
 			</div>
 			<div class="col-md-4">
 				<button class="btn btn-primary" onclick="generateGameLoopAnalysis()">{{_('Execute algorithm')}}</button>
@@ -249,7 +249,7 @@
 		}
 	}
 
-	function generateKeysSection(prediction, accuracies, truth_keylog) {
+	function generateKeysSection(prediction, accuracies_input, truth_keylog) {
 		let datasets = []
 		ttables = []
 		accuracies = []
@@ -258,9 +258,9 @@
 		if(truth_keylog != null){
 			ttables.push(new Graph(getById("keys_ttables_truth"), truth_keylog.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
 		
-			for (let i = 0; i < accuracies.length; i++) {
+			for (let i = 0; i < accuracies_input.length; i++) {
 				KEYS.forEach(key => {
-					datasets.push({ frame: i, y: 100 * accuracies[i][key], key: key })
+					datasets.push({ frame: i, y: 100 * accuracies_input[i][key], key: key })
 				})
 			}
 			accuracies.push(new Graph(getById("keys_accuracies"), datasets, "Accuracy per key", "Frame number", "Prediction accuracy [%]"))
