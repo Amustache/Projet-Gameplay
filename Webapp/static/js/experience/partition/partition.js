@@ -1,5 +1,4 @@
 function compute_partition(prediction_data) {
-    const FPS = 30
     let window_size = 5
 
     let margin = {top: 10, right: 40, bottom: 30, left: 30},
@@ -55,7 +54,6 @@ function compute_partition(prediction_data) {
 
     VIDEO.addEventListener("timeupdate", updateAxis);
 
-
     
     function createAreaAndChart(){
 
@@ -99,28 +97,34 @@ function compute_partition(prediction_data) {
             switch(keys[i]){
                 case 'R':
                     end = keys.slice(i).indexOf("r") + i;
-                    positions.push({x:(clean_array[i][0]/FPS), 
-                                    y:'Right',
-                                    width: (clean_array[end][0]/FPS) - (clean_array[i][0]/FPS),
-                                    height:30,
-                                    fill:'#d62728'})
-                    break;
+                    if (end < keys.length && end > i){
+                        positions.push({x:(clean_array[i][0])/FPS, 
+                                        y:'Right',
+                                        width: (clean_array[end][0]/FPS) - (clean_array[i][0]/FPS),
+                                        height:30,
+                                        fill:'#d62728'})
+                        break;
+                    }
                 case 'J':
                     end = keys.slice(i).indexOf("j") + i;
-                    positions.push({x:(clean_array[i][0]/FPS), 
-                                    y:'Jump',
-                                    width: (clean_array[end][0]/FPS) - (clean_array[i][0]/FPS),
-                                    height:30,
-                                    fill:'#2ca02c'})
-                    break;
+                    if (end < keys.length && end > i){
+                        positions.push({x:(clean_array[i][0])/FPS, 
+                                        y:'Jump',
+                                        width: (clean_array[end][0]/FPS) - (clean_array[i][0]/FPS),
+                                        height:30,
+                                        fill:'#2ca02c'})
+                        break;
+                    }
                 case 'L': 
                     end = keys.slice(i).indexOf("l") + i;
-                    positions.push({x:(clean_array[i][0]/FPS), 
-                                    y:'Left',
-                                    width: (clean_array[end][0]/FPS) - (clean_array[i][0]/FPS),
-                                    height:30,
-                                    fill: '#1f77b4'})
-                    break;
+                    if (end < keys.length && end > i){
+                        positions.push({x:(clean_array[i][0])/FPS, 
+                                        y:'Left',
+                                        width: (clean_array[end][0]/FPS) - (clean_array[i][0]/FPS),
+                                        height:30,
+                                        fill: '#1f77b4'})
+                        break;
+                    }
                 default:
                     break;
             }
@@ -195,4 +199,11 @@ function compute_partition(prediction_data) {
                 .attr('y', height)
 
     }
+
+    function updatePartitionWindow() {
+		const winSize = getById("windowInput").value
+		getById("windowLabel").innerHTML = winSize
+		window_size = winSize
+	}
+
 };
