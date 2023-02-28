@@ -2,38 +2,42 @@
 {% block title %}{{_('Online experiment - Results')}}{% endblock %}
 {% block content %}
 
-<h1 class="mt-5">{{_('Online experiment - Results')}}</h1>
-<section>
-  <div class="video_container">
-    <div class="m-auto">
-      <video id="video" height="440" controls><source src="{{filename}}" type="video/mp4"></video>
-      <div class="text-center">
-        <span>Play Speed <span id="speedLabel">1</span>x</span>
-        <br>
-        <input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
-      </div>
-      <div class="grid11">
-        <button class="btn btn-secondary m-1" onclick="moveFrame(-1)">{{_('Previous frame')}}</button>
-        <button class="btn btn-secondary m-1" onclick="moveFrame(1)">{{_('Next frame')}}</button>
-        <button class="btn btn-secondary m-1" onclick="moveFrame(-10)">{{_('-10 frames')}}</button>
-        <button class="btn btn-secondary m-1" onclick="moveFrame(10)">{{_('+10 frames')}}</button>
-      </div>
-    </div>
-    <div class="p-3">
-      <p class="h5 text-center">{{_('Current Frame')}}</p>
-      <div class="text-center">
-        <span class="me-4">{{_('Time')}} : <span id="current_time">0</span>s</span>
-        <span>Frame : <span id="current_frame">0</span></span>
-      </div>
+<h1 class="mt-3">{{_('Online experiment - Results')}}</h1>
+<section class="mt-3">
+  <div class="m-auto w-50">
+    <video id="video" width="100%" controls><source src="{{filename}}" type="video/mp4"></video>
+    <div class="text-center">
+      <span>Play Speed <span id="speedLabel">1</span>x</span>
       <br>
-      <div><table class="table" id="table_summary"></table></div>
-      <div class="grid11 fs-small" id="current_frame_tables"></div>
+      <input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
     </div>
-	<div id="area"></div>
+    <div class="grid11">
+      <button class="btn btn-secondary m-1" onclick="moveFrame(-1)">{{_('Previous frame')}}</button>
+      <button class="btn btn-secondary m-1" onclick="moveFrame(1)">{{_('Next frame')}}</button>
+      <button class="btn btn-secondary m-1" onclick="moveFrame(-10)">{{_('-10 frames')}}</button>
+      <button class="btn btn-secondary m-1" onclick="moveFrame(10)">{{_('+10 frames')}}</button>
+    </div>
   </div>
+
+  <details id="current_frame_details">
+    <summary>{{_('Current Frame Details')}}</summary>
+    <div class="text-center m-3">
+      <span class="me-4">{{_('Time')}} : <span id="current_time">0</span>s</span>
+      <span>Frame : <span id="current_frame">0</span></span>
+    </div>
+    <div class="row">
+      <div class="col p-3">
+        <div><table class="table" id="table_summary"></table></div>
+        <div class="grid11 fs-small" id="current_frame_tables"></div>
+      </div>
+      <div class="col p-3">
+        <div id="area"></div>
+      </div>
+    </div>
+  </details>
   <hr>
   <details id="key_analysis_details">
-    <summary>Keys analysis</summary>
+    <summary>{{_('Keys analysis')}}</summary>
     <div id="keys_container">
       <div id="keys_accuracies_params">
         <label>{{_('Smoothing')}} : </label><input id="windowSize_accuracies" type="range" min="1" max="4000" onchange="updateWindowSize('accuracies')"></input>
@@ -91,8 +95,8 @@
 <script>
 	var prediction = null
 	var truth = null
-	var prediction_data = null
-	var truth_data = null
+	var prediction_data = undefined
+	var truth_data = undefined
 	var graphs = {}
 	function getById(elem) { return document.getElementById(elem) }
 </script>
@@ -118,12 +122,16 @@
 		}).finally(() => process())
 		d3.csv("static/inputs/truth.csv").then(r => {
 			truth_data = r
+		}).catch(e => {
+			if (truth_data == undefined){
+				truth_data = null
+			}
 		}).finally(() => process())
 	}
 	document.body.onload = init
 
 	function process(){
-		if(prediction_data != null && truth_data != null){
+		if(prediction_data !== undefined && truth_data !== undefined){
 			prediction = new KeyLog(prediction_data, KEYS)
 			let averages = null
 			let accuracies = null

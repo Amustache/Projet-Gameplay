@@ -9,17 +9,11 @@ section{
     width:1400px;
 }
 td, th{
-    border: 1px solid black;
     padding: 5px;
     width:70px;
 }
 
 /* Structure */
-.video_container{
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-}
-
 .grid11{
     display: grid;
     grid-template-columns: 1fr 1fr;

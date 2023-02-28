@@ -3,21 +3,40 @@
 {% block content %}
 
 <h1 class="mt-5">{{_('Online experiment')}}</h1>
-<p class="text-center"><img width="33%" src="static/img/supermariopreview.png" alt="supermariopreview"><br/><br/>
-<p class="lead">{{_('Experiment yourself the input prediction !')}}</p>
-<p>{{_('We invite you to record a fullscreen video of a Super Mario Bros gameplay in MP4. To do so, you can use <a href="https://obsproject.com/fr/" target="_blank">OBS</a> or do Windows+Alt+R in Windows')}}</p>
-<p>{{_('Then, you only have to upload the file here : ')}}</p>
-<form action="/uploader" method="POST" enctype="multipart/form-data">
-  <div class="input-group">
-    <input class="form-control" id="formFileLg" type="file" name="file">
-    <button class="btn btn-danger" type="submit">{{_('Send')}}</button>
-  </div>
-  <hr class="mt-4 mb-4"/>
-  <div>
-    <p class="lead">{{_('... Or you can also use the example data.')}}</p>
-    <p>{{_('We provided an example video with data, so that you can use the tool without providing your own data.')}}</p>
-    <p><a class="btn btn-danger" href="/example">{{_('Clic here')}}</a></p>
-  </div>
-</form>
 
+<div class="container">
+  <p class="lead">{{_('General information')}}</p>
+  <div class="row">
+      <div class="col">
+        <p>{{_('This page runs a deep learning model that recognize the key logs from a short extract of a Super Mario Bros gameplay')}}</p>
+        <p>{{_('We are currently working on improving the model, right now it has the following limitations :')}}</p>
+        <ul>
+          <li>{{_('The video should be a fullscreen recording (no frame around the game itself)')}}</li>
+          <li>{{_('The ratio should be the same as the original game (black borders are fine, but the original game should not be stretched)')}}</li>
+          <li>{{_('The run button is not recognized')}}</li>
+          <li>{{_('For computational reasons, only the first 13 first minutes will be processed if the video contains more')}}</li>
+          <li>{{_('The video must be in .MP4 format')}}</li>
+        </ul>
+        <p>{{_('The video can be recorded with any software, but we recommend <a href="https://obsproject.com/fr/" target="_blank">OBS</a> or the shortcut Windows+Alt+R in Windows')}}</p>
+      </div>
+      <div class="col-3">
+        <p class="text-center"><img width="100%" src="static/img/supermariopreview.png" alt="supermariopreview"></p>
+      </div>
+  </div>
+  <p class="lead">{{_('Experiment yourself the input prediction !')}}</p>
+  <p>{{_('Upload here the video to process, then press "Send"')}}</p>
+  <form action="/uploader" method="POST" enctype="multipart/form-data">
+    <div class="input-group">
+      <input class="form-control" id="formFileLg" type="file" name="file">
+      <button class="btn btn-danger" type="submit">{{_('Send')}}</button>
+    </div>
+    <hr class="mt-4 mb-4"/>
+    <div>
+      <p class="lead">{{_('... Or you can also use the example data.')}}</p>
+      <p>{{_('If you do not wish to provide you own video, you can use our example data. <br> This example video comes with the truth key logs to assess the model performance.')}}</p>
+      <p><a class="btn btn-danger" href="/example">{{_('Use example data')}}</a></p>
+    </div>
+  </form>
+</div>
+      
 {% endblock %}

@@ -24,6 +24,7 @@ class Graph{
     }
 
     render(){
+        console.log(this.container.clientWidth)
         this.container.innerHTML = ""
         this.container.appendChild(Plot.plot({
             caption: this.title,

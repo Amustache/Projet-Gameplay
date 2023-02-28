@@ -1,5 +1,5 @@
 function compute_partition(prediction_data) {
-    const FPS = 30
+    const FPS = 25
     let window_size = 5
 
     let margin = {top: 10, right: 40, bottom: 30, left: 30},

@@ -18,8 +18,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 DEVICE           = "cuda:0" if torch.cuda.is_available() else "cpu"
 VIDEO_DIMENSIONS = (int(1920/8), int(1080/8))
-START_FRAME      = 1000
-END_FRAME        = 0
+START_FRAME      = 0
+END_FRAME        = 20000
 OFFSET           = 3
 BATCH_SIZE       = 32
 NB_EPOCHS        = 1000
@@ -194,6 +194,7 @@ def predict(video_path, model_path=None, callback=None):
         accumulator = torch.zeros( (accumulator_size*BATCH_SIZE, 3) ).to(DEVICE)
 
         frame = START_FRAME
+        end_batch = END_FRAME/BATCH_SIZE if END_FRAME != 0 else len(dataloader)
         file_path = os.path.join(os.path.dirname(video_path), "prediction.csv")
         f = open(file_path, "w")
         f.write("FRAME,KEY,STATUS\n")
@@ -202,12 +203,10 @@ def predict(video_path, model_path=None, callback=None):
             result_index = 0
             acc = 0
             for x in dataloader:
-                #t2 = time.time()
                 prediction = torch.round(model(x.to(DEVICE)))
                 accumulator[acc:acc+len(prediction)] = prediction
-                #t3 = time.time()
                 if acc == (accumulator_size-1)*BATCH_SIZE :
-                    if callback != None : callback(i/len(dataloader))
+                    if callback != None : callback(i/end_batch)
                     for pred in accumulator.cpu():
                         for j in range(len(current_state)):
                             if current_state[j] != pred[j]:
@@ -218,10 +217,10 @@ def predict(video_path, model_path=None, callback=None):
                     acc = 0
                 else :
                     acc += BATCH_SIZE
-                #t4 = time.time()
-                #print("T+2 - T3 :", t3-t2)
-                #print("T+3 - T4 :", t4-t3)
                 i += 1
+
+                if i > end_batch:
+                    break
 
             for line_i in range(result_index):
                 line = result[line_i]
