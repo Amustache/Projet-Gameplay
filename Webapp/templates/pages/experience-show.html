@@ -21,6 +21,9 @@
 
   <details id="current_frame_details">
     <summary>{{_('Current Frame Details')}}</summary>
+	<p class="mt-3">{{_('On the left, the first table indicates the prediction for the current frame. If example data are loaded, the ground truth and the total accuracy are also displayed')}}</p>
+	<p>{{_('The second table on the left displays the transitions encountered so far from the first frame of the video. <br> The table should be read from column to line. For exemple, the top right cell indicated the percentage of "x" (jumps) followed by a "Key.right" (movement to the right)')}}</p>
+	<p>{{_('The graphic on the right shows the key presses over the next few seconds')}}</p>
     <div class="text-center m-3">
       <span class="me-4">{{_('Time')}} : <span id="current_time">0</span>s</span>
       <span>Frame : <span id="current_frame">0</span></span>
@@ -57,27 +60,39 @@
   <hr>
   <details>
     <summary>{{_('Game Loop Analysis')}}</summary>
+	<p>{{_('Our game loop extraction currently works as follow :')}}</p>
+	<ol>
+		<li>{{_('The list of all key presses is extracted from the video using our machine learning model')}}</li>
+		<li>{{_('This list is parsed using <a href="https://en.wikipedia.org/wiki/Byte_pair_encoding">Byte Pair Encoding</a> with the number of iterations given below. The result is a new list were the most recurring patterns are considered states themselves.')}}</li>
+		<li>{{_('From this new list the table of transitions is extracted (available in the "details" section below)')}}</li>
+		<li>{{_('The loops found in the transition table with the highest probabilities are extracted. The probability is computed using a heuristic taking as parameter the probability of transition and the number of states in the loop.')}}</li>
+	</ol>
     <div id="NLP_div">
 		<div class="m-3 row">
 			<div class="col-md-4">
 				<label for="nb_iter" class="form-label">{{_('Number of iterations')}}</label>
-				<input id="nb_iter" class="form-control" type="number" value="10" onchange="generateGameLoopAnalysis(prediction)">
+				<input id="nb_iter" class="form-control" type="number" value="3" onchange="generateGameLoopAnalysis(prediction)">
 			</div>
 			<div class="col-md-4">
 				<label for="nb_loops" class="form-label">{{_('Number of loops shown')}}</label>
-				<input id="nb_loops" class="form-control" type="number" min="1" max="10" onchange="generateGameLoopAnalysis(prediction)">
+				<input id="nb_loops" class="form-control" type="number" value="4" min="1" max="10" onchange="generateGameLoopAnalysis(prediction)">
 			</div>
 			<div class="col-md-4">
 				<button class="btn btn-primary" onclick="generateGameLoopAnalysis()">{{_('Execute algorithm')}}</button>
 			</div>
 		</div>
 	  <br>
+	  <p>{{_('Loops')}}</p>
 	  <div id="loops_graph"></div>
+	  <p>{{_('List of loops. <br> A black arrow indicates a transition extracted from the <a href="https://en.wikipedia.org/wiki/Byte_pair_encoding">Byte Pair Encoding</a>. <br> A red arrow indicates a transition from two Byte Pair Encoding states. The last red arrow indicates a loop to the first state.')}}</p>
+	  <p>{{_('The detailed table of transitions and the states extracted using the Byte Pair Encoding can be found in the "details" section below')}}</p>
       <div id="AI_result"></div>
       <details>
         <summary>Details</summary>
+		<p>{{_('The transition table extracted using Byte Pair Encoding. The number in the first row and column corresponds to the states in the second table below')}}</p>
         <table id="BPE_table"></table>
-        <table id="BPE_keys"></table>
+		<hr>
+        <table id="BPE_keys" class="w-50"></table>
       </details>
     </div>
   </details>
@@ -284,7 +299,7 @@
 		let [ttable, keys] = new NLP(keylog.getAllFrames(), KEYS).BPE(getById("nb_iter").value)
 		printTransitionTable(ttable, getById("BPE_table"), keys.map(e => e[0]))
 
-		getById("BPE_keys").innerHTML = ""
+		getById("BPE_keys").innerHTML = "<tr><th>State ID</th><th>State shorthand (used in the transition table above)</th><th>Full state meaning</th></tr>"
 		for (let i = 0; i < keys.length; i++) {
 			getById("BPE_keys").innerHTML += "<tr><td>" + i + "</td><td>" + keys[i][0] + "</td><td>" + keys[i][1] + "</td></tr>"
 		}
