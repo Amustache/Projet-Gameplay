@@ -18,3 +18,4 @@ torchaudio
 torchvision
 torchinfo
 werkzeug
+git+https://github.com/pytube/pytube
