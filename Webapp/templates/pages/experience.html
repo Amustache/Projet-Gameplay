@@ -50,7 +50,36 @@
                     <button class="btn btn-danger" type="submit">{{ _('Send') }}</button>
                 </div>
             </form>
+            <div class="progress invisible">
+                <div id="progress-bar" class="progress-bar progress-bar-striped bg-danger progress-bar-animated"
+                     role="progressbar" aria-label="Processing the video" style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
+                     aria-valuemax="100"><span id="progress">0%</span></div>
+            </div>
         </div>
     </div>
 
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        setInterval(() => {
+            const request = new XMLHttpRequest()
+            request.open("GET", "/youtube_download")
+            request.responseType = "json"
+            request.send()
+            request.onload = () => {
+                let result;
+                if (request.readyState === 4 && request.status === 200) {
+                    result = parseInt(request.response.progression * 1000) / 10
+                } else {
+                    result = "Impossible de communiquer avec le serveur"
+                }
+                document.getElementById("progress-bar").setAttribute("aria-valuenow", result)
+                document.getElementById("progress-bar").style.width = result + "%"
+                document.getElementById("progress").innerHTML = result + "%"
+
+                document.attr("visible")
+            };
+        }, 3000)
+    </script>
 {% endblock %}

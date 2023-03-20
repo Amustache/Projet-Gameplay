@@ -1,8 +1,13 @@
+import re
 import io
 import logging
 import os
 import shutil
 import threading
+
+from pytube import YouTube
+from pytube.cli import on_progress
+
 import ML.model
 
 from logging import FileHandler, Formatter
@@ -15,7 +20,7 @@ from werkzeug.utils import secure_filename
 ALLOWED_EXTENSIONS = {"mkv", "mp4", "webm", "avi"}
 DEMO_TRUTH = "truth.csv"
 DEMO_FNAME = "video.webm"
-YOUTUBE_PATTERN = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
+YOUTUBE_PATTERN = re.compile(r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$")
 
 
 def get_locale():
@@ -37,6 +42,7 @@ app.config.from_object("config")
 
 current_ML_thread = None
 current_ML_progress = 0
+current_YT_progress = 0
 
 
 def root_path_join(*args):
@@ -78,7 +84,40 @@ def after_request(response):
 
 @app.route("/youtube", methods=["GET", "POST"])
 def youtube_link():
-    return "oui"
+    global current_ML_thread
+    if request.method == "POST":
+        form_data = request.form
+        if "url" in form_data:
+            yt_link = form_data["url"]
+            if not YOUTUBE_PATTERN.match(yt_link):
+                return flash_and_redirect("experience", gettext("Please use a valid YouTube link."))
+
+            if not current_ML_thread:
+                clean_upload_folder()
+
+                fname = "ytvid.mp4"
+                full_path = root_path_join(app.config["UPLOAD_FOLDER"])
+                print(yt_link)
+                YouTube(yt_link, on_progress_callback=progress_function, on_complete_callback=None).streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=full_path, filename=fname)
+
+                # current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
+                # current_ML_thread.start()
+                return redirect(url_for("waiting", filename=fname))
+            else:
+                return redirect(url_for("overloaded"))
+
+
+def progress_function(stream, chunk, bytes_remaining):
+    global current_YT_progress
+    size = stream.filesize
+    p = 1 - float(bytes_remaining) / float(size)
+    current_YT_progress = p
+
+
+@app.route("/youtube_download", methods=["GET", "POST"])
+def youtube_progress():
+    global current_YT_progress
+    return {"progression": current_YT_progress}
 
 
 @app.route("/uploader", methods=["GET", "POST"])
@@ -86,14 +125,14 @@ def upload_file():
     global current_ML_thread
     if request.method == "POST":
         if "file" not in request.files:
-            return flash_and_redirect("experience", gettext("No file to uploaded"))
+            return flash_and_redirect("experience", gettext("No file uploaded."))
 
         file = request.files["file"]
         if file.filename == "":
-            return flash_and_redirect("experience", gettext("No file selected"))
+            return flash_and_redirect("experience", gettext("No file selected."))
 
         if not (file and allowed_file(file.filename)):
-            return flash_and_redirect("experience", gettext("Please, use a video in a valid format"))
+            return flash_and_redirect("experience", gettext("Please, use a video in a valid format."))
 
         if not current_ML_thread:
             clean_upload_folder()
