@@ -38,16 +38,18 @@
             <p class="lead">{{ _('... Or you can also use the example data.') }}</p>
             <p>{{ _('If you do not wish to provide you own video, you can use our example data. <br> This example video comes with the truth key logs to assess the model performance.') }}</p>
             <p><a class="btn btn-danger" href="/example">{{ _('Use example data') }}</a></p>
-        </div><hr class="mt-4 mb-4"/>
+        </div>
+        <hr class="mt-4 mb-4"/>
         <div>
             <p class="lead">{{ _('... Or you can use a YouTube video.') }}</p>
             <p>{{ _('You can use gameplay videos on YouTube for the experience. These videos must respect the same constraints mentioned above.') }}</p>
             <form action="/youtube" method="POST" enctype="multipart/form-data">
-            <div class="input-group">
-                <input class="form-control" id="formURL" type="text" name="url" pattern="^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$">
-                <button class="btn btn-danger" type="submit">{{ _('Send') }}</button>
-            </div>
-        </form>
+                <div class="input-group">
+                    <input class="form-control" id="formURL" type="text" name="url"
+                           pattern="^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$">
+                    <button class="btn btn-danger" type="submit">{{ _('Send') }}</button>
+                </div>
+            </form>
         </div>
     </div>
 

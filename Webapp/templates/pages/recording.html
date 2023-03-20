@@ -2,57 +2,57 @@
 {% block title %}OBS Script{% endblock %}
 {% block content %}
 
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <h1 class="mt-5">{{_('OBS keylogging script')}}</h1>
-            <p>{{_('To collect data from various games, we used the well-known software <a href="https://obsproject.com/">OBS</a>')}}</p>
-            <p>{{_('Along width the video, we developed a plugin that record all the key pressed on the keyboard during the record time')}}</p>
+    <h1 class="mt-5">{{ _('OBS keylogging script') }}</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p>{{ _('To collect data from various games, we used the well-known software <a href="https://obsproject.com/">OBS</a>') }}</p>
+                <p>{{ _('Along width the video, we developed a plugin that record all the key pressed on the keyboard during the record time') }}</p>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <h2>{{_('Setup and requirements')}}</h2>
-            <p>{{_('The script has the following dependencies :')}}</p>
-            <ul>
-                <li>{{_('<a href="https://www.python.org/">Python 3</a> should be installed')}}</li>
-                <li>{{_('<a href="https://pypi.org/project/pynput/">pynput</a> should be installed <br> Using pip the command is <code>pip install pynput</code>')}}</li>
-            </ul>
-            <h2>{{_('Download')}}</h2>
-            <p>{{_('The script can be downloaded by clicking <a href="/static/obs/script.py"><b>here</b></a>')}}</p>
-            <h2>{{_('Installation')}}</h2>
-            <p>{{_('The plugin can be installed like any other OBS script')}}</p>
-            <ol>
-                <li>{{_('
+        <div class="row">
+            <div class="col">
+                <h2>{{ _('Setup and requirements') }}</h2>
+                <p>{{ _('The script has the following dependencies :') }}</p>
+                <ul>
+                    <li>{{ _('<a href="https://www.python.org/">Python 3</a> should be installed') }}</li>
+                    <li>{{ _('<a href="https://pypi.org/project/pynput/">pynput</a> should be installed <br> Using pip the command is <code>pip install pynput</code>') }}</li>
+                </ul>
+                <h2>{{ _('Download') }}</h2>
+                <p>{{ _('The script can be downloaded by clicking <a href="/static/obs/script.py"><b>here</b></a>') }}</p>
+                <h2>{{ _('Installation') }}</h2>
+                <p>{{ _('The plugin can be installed like any other OBS script') }}</p>
+                <ol>
+                    <li>{{ _('
                     Start OBS and go in the menu Tool ➞ Scripts. <br> 
-                    If the menu does not appear, be sure to use the latest OBS version')}}
-                </li>
-                <li>{{_('In the new window, locate the downloaded script by clicking on the "+" button')}}</li>
-                <li>{{_('Once the script is loaded, the configuration appears on the right. The path where the key logs will be stored can be configured')}}</li>
-                <li>{{_('The key log will automatically start and stop with the recording of a video')}}</li>
-            </ol>
-        </div>
-        <div class="col">
-            <div class="card">
-                <img class="card-img-top float-end" width="400px" src="static/img/obs_script.png">
-                <div class="card-body">
-                    <p class="card-text">{{_('Screenshot of the script menu in OBS and the script configuration')}}</p>
+                    If the menu does not appear, be sure to use the latest OBS version') }}
+                    </li>
+                    <li>{{ _('In the new window, locate the downloaded script by clicking on the "+" button') }}</li>
+                    <li>{{ _('Once the script is loaded, the configuration appears on the right. The path where the key logs will be stored can be configured') }}</li>
+                    <li>{{ _('The key log will automatically start and stop with the recording of a video') }}</li>
+                </ol>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img class="card-img-top float-end" width="400px" src="static/img/obs_script.png">
+                    <div class="card-body">
+                        <p class="card-text">{{ _('Screenshot of the script menu in OBS and the script configuration') }}</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <h2>{{_('Output format')}}</h2>
-            <p>{{_('The output is a .<abbr title="comma separated values">csv</abbr> file. <br> The header always contains <code>FRAME,KEY,STATUS</code>, then each line describes a key event. Each line contains the frame at which the event happens, the key that changed and its new state.')}}</p>
-            <p>{{_('This format has the following properties :')}}</p>
-            <ul>
-                <li>{{_('A line is added only when an event occurs, so many frame does not have an entry in the file. This reduces the log size.')}}</li>
-                <li>{{_('Multiple event (key state changes) may occur on the same frame. Thus, multiple lines can have the same <code>FRAME</code> number')}}</li>
-                <li>{{_('The line are sorted by <code>FRAME</code>')}}</li>
-            </ul>
+        <div class="row">
+            <div class="col">
+                <h2>{{ _('Output format') }}</h2>
+                <p>{{ _('The output is a .<abbr title="comma separated values">csv</abbr> file. <br> The header always contains <code>FRAME,KEY,STATUS</code>, then each line describes a key event. Each line contains the frame at which the event happens, the key that changed and its new state.') }}</p>
+                <p>{{ _('This format has the following properties :') }}</p>
+                <ul>
+                    <li>{{ _('A line is added only when an event occurs, so many frame does not have an entry in the file. This reduces the log size.') }}</li>
+                    <li>{{ _('Multiple event (key state changes) may occur on the same frame. Thus, multiple lines can have the same <code>FRAME</code> number') }}</li>
+                    <li>{{ _('The line are sorted by <code>FRAME</code>') }}</li>
+                </ul>
+            </div>
         </div>
     </div>
-</div>
 
 {% endblock %}

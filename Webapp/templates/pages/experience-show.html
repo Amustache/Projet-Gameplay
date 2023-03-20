@@ -1,332 +1,360 @@
 {% extends 'layouts/main.html' %}
-{% block title %}{{_('Online experiment - Results')}}{% endblock %}
+{% block title %}{{ _('Online experiment - Results') }}{% endblock %}
 {% block content %}
 
-<h1 class="mt-3">{{_('Online experiment - Results')}}</h1>
-<section class="mt-3">
-  <div class="m-auto w-50">
-    <video id="video" width="100%" controls><source src="{{filename}}" type="video/mp4"></video>
-    <div class="text-center">
-      <span>Play Speed <span id="speedLabel">1</span>x</span>
-      <br>
-      <input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
-    </div>
-    <div class="grid11">
-      <button class="btn btn-secondary m-1" onclick="moveFrame(-1)">{{_('Previous frame')}}</button>
-      <button class="btn btn-secondary m-1" onclick="moveFrame(1)">{{_('Next frame')}}</button>
-      <button class="btn btn-secondary m-1" onclick="moveFrame(-10)">{{_('-10 frames')}}</button>
-      <button class="btn btn-secondary m-1" onclick="moveFrame(10)">{{_('+10 frames')}}</button>
-    </div>
-  </div>
+    <h1 class="mt-3">{{ _('Online experiment - Results') }}</h1>
+    <section class="mt-3">
+        <div class="m-auto w-50">
+            <video id="video" width="100%" controls>
+                <source src="{{ filename }}" type="video/mp4">
+            </video>
+            <div class="text-center">
+                <span>Play Speed <span id="speedLabel">1</span>x</span>
+                <br>
+                <input type="range" id="speedInput" min="0" max="1" step="0.01" oninput="updateSpeed()">
+            </div>
+            <div class="grid11">
+                <button class="btn btn-secondary m-1" onclick="moveFrame(-1)">{{ _('Previous frame') }}</button>
+                <button class="btn btn-secondary m-1" onclick="moveFrame(1)">{{ _('Next frame') }}</button>
+                <button class="btn btn-secondary m-1" onclick="moveFrame(-10)">{{ _('-10 frames') }}</button>
+                <button class="btn btn-secondary m-1" onclick="moveFrame(10)">{{ _('+10 frames') }}</button>
+            </div>
+        </div>
 
-  <details id="current_frame_details">
-    <summary>{{_('Current Frame Details')}}</summary>
-	<p class="mt-3">{{_('On the left, the first table indicates the prediction for the current frame. If example data are loaded, the ground truth and the total accuracy are also displayed')}}</p>
-	<p>{{_('The second table on the left displays the transitions encountered so far from the first frame of the video. <br> The table should be read from column to line. For exemple, the top right cell indicated the percentage of "x" (jumps) followed by a "Key.right" (movement to the right)')}}</p>
-	<p>{{_('The graphic on the right shows the key presses over the next few seconds')}}</p>
-    <div class="text-center m-3">
-      <span class="me-4">{{_('Time')}} : <span id="current_time">0</span>s</span>
-      <span>Frame : <span id="current_frame">0</span></span>
-    </div>
-    <div class="row">
-      <div class="col p-3">
-        <div><table class="table" id="table_summary"></table></div>
-        <div class="grid11 fs-small" id="current_frame_tables"></div>
-      </div>
-      <div class="col p-3">
-        <div id="area"></div>
-      </div>
-    </div>
-  </details>
-  <hr>
-  <details id="key_analysis_details">
-    <summary>{{_('Keys analysis')}}</summary>
-    <div id="keys_container">
-      <div id="keys_accuracies_params">
-        <label>{{_('Smoothing')}} : </label><input id="windowSize_accuracies" type="range" min="1" max="4000" onchange="updateWindowSize('accuracies')"></input>
-      </div>
-      <div id="keys_accuracies" class="p-4"></div>
-	  <div id="keys_ttables_params">
-        <label>{{_('Smoothing')}} : </label><input id="windowSize_ttables" type="range" min="1" max="400" onchange="updateWindowSize('ttables')"></input>
-      </div>
-	  <table class="table">
-		<tr>
-			<td><div id="keys_ttables_truth"></div></td>
-			<td><div id="keys_ttables_prediction"></div></td>
-		</tr>
-	  </table>
-    </div>
-  </details>
-  <hr>
-  <details>
-    <summary>{{_('Game Loop Analysis')}}</summary>
-	<p>{{_('Our game loop extraction currently works as follow :')}}</p>
-	<ol>
-		<li>{{_('The list of all key presses is extracted from the video using our machine learning model')}}</li>
-		<li>{{_('This list is parsed using <a href="https://en.wikipedia.org/wiki/Byte_pair_encoding">Byte Pair Encoding</a> with the number of iterations given below. The result is a new list were the most recurring patterns are considered states themselves.')}}</li>
-		<li>{{_('From this new list the table of transitions is extracted (available in the "details" section below)')}}</li>
-		<li>{{_('The loops found in the transition table with the highest probabilities are extracted. The probability is computed using a heuristic taking as parameter the probability of transition and the number of states in the loop.')}}</li>
-	</ol>
-    <div id="NLP_div">
-		<div class="m-3 row">
-			<div class="col-md-4">
-				<label for="nb_iter" class="form-label">{{_('Number of iterations')}}</label>
-				<input id="nb_iter" class="form-control" type="number" value="3" onchange="generateGameLoopAnalysis(prediction)">
-			</div>
-			<div class="col-md-4">
-				<label for="nb_loops" class="form-label">{{_('Number of loops shown')}}</label>
-				<input id="nb_loops" class="form-control" type="number" value="4" min="1" max="10" onchange="generateGameLoopAnalysis(prediction)">
-			</div>
-			<div class="col-md-4">
-				<button class="btn btn-primary" onclick="generateGameLoopAnalysis()">{{_('Execute algorithm')}}</button>
-			</div>
-		</div>
-	  <br>
-	  <p>{{_('Loops')}}</p>
-	  <div id="loops_graph"></div>
-	  <p>{{_('List of loops. <br> A black arrow indicates a transition extracted from the <a href="https://en.wikipedia.org/wiki/Byte_pair_encoding">Byte Pair Encoding</a>. <br> A red arrow indicates a transition from two Byte Pair Encoding states. The last red arrow indicates a loop to the first state.')}}</p>
-	  <p>{{_('The detailed table of transitions and the states extracted using the Byte Pair Encoding can be found in the "details" section below')}}</p>
-      <div id="AI_result"></div>
-      <details>
-        <summary>Details</summary>
-		<p>{{_('The transition table extracted using Byte Pair Encoding. The number in the first row and column corresponds to the states in the second table below')}}</p>
-        <table id="BPE_table"></table>
-		<hr>
-        <table id="BPE_keys" class="w-50"></table>
-      </details>
-    </div>
-  </details>
-  <hr>
-  <div class="container">
-    <div class="row gx-1 ">
-      <div class="col-lg-6"><img src="/barcode.png"></div>
-      <div class="col-lg-6"><img src="/tenpatterns.png"></div>
-    </div>
-  </div>
-</section>
+        <details id="current_frame_details">
+            <summary>{{ _('Current Frame Details') }}</summary>
+            <p class="mt-3">{{ _('On the left, the first table indicates the prediction for the current frame. If example data are loaded, the ground truth and the total accuracy are also displayed') }}</p>
+            <p>{{ _('The second table on the left displays the transitions encountered so far from the first frame of the video. <br> The table should be read from column to line. For exemple, the top right cell indicated the percentage of "x" (jumps) followed by a "Key.right" (movement to the right)') }}</p>
+            <p>{{ _('The graphic on the right shows the key presses over the next few seconds') }}</p>
+            <div class="text-center m-3">
+                <span class="me-4">{{ _('Time') }} : <span id="current_time">0</span>s</span>
+                <span>Frame : <span id="current_frame">0</span></span>
+            </div>
+            <div class="row">
+                <div class="col p-3">
+                    <div>
+                        <table class="table" id="table_summary"></table>
+                    </div>
+                    <div class="grid11 fs-small" id="current_frame_tables"></div>
+                </div>
+                <div class="col p-3">
+                    <div id="area"></div>
+                </div>
+            </div>
+        </details>
+        <hr>
+        <details id="key_analysis_details">
+            <summary>{{ _('Keys analysis') }}</summary>
+            <div id="keys_container">
+                <div id="keys_accuracies_params">
+                    <label>{{ _('Smoothing') }} : </label><input id="windowSize_accuracies" type="range" min="1"
+                                                                 max="4000"
+                                                                 onchange="updateWindowSize('accuracies')"></input>
+                </div>
+                <div id="keys_accuracies" class="p-4"></div>
+                <div id="keys_ttables_params">
+                    <label>{{ _('Smoothing') }} : </label><input id="windowSize_ttables" type="range" min="1" max="400"
+                                                                 onchange="updateWindowSize('ttables')"></input>
+                </div>
+                <table class="table">
+                    <tr>
+                        <td>
+                            <div id="keys_ttables_truth"></div>
+                        </td>
+                        <td>
+                            <div id="keys_ttables_prediction"></div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </details>
+        <hr>
+        <details>
+            <summary>{{ _('Game Loop Analysis') }}</summary>
+            <p>{{ _('Our game loop extraction currently works as follow :') }}</p>
+            <ol>
+                <li>{{ _('The list of all key presses is extracted from the video using our machine learning model') }}</li>
+                <li>{{ _('This list is parsed using <a href="https://en.wikipedia.org/wiki/Byte_pair_encoding">Byte Pair Encoding</a> with the number of iterations given below. The result is a new list were the most recurring patterns are considered states themselves.') }}</li>
+                <li>{{ _('From this new list the table of transitions is extracted (available in the "details" section below)') }}</li>
+                <li>{{ _('The loops found in the transition table with the highest probabilities are extracted. The probability is computed using a heuristic taking as parameter the probability of transition and the number of states in the loop.') }}</li>
+            </ol>
+            <div id="NLP_div">
+                <div class="m-3 row">
+                    <div class="col-md-4">
+                        <label for="nb_iter" class="form-label">{{ _('Number of iterations') }}</label>
+                        <input id="nb_iter" class="form-control" type="number" value="3"
+                               onchange="generateGameLoopAnalysis(prediction)">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="nb_loops" class="form-label">{{ _('Number of loops shown') }}</label>
+                        <input id="nb_loops" class="form-control" type="number" value="4" min="1" max="10"
+                               onchange="generateGameLoopAnalysis(prediction)">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary"
+                                onclick="generateGameLoopAnalysis()">{{ _('Execute algorithm') }}</button>
+                    </div>
+                </div>
+                <br>
+                <p>{{ _('Loops') }}</p>
+                <div id="loops_graph"></div>
+                <p>{{ _('List of loops. <br> A black arrow indicates a transition extracted from the <a href="https://en.wikipedia.org/wiki/Byte_pair_encoding">Byte Pair Encoding</a>. <br> A red arrow indicates a transition from two Byte Pair Encoding states. The last red arrow indicates a loop to the first state.') }}</p>
+                <p>{{ _('The detailed table of transitions and the states extracted using the Byte Pair Encoding can be found in the "details" section below') }}</p>
+                <div id="AI_result"></div>
+                <details>
+                    <summary>Details</summary>
+                    <p>{{ _('The transition table extracted using Byte Pair Encoding. The number in the first row and column corresponds to the states in the second table below') }}</p>
+                    <table id="BPE_table"></table>
+                    <hr>
+                    <table id="BPE_keys" class="w-50"></table>
+                </details>
+            </div>
+        </details>
+        <hr>
+        <div class="container">
+            <div class="row gx-1 ">
+                <div class="col-lg-6"><img src="/barcode.png"></div>
+                <div class="col-lg-6"><img src="/tenpatterns.png"></div>
+            </div>
+        </div>
+    </section>
 
 {% endblock %}
+
 {% block javascript %}
-<script>
-	var prediction = null
-	var truth = null
-	var prediction_data = undefined
-	var truth_data = undefined
-	var graphs = {}
-	function getById(elem) { return document.getElementById(elem) }
-</script>
-<script src="/static/js/experience/libs/d3.v7.min.js"></script>
-<script src="/static/js/experience/libs/plot@0.6.js"></script>
+    <script>
+        var prediction = null
+        var truth = null
+        var prediction_data = undefined
+        var truth_data = undefined
+        var graphs = {}
 
-<script src="/static/js/experience/consts.js"></script>
-<script src="/static/js/experience/visualisation.js"></script>
-<script src="/static/js/experience/keylog.js"></script>
-<script src="/static/js/experience/NLP.js"></script>
-<script src="/static/js/experience/AI.js"></script>
-<script src='/static/js/experience/partition/partition.js'></script>        
+        function getById(elem) {
+            return document.getElementById(elem)
+        }
+    </script>
+    <script src="/static/js/experience/libs/d3.v7.min.js"></script>
+    <script src="/static/js/experience/libs/plot@0.6.js"></script>
 
-<script>
-	function getCurrentFrame() { return parseInt(VIDEO.currentTime * FPS) }
-	function getTotalFrames() { return parseInt(VIDEO.duration * FPS) }
-	function moveFrame(nb = 1) { VIDEO.currentTime += nb / FPS }
-	VIDEO.ontimeupdate = event => update()
+    <script src="/static/js/experience/consts.js"></script>
+    <script src="/static/js/experience/visualisation.js"></script>
+    <script src="/static/js/experience/keylog.js"></script>
+    <script src="/static/js/experience/NLP.js"></script>
+    <script src="/static/js/experience/AI.js"></script>
+    <script src='/static/js/experience/partition/partition.js'></script>
 
-	function init() {
-		d3.csv("static/inputs/prediction.csv").then(r => {
-			prediction_data = r
-		}).finally(() => process())
-		d3.csv("static/inputs/truth.csv").then(r => {
-			truth_data = r
-		}).catch(e => {
-			if (truth_data == undefined){
-				truth_data = null
-			}
-		}).finally(() => process())
-	}
-	document.body.onload = init
+    <script>
+        function getCurrentFrame() {
+            return parseInt(VIDEO.currentTime * FPS)
+        }
 
-	function process(){
-		if(prediction_data !== undefined && truth_data !== undefined){
-			prediction = new KeyLog(prediction_data, KEYS)
-			let averages = null
-			let accuracies = null
+        function getTotalFrames() {
+            return parseInt(VIDEO.duration * FPS)
+        }
 
-			getById("current_frame_tables").innerHTML = "\
+        function moveFrame(nb = 1) {
+            VIDEO.currentTime += nb / FPS
+        }
+
+        VIDEO.ontimeupdate = event => update()
+
+        function init() {
+            d3.csv("static/inputs/prediction.csv").then(r => {
+                prediction_data = r
+            }).finally(() => process())
+            d3.csv("static/inputs/truth.csv").then(r => {
+                truth_data = r
+            }).catch(e => {
+                if (truth_data == undefined) {
+                    truth_data = null
+                }
+            }).finally(() => process())
+        }
+
+        document.body.onload = init
+
+        function process() {
+            if (prediction_data !== undefined && truth_data !== undefined) {
+                prediction = new KeyLog(prediction_data, KEYS)
+                let averages = null
+                let accuracies = null
+
+                getById("current_frame_tables").innerHTML = "\
 				<table class=\"table table-bordered text-center me-3\">\
          			<thead><tr><th>Prediction</th></tr></thead>\
           			<tbody id=\"current_frame_prediction\"></tbody>\
         		</table>"
 
-			if(truth_data != null){
-				truth = new KeyLog(truth_data, KEYS, 3)
-				let res = computeAccuracies(prediction, new KeyLog(truth_data, KEYS, 3))
-				averages = res[0]
-				accuracies = res[1]
+                if (truth_data != null) {
+                    truth = new KeyLog(truth_data, KEYS, 3)
+                    let res = computeAccuracies(prediction, new KeyLog(truth_data, KEYS, 3))
+                    averages = res[0]
+                    accuracies = res[1]
 
-				getById("current_frame_tables").innerHTML += "\
+                    getById("current_frame_tables").innerHTML += "\
 					<table class=\"table table-bordered text-center\">\
           				<thead><tr><th>Truth</th></tr></thead>\
           				<tbody id=\"current_frame_truth\"></tbody>\
         			</table>"
-			}
-			
-			generateCurrentFrameSection(averages)
-			graphs = generateKeysSection(prediction, accuracies, truth)
-			generateGameLoopAnalysis(prediction)
-			compute_partition(prediction_data)
-			update()
-		}
-	}
+                }
 
-	function updateSpeed() {
-		const speed = getById("speedInput").value
-		getById("speedLabel").innerHTML = speed
-		VIDEO.playbackRate = speed
-	}
+                generateCurrentFrameSection(averages)
+                graphs = generateKeysSection(prediction, accuracies, truth)
+                generateGameLoopAnalysis(prediction)
+                compute_partition(prediction_data)
+                update()
+            }
+        }
 
-	getById("key_analysis_details").addEventListener("toggle", e => {
-		if (getById("key_analysis_details").open) {
-			updateWindowSize()
-			update()
-		}
-	});
+        function updateSpeed() {
+            const speed = getById("speedInput").value
+            getById("speedLabel").innerHTML = speed
+            VIDEO.playbackRate = speed
+        }
 
-	function update() {
-		let currentFrame = getCurrentFrame()
-		getById("current_time").innerHTML = VIDEO.currentTime
-		getById("current_frame").innerHTML = currentFrame
+        getById("key_analysis_details").addEventListener("toggle", e => {
+            if (getById("key_analysis_details").open) {
+                updateWindowSize()
+                update()
+            }
+        });
 
-		KEYS.forEach(key => {
-			let predicted_key = prediction.getFrame(currentFrame)[key]
+        function update() {
+            let currentFrame = getCurrentFrame()
+            getById("current_time").innerHTML = VIDEO.currentTime
+            getById("current_frame").innerHTML = currentFrame
 
-			if(truth_data != null){
-				let truth_key = truth.getFrame(currentFrame)[key]
-				getById(key + "_truth").innerHTML = truth_key
-				getById(key + "_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>" + predicted_key + "<span>" : predicted_key
-			}else{
-				getById(key + "_prediction").innerHTML = predicted_key
-			}
-		})
+            KEYS.forEach(key => {
+                let predicted_key = prediction.getFrame(currentFrame)[key]
 
-		printTransitionTable(prediction.getTransitionTable(currentFrame), getById("current_frame_prediction"), KEYS)
-		if(truth_data != null){
-			printTransitionTable(truth.getTransitionTable(currentFrame), getById("current_frame_truth"), KEYS)
-		}
+                if (truth_data != null) {
+                    let truth_key = truth.getFrame(currentFrame)[key]
+                    getById(key + "_truth").innerHTML = truth_key
+                    getById(key + "_prediction").innerHTML = truth_key != predicted_key ? "<span class='text-danger fw-bold'>" + predicted_key + "<span>" : predicted_key
+                } else {
+                    getById(key + "_prediction").innerHTML = predicted_key
+                }
+            })
 
-		for(const type in graphs){
-			graphs[type].forEach(graph => graph.updateTimeLine(getCurrentFrame()))
-		}
-	}
+            printTransitionTable(prediction.getTransitionTable(currentFrame), getById("current_frame_prediction"), KEYS)
+            if (truth_data != null) {
+                printTransitionTable(truth.getTransitionTable(currentFrame), getById("current_frame_truth"), KEYS)
+            }
 
-    function updateWindowSize(type=null){
-		if(type==null){
-			for(const type in graphs){
-				updateWindowSize(type)
-			}
-		}else{
-			graphs[type].forEach(graph => graph.updateWindow(getById('windowSize_'+type).value))
-		}
-    }
+            for (const type in graphs) {
+                graphs[type].forEach(graph => graph.updateTimeLine(getCurrentFrame()))
+            }
+        }
 
-	function computeAccuracies(prediction_keylog, truth_keylog) {
-		let accuracies = []
-		let avg_accuracies = {}
-		let state = {}
-		KEYS.forEach(key => avg_accuracies[key] = 0)
-		for (let frame = 0; frame < getTotalFrames(); frame++) {
-			KEYS.forEach(key => {
-				if (prediction_keylog.getFrame(frame)[key] == truth_keylog.getFrame(frame)[key]) {
-					avg_accuracies[key]++
-					state[key] = 1
-				} else {
-					state[key] = 0
-				}
-			})
-			accuracies.push({ ...state })
-		}
-		KEYS.forEach(key => avg_accuracies[key] /= getTotalFrames())
-		return [avg_accuracies, accuracies]
-	}
+        function updateWindowSize(type = null) {
+            if (type == null) {
+                for (const type in graphs) {
+                    updateWindowSize(type)
+                }
+            } else {
+                graphs[type].forEach(graph => graph.updateWindow(getById('windowSize_' + type).value))
+            }
+        }
 
-	function generateCurrentFrameSection(averages) {
-		if(averages != null){
-			getById("table_summary").innerHTML = "<tr><th></th><th>Prediction</th><th>Truth</th><th>Total Accuracy</th></tr>"
-			KEYS.forEach(key =>
-			getById("table_summary").innerHTML += '\
+        function computeAccuracies(prediction_keylog, truth_keylog) {
+            let accuracies = []
+            let avg_accuracies = {}
+            let state = {}
+            KEYS.forEach(key => avg_accuracies[key] = 0)
+            for (let frame = 0; frame < getTotalFrames(); frame++) {
+                KEYS.forEach(key => {
+                    if (prediction_keylog.getFrame(frame)[key] == truth_keylog.getFrame(frame)[key]) {
+                        avg_accuracies[key]++
+                        state[key] = 1
+                    } else {
+                        state[key] = 0
+                    }
+                })
+                accuracies.push({...state})
+            }
+            KEYS.forEach(key => avg_accuracies[key] /= getTotalFrames())
+            return [avg_accuracies, accuracies]
+        }
+
+        function generateCurrentFrameSection(averages) {
+            if (averages != null) {
+                getById("table_summary").innerHTML = "<tr><th></th><th>Prediction</th><th>Truth</th><th>Total Accuracy</th></tr>"
+                KEYS.forEach(key =>
+                    getById("table_summary").innerHTML += '\
                 <tr>\
-                    <td>'+ key + '</td>\
-                    <td id="'+ key + '_prediction"></td>\
-                    <td id="'+ key + '_truth"></td>\
-                    <td>'+ (100 * averages[key]).toFixed(2) + '%</td>\
+                    <td>' + key + '</td>\
+                    <td id="' + key + '_prediction"></td>\
+                    <td id="' + key + '_truth"></td>\
+                    <td>' + (100 * averages[key]).toFixed(2) + '%</td>\
                 </tr>'
-			)
-		}else{
-			getById("table_summary").innerHTML = "<tr><th></th><th>Prediction</th></tr>"
-			KEYS.forEach(key =>
-			getById("table_summary").innerHTML += '\
+                )
+            } else {
+                getById("table_summary").innerHTML = "<tr><th></th><th>Prediction</th></tr>"
+                KEYS.forEach(key =>
+                    getById("table_summary").innerHTML += '\
                 <tr>\
-                    <td>'+ key + '</td>\
-                    <td id="'+ key + '_prediction"></td>\
+                    <td>' + key + '</td>\
+                    <td id="' + key + '_prediction"></td>\
                 </tr>'
-			)
-		}
-	}
+                )
+            }
+        }
 
-	function generateKeysSection(prediction, accuracies_input, truth_keylog) {
-		let datasets = []
-		ttables = []
-		accuracies = []
-		ttables.push(new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"))
-		
-		if(truth_keylog != null){
-			ttables.push(new Graph(getById("keys_ttables_truth"), truth_keylog.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
-		
-			for (let i = 0; i < accuracies_input.length; i++) {
-				KEYS.forEach(key => {
-					datasets.push({ frame: i, y: 100 * accuracies_input[i][key], key: key })
-				})
-			}
-			accuracies.push(new Graph(getById("keys_accuracies"), datasets, "Accuracy per key", "Frame number", "Prediction accuracy [%]"))
-		}
+        function generateKeysSection(prediction, accuracies_input, truth_keylog) {
+            let datasets = []
+            ttables = []
+            accuracies = []
+            ttables.push(new Graph(getById("keys_ttables_prediction"), prediction.getGraphDataset(), "Evolution of transitions (prediction)", "Frame number", "% of transition"))
 
-		return {
-			accuracies : accuracies,
-			ttables : ttables
-		}
-	}
+            if (truth_keylog != null) {
+                ttables.push(new Graph(getById("keys_ttables_truth"), truth_keylog.getGraphDataset(), "Evolution of transitions (truth)", "Frame number", "% of transition"))
 
-	function generateGameLoopAnalysis(keylog) {
-		let [ttable, keys] = new NLP(keylog.getAllFrames(), KEYS).BPE(getById("nb_iter").value)
-		printTransitionTable(ttable, getById("BPE_table"), keys.map(e => e[0]))
+                for (let i = 0; i < accuracies_input.length; i++) {
+                    KEYS.forEach(key => {
+                        datasets.push({frame: i, y: 100 * accuracies_input[i][key], key: key})
+                    })
+                }
+                accuracies.push(new Graph(getById("keys_accuracies"), datasets, "Accuracy per key", "Frame number", "Prediction accuracy [%]"))
+            }
 
-		getById("BPE_keys").innerHTML = "<tr><th>State ID</th><th>State shorthand (used in the transition table above)</th><th>Full state meaning</th></tr>"
-		for (let i = 0; i < keys.length; i++) {
-			getById("BPE_keys").innerHTML += "<tr><td>" + i + "</td><td>" + keys[i][0] + "</td><td>" + keys[i][1] + "</td></tr>"
-		}
+            return {
+                accuracies: accuracies,
+                ttables: ttables
+            }
+        }
 
-		let loops = new AI(ttable.state, keys).findLoopInTable()
-		let result = ""
-		getById("loops_graph").innerHTML = ""
-		for (let i = 0; i < getById("nb_loops").value; i++) {
-			result += "<p>"
-			let current = 0
-			let states = []
-			let links = []
+        function generateGameLoopAnalysis(keylog) {
+            let [ttable, keys] = new NLP(keylog.getAllFrames(), KEYS).BPE(getById("nb_iter").value)
+            printTransitionTable(ttable, getById("BPE_table"), keys.map(e => e[0]))
 
-			for(let j=0; j < loops[i].path.length-1; j++){
-				let loop_states = keys[loops[i].path[j]][1]
-				result += loop_states.toString().replaceAll("],[", "] ⟶  [") + " <b style='color:red'>⟶</b> "
-				loop_states.forEach(e => {
-					states.push({name: e})
-					links.push({source: current, target: current+1})
-					current++
-				})
-			}
-			links[links.length-1]["target"] = 0
-			new Loops(getById("loops_graph"), states, links)
-			result += "</p>"
-		}
-		getById("AI_result").innerHTML = result
-	}
-</script>
+            getById("BPE_keys").innerHTML = "<tr><th>State ID</th><th>State shorthand (used in the transition table above)</th><th>Full state meaning</th></tr>"
+            for (let i = 0; i < keys.length; i++) {
+                getById("BPE_keys").innerHTML += "<tr><td>" + i + "</td><td>" + keys[i][0] + "</td><td>" + keys[i][1] + "</td></tr>"
+            }
+
+            let loops = new AI(ttable.state, keys).findLoopInTable()
+            let result = ""
+            getById("loops_graph").innerHTML = ""
+            for (let i = 0; i < getById("nb_loops").value; i++) {
+                result += "<p>"
+                let current = 0
+                let states = []
+                let links = []
+
+                for (let j = 0; j < loops[i].path.length - 1; j++) {
+                    let loop_states = keys[loops[i].path[j]][1]
+                    result += loop_states.toString().replaceAll("],[", "] ⟶  [") + " <b style='color:red'>⟶</b> "
+                    loop_states.forEach(e => {
+                        states.push({name: e})
+                        links.push({source: current, target: current + 1})
+                        current++
+                    })
+                }
+                links[links.length - 1]["target"] = 0
+                new Loops(getById("loops_graph"), states, links)
+                result += "</p>"
+            }
+            getById("AI_result").innerHTML = result
+        }
+    </script>
 {% endblock %}

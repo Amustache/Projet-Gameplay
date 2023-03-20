@@ -143,11 +143,6 @@ def report():
     return render_template("pages/report.html")
 
 
-@app.route("/results")
-def results():
-    return render_template("pages/results.html")
-
-
 @app.route("/overloaded")
 def overloaded():
     return render_template("pages/overloaded.html")
