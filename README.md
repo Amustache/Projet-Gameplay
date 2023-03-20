@@ -21,6 +21,7 @@ Dans le dossier `Webapp` :
 
 1. Copier le template de configuration : `cp config.dist.py`
 2. Éditer le fichier pour modifier `SECRET_KEY` avec quelque chose de secret.
+3. Télécharger les [données d'exemple](#), et les placer dans le dossier `Webapp/static/inputs/demo/`.
 
 ## Utilisation
 ### General

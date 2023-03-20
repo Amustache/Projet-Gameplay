@@ -8,7 +8,7 @@ import ML.model
 from logging import FileHandler, Formatter
 from datascience import *
 from flask import flash, Flask, redirect, render_template, request, Response, url_for, g
-from flask_babel import Babel
+from flask_babel import Babel, gettext
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from werkzeug.utils import secure_filename
 
@@ -73,6 +73,11 @@ def after_request(response):
     if request.args.get('lang'):
         response.set_cookie('lang', request.args.get('lang'))
     return response
+
+
+@app.route("/youtube", methods=["GET", "POST"])
+def youtube_link():
+    return "oui"
 
 
 @app.route("/uploader", methods=["GET", "POST"])
@@ -180,33 +185,6 @@ def experience_show():
         return flash_and_redirect("experience", gettext("The file seems to be invalid"))
 
     return render_template("pages/experience-show.html", filename=filename)
-
-
-"""
-@app.route("/barcode.png")
-def barcode():
-    file = root_path_join(app.config["UPLOAD_FOLDER"], DEMO_TRUTH)
-    df_trim = extract_keys_from_file(file)
-    data = extract_timeline_from_df(df_trim)
-
-    fig = fig_generate_barcode(data)
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype="image/png")
-
-
-@app.route("/tenpatterns.png")
-def tenpatterns():
-    file = root_path_join(app.config["UPLOAD_FOLDER"], DEMO_TRUTH)
-    df_trim = extract_keys_from_file(file)
-    all_keys = extract_pattern_from_df(df_trim)
-    all_patterns = find_all_patterns(all_keys)
-
-    fig = fig_10_patterns(all_patterns)
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype="image/png")
-"""
 
 
 # Error handlers.
