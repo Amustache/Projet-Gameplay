@@ -15,6 +15,7 @@ from werkzeug.utils import secure_filename
 ALLOWED_EXTENSIONS = {"mkv", "mp4", "webm", "avi"}
 DEMO_TRUTH = "truth.csv"
 DEMO_FNAME = "video.webm"
+YOUTUBE_PATTERN = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 
 
 def get_locale():
