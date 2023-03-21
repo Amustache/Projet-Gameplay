@@ -6,12 +6,10 @@ import shutil
 import threading
 
 from pytube import YouTube
-from pytube.cli import on_progress
 
 import ML.model
 
 from logging import FileHandler, Formatter
-from datascience import *
 from flask import flash, Flask, redirect, render_template, request, Response, url_for, g
 from flask_babel import Babel, gettext
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas

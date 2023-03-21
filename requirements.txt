@@ -1,21 +1,20 @@
-Fabric
-Flask
-beautifulsoup4
+# General
 black
 isort
-jupyter
-matplotlib
-networkx
-notebook
-numpy
-opencv-contrib-python
-pandas
 pre-commit
-pre-commit-hooks
+
+# For webapp
+flask
+flask_babel
+git+https://github.com/pytube/pytube
+
+# For data analysis
+matplotlib
+numpy
+pandas
+
+# For ML
 scikit-learn
 torch
-torchaudio
-torchvision
 torchinfo
-werkzeug
-git+https://github.com/pytube/pytube
+opencv-contrib-python
