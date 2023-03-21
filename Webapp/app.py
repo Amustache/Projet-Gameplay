@@ -103,7 +103,7 @@ def youtube_link():
 
                 current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
                 current_ML_thread.start()
-                return redirect(url_for("waiting", filename=fname))
+                return redirect(url_for("experience_waiting", filename=fname))
             else:
                 return redirect(url_for("overloaded"))
 
@@ -156,7 +156,7 @@ def upload_file():
 
             current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
             current_ML_thread.start()
-            return redirect(url_for("waiting", filename=fname))
+            return redirect(url_for("experience_waiting", filename=fname))
         else:
             return redirect(url_for("overloaded"))
 
@@ -201,7 +201,7 @@ def overloaded():
 
 
 @app.route("/experience-waiting")
-def waiting():
+def experience_waiting():
     return render_template("pages/waiting.html")
 
 
