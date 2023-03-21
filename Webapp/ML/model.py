@@ -168,7 +168,10 @@ def predict(video_path, model_path=None, callback=None):
         current_state = np.array([0, 0, 0])
 
         model = get_model()
-        model.load_state_dict(torch.load(model_path))
+        if torch.cuda.is_available():
+            model.load_state_dict(torch.load(model_path))
+        else:
+            model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
         model.eval()
 
         data = get_video(video_path, preload=False)
