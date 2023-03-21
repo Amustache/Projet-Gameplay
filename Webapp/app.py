@@ -20,7 +20,8 @@ from werkzeug.utils import secure_filename
 ALLOWED_EXTENSIONS = {"mkv", "mp4", "webm", "avi"}
 DEMO_TRUTH = "truth.csv"
 DEMO_FNAME = "video.webm"
-YOUTUBE_PATTERN = re.compile(r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$")
+YOUTUBE_PATTERN = re.compile(
+    r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$")
 
 
 def get_locale():
@@ -99,7 +100,9 @@ def youtube_link():
                 path = root_path_join(app.config["UPLOAD_FOLDER"])
                 full_path = os.path.join(path, fname)
                 print(f"Processing: {yt_link}")
-                YouTube(yt_link, on_progress_callback=progress_function, on_complete_callback=None).streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=path, filename=fname)
+                YouTube(yt_link, on_progress_callback=progress_function, on_complete_callback=None).streams.filter(
+                    progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(
+                    output_path=path, filename=fname)
 
                 current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
                 current_ML_thread.start()
