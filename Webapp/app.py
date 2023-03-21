@@ -136,13 +136,27 @@ def upload_file():
         if not (file and allowed_file(file.filename)):
             return flash_and_redirect("experience", gettext("Please, use a video in a valid format."))
 
+        if "truthFile" in request.files:
+            truth = request.files["truthFile"]
+            if truth.filename == "":
+                return flash_and_redirect("experience", gettext("No truth file selected."))
+
+            if not (truth and truth.filename.endswith(".csv")):
+                return flash_and_redirect("experience", gettext("Please, use a truth file in a csv format."))
+        else:
+            truth = None
+
         if not current_ML_thread:
             clean_upload_folder()
             fname = secure_filename(file.filename)
-            full_path = root_path_join(app.config["UPLOAD_FOLDER"], fname)
+            path = root_path_join(app.config["UPLOAD_FOLDER"])
+            full_path = os.path.join(path, fname)
 
             # Save the new file
             file.save(full_path)
+            if truth:
+                truth.save(os.path.join(path, "truth.csv"))
+
             current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
             current_ML_thread.start()
             return redirect(url_for("waiting", filename=fname))

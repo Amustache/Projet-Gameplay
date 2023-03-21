@@ -28,10 +28,15 @@
         <p class="lead">{{ _('Experiment yourself the input prediction !') }}</p>
         <p>{{ _('Upload here the video to process, then press "Send"') }}</p>
         <form action="/uploader" method="POST" enctype="multipart/form-data">
-            <div class="input-group">
-                <input class="form-control" id="formFileLg" type="file" name="file">
-                <button class="btn btn-danger" type="submit">{{ _('Send') }}</button>
+            <div class="mb-3">
+                <label for="formFileLg" class="form-label">Video to upload</label>
+                <input class="form-control" id="formFileLg" type="file" name="file" accept=".mkv,.mp4,video/mp4,.webm,video/webm,.avi,video/x-msvideo">
             </div>
+            <div class="mb-3">
+                <label for="truthFile" class="form-label">(Facultative) Related truth value</label>
+                <input class="form-control" id="truthFile" type="file" name="truthFile" accept=".csv,text/csv">
+            </div>
+            <button class="btn btn-danger" type="submit">{{ _('Send') }}</button>
         </form>
         <hr class="mt-4 mb-4"/>
         <div>
@@ -72,10 +77,12 @@
                 let result;
                 if (request.readyState === 4 && request.status === 200) {
                     result = parseInt(request.response.progression * 1000) / 10
-                    document.getElementById("progress-bar").setAttribute("aria-valuenow", result)
-                    document.getElementById("progress-bar").style.width = result + "%"
-                    document.getElementById("progress").innerHTML = result + "%"
-                    document.getElementById("progress-yt").classList.remove("invisible")
+                    if (result > 0) {
+                        document.getElementById("progress-bar").setAttribute("aria-valuenow", result)
+                        document.getElementById("progress-bar").style.width = result + "%"
+                        document.getElementById("progress").innerHTML = result + "%"
+                        document.getElementById("progress-yt").classList.remove("invisible")
+                    }
                 } else {
                     result = "Impossible de communiquer avec le serveur"
                 }
