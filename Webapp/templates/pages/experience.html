@@ -72,13 +72,13 @@
                 let result;
                 if (request.readyState === 4 && request.status === 200) {
                     result = parseInt(request.response.progression * 1000) / 10
+                    document.getElementById("progress-bar").setAttribute("aria-valuenow", result)
+                    document.getElementById("progress-bar").style.width = result + "%"
+                    document.getElementById("progress").innerHTML = result + "%"
+                    document.getElementById("progress-yt").classList.remove("invisible")
                 } else {
                     result = "Impossible de communiquer avec le serveur"
                 }
-                document.getElementById("progress-bar").setAttribute("aria-valuenow", result)
-                document.getElementById("progress-bar").style.width = result + "%"
-                document.getElementById("progress").innerHTML = result + "%"
-                document.getElementById("progress-yt").classList.remove("invisible")
             };
         }, 3000)
     </script>
