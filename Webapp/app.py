@@ -96,12 +96,13 @@ def youtube_link():
                 clean_upload_folder()
 
                 fname = "ytvid.mp4"
-                full_path = root_path_join(app.config["UPLOAD_FOLDER"])
+                path = root_path_join(app.config["UPLOAD_FOLDER"])
+                full_path = os.path.join(path, fname)
                 print(f"Processing: {yt_link}")
-                YouTube(yt_link, on_progress_callback=progress_function, on_complete_callback=None).streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=full_path, filename=fname)
+                YouTube(yt_link, on_progress_callback=progress_function, on_complete_callback=None).streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=path, filename=fname)
 
-                # current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
-                # current_ML_thread.start()
+                current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
+                current_ML_thread.start()
                 return redirect(url_for("waiting", filename=fname))
             else:
                 return redirect(url_for("overloaded"))
