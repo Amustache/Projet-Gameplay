@@ -50,9 +50,10 @@
                     <button class="btn btn-danger" type="submit">{{ _('Send') }}</button>
                 </div>
             </form>
-            <div class="progress invisible">
+            <div id="progress-yt" class="progress invisible">
                 <div id="progress-bar" class="progress-bar progress-bar-striped bg-danger progress-bar-animated"
-                     role="progressbar" aria-label="Processing the video" style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
+                     role="progressbar" aria-label="Processing the video" style="width: 0%;" aria-valuenow="0"
+                     aria-valuemin="0"
                      aria-valuemax="100"><span id="progress">0%</span></div>
             </div>
         </div>
@@ -77,8 +78,7 @@
                 document.getElementById("progress-bar").setAttribute("aria-valuenow", result)
                 document.getElementById("progress-bar").style.width = result + "%"
                 document.getElementById("progress").innerHTML = result + "%"
-
-                document.attr("visible")
+                document.getElementById("progress-yt").classList.remove("invisible")
             };
         }, 3000)
     </script>

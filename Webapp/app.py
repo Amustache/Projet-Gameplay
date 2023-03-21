@@ -97,7 +97,7 @@ def youtube_link():
 
                 fname = "ytvid.mp4"
                 full_path = root_path_join(app.config["UPLOAD_FOLDER"])
-                print(yt_link)
+                print(f"Processing: {yt_link}")
                 YouTube(yt_link, on_progress_callback=progress_function, on_complete_callback=None).streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=full_path, filename=fname)
 
                 # current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
@@ -112,6 +112,7 @@ def progress_function(stream, chunk, bytes_remaining):
     size = stream.filesize
     p = 1 - float(bytes_remaining) / float(size)
     current_YT_progress = p
+    print(f"YouTube processing: {current_YT_progress}")
 
 
 @app.route("/youtube_download", methods=["GET", "POST"])
