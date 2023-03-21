@@ -11,7 +11,7 @@ Ce projet nécessite Python 3.10+ et Pip 22.3+.
    * Linux : `source ./env/bin/activate`
    * Windows : `.\env\Scripts\activate`
 4. Installer les dépendances : `pip install -Ur requirements.txt`
-   * Sur Debian, installer les dépendances : ``
+   * Sur Debian, installer les dépendances : `sudo apt install ffmpeg libsm6 libxext6 -y`
 5. Activer pre-commit : `pre-commit install`
 
 ### ML
