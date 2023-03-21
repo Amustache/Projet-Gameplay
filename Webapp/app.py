@@ -103,7 +103,7 @@ def youtube_link():
 
                 current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
                 current_ML_thread.start()
-                return redirect(url_for("waiting", filename=fname))
+                return redirect(url_for("experience-waiting", filename=fname))
             else:
                 return redirect(url_for("overloaded"))
 
@@ -138,10 +138,7 @@ def upload_file():
 
         if "truthFile" in request.files:
             truth = request.files["truthFile"]
-            if truth.filename == "":
-                return flash_and_redirect("experience", gettext("No truth file selected."))
-
-            if not (truth and truth.filename.endswith(".csv")):
+            if truth.filename != "" and not (truth and truth.filename.endswith(".csv")):
                 return flash_and_redirect("experience", gettext("Please, use a truth file in a csv format."))
         else:
             truth = None
@@ -159,7 +156,7 @@ def upload_file():
 
             current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
             current_ML_thread.start()
-            return redirect(url_for("waiting", filename=fname))
+            return redirect(url_for("experience-waiting", filename=fname))
         else:
             return redirect(url_for("overloaded"))
 
@@ -203,7 +200,7 @@ def overloaded():
     return render_template("pages/overloaded.html")
 
 
-@app.route("/waiting")
+@app.route("/experience-waiting")
 def waiting():
     return render_template("pages/waiting.html")
 
