@@ -1,16 +1,19 @@
-import sys
-import os
-import torch
-import numpy as np
-
 from datetime import datetime
+import os
+import sys
+
+
+from sklearn.model_selection import KFold
 from torch.utils.data import DataLoader, Subset
 from torchinfo import summary
-from sklearn.model_selection import KFold
+import numpy as np
+import torch
 
+
+from .lib.KeyslogReader import KeyslogReader
 from .lib.NeuralNetwork import NeuralNetwork
 from .lib.VideoLoader import VideoLoader
-from .lib.KeyslogReader import KeyslogReader
+
 
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 VIDEO_DIMENSIONS = (int(1920 / 8), int(1080 / 8))
@@ -54,6 +57,7 @@ class VideoKeysLogMerge(torch.utils.data.IterableDataset):
 
 def start_tensorboard():
     from torch.utils.tensorboard import SummaryWriter
+
     global tensorboardWriter
     tensorboardWriter = SummaryWriter(comment="Neural Network")
 
@@ -102,7 +106,6 @@ def test(video_path, keylog_path):
 
     kf = KFold(n_splits=NB_K_SPLIT).split(data)
     for split, (train_indexes, test_indexes) in enumerate(kf):
-
         model = get_model()
         txt = ""
         txt += "Frames : " + str(START_FRAME) + " to " + str(END_FRAME) + "  \n"
@@ -110,8 +113,13 @@ def test(video_path, keylog_path):
         txt += "Learning rate : " + str(model.LEARNING_RATE) + "  \n"
         txt += "Weight decay : " + str(model.WEIGHT_DECAY) + "  \n"
         txt += "Dropout : " + str(model.DROPOUT) + "  \n"
-        txt += str(summary(model, input_size=(BATCH_SIZE, NB_DIMENSIONS, VIDEO_DIMENSIONS[0], VIDEO_DIMENSIONS[1]),
-                           verbose=0)).replace("\n", "  \n")
+        txt += str(
+            summary(
+                model,
+                input_size=(BATCH_SIZE, NB_DIMENSIONS, VIDEO_DIMENSIONS[0], VIDEO_DIMENSIONS[1]),
+                verbose=0,
+            )
+        ).replace("\n", "  \n")
         tensorboardWriter.add_text("Parameters", txt)
 
         data_train = get_dataloader(Subset(data, train_indexes))
@@ -125,7 +133,8 @@ def test(video_path, keylog_path):
             results = model.process(data_test, is_train=False)
             loss_test, correct_parts_test, correct_test = results
             print(
-                f"Test : Accuracy:{(100 * correct_parts_test[0]):>0.1f}%|{(100 * correct_parts_test[1]):>0.1f}%|{(100 * correct_parts_test[2]):>0.1f}% Tot: {(100 * correct_test):>0.1f}% Loss: {loss_test:>6f} \n")
+                f"Test : Accuracy:{(100 * correct_parts_test[0]):>0.1f}%|{(100 * correct_parts_test[1]):>0.1f}%|{(100 * correct_parts_test[2]):>0.1f}% Tot: {(100 * correct_test):>0.1f}% Loss: {loss_test:>6f} \n"
+            )
             write_tensorboard("Test", epoch + split * NB_EPOCHS, results)
             tensorboardWriter.add_scalar("Loss difference", loss_test - loss_train, epoch)
 
@@ -136,7 +145,9 @@ def test(video_path, keylog_path):
                     image = torch.clone(model.block_init[0].weight.data[None, i, j])
                     image -= torch.min(image)
                     image /= torch.max(image)
-                    tensorboardWriter.add_image("Test/Layers_init1_" + str(i) + "_" + str(j), image, epoch * NB_EPOCHS)
+                    tensorboardWriter.add_image(
+                        "Test/Layers_init1_" + str(i) + "_" + str(j), image, epoch * NB_EPOCHS
+                    )
 
             save_model(model, "_test_model_epoch_" + str(epoch) + ".pth")
 
@@ -171,7 +182,7 @@ def predict(video_path, model_path=None, callback=None):
         if torch.cuda.is_available():
             model.load_state_dict(torch.load(model_path))
         else:
-            model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+            model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
         model.eval()
 
         data = get_video(video_path, preload=False)
@@ -221,9 +232,10 @@ def predict(video_path, model_path=None, callback=None):
             acc = 0
             for x in dataloader:
                 prediction = torch.round(model(x.to(DEVICE)))
-                accumulator[acc:acc + len(prediction)] = prediction
+                accumulator[acc : acc + len(prediction)] = prediction
                 if acc == (accumulator_size - 1) * BATCH_SIZE:
-                    if callback != None: callback(i / end_batch)
+                    if callback != None:
+                        callback(i / end_batch)
                     for pred in accumulator.cpu():
                         for j in range(len(current_state)):
                             if current_state[j] != pred[j]:
@@ -245,7 +257,8 @@ def predict(video_path, model_path=None, callback=None):
                 f.write(f"{line[0]},{keys_dict[line[1]]},{state}\n")
 
         f.close()
-        if callback != None: callback(1)
+        if callback != None:
+            callback(1)
         print("Prediction finished")
 
     elif os.path.isdir(video_path):

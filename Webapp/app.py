@@ -1,35 +1,36 @@
-import re
+from logging import FileHandler, Formatter
 import io
 import logging
 import os
+import re
 import shutil
 import threading
 
-from pytube import YouTube
 
-import ML.model
-
-from logging import FileHandler, Formatter
-from flask import flash, Flask, redirect, render_template, request, Response, url_for, g
+from flask import flash, Flask, g, redirect, render_template, request, Response, url_for
 from flask_babel import Babel, gettext
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from pytube import YouTube
 from werkzeug.utils import secure_filename
+import ML.model
+
 
 ALLOWED_EXTENSIONS = {"mkv", "mp4", "webm", "avi"}
 DEMO_TRUTH = "truth.csv"
 DEMO_FNAME = "video.webm"
 YOUTUBE_PATTERN = re.compile(
-    r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$")
+    r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
+)
 
 
 def get_locale():
-    print("GET ", request.cookies.get('lang'))
-    if request.args.get('lang'):
-        return request.args.get('lang')
-    if request.cookies.get('lang'):
-        return request.cookies.get('lang')
+    print("GET ", request.cookies.get("lang"))
+    if request.args.get("lang"):
+        return request.args.get("lang")
+    if request.cookies.get("lang"):
+        return request.cookies.get("lang")
     else:
-        return request.accept_languages.best_match(['fr', 'en'])
+        return request.accept_languages.best_match(["fr", "en"])
 
 
 app = Flask(__name__)
@@ -76,8 +77,8 @@ def run_ML_callback(progress):
 
 @app.after_request
 def after_request(response):
-    if request.args.get('lang'):
-        response.set_cookie('lang', request.args.get('lang'))
+    if request.args.get("lang"):
+        response.set_cookie("lang", request.args.get("lang"))
     return response
 
 
@@ -98,9 +99,13 @@ def youtube_link():
                 path = root_path_join(app.config["UPLOAD_FOLDER"])
                 full_path = os.path.join(path, fname)
                 print(f"Processing: {yt_link}")
-                YouTube(yt_link, on_progress_callback=progress_function, on_complete_callback=None).streams.filter(
-                    progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(
-                    output_path=path, filename=fname)
+                YouTube(
+                    yt_link, on_progress_callback=progress_function, on_complete_callback=None
+                ).streams.filter(progressive=True, file_extension="mp4").order_by(
+                    "resolution"
+                ).desc().first().download(
+                    output_path=path, filename=fname
+                )
 
                 current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
                 current_ML_thread.start()
@@ -135,12 +140,16 @@ def upload_file():
             return flash_and_redirect("experience", gettext("No file selected."))
 
         if not (file and allowed_file(file.filename)):
-            return flash_and_redirect("experience", gettext("Please, use a video in a valid format."))
+            return flash_and_redirect(
+                "experience", gettext("Please, use a video in a valid format.")
+            )
 
         if "truthFile" in request.files:
             truth = request.files["truthFile"]
             if truth.filename != "" and not (truth and truth.filename.endswith(".csv")):
-                return flash_and_redirect("experience", gettext("Please, use a truth file in a csv format."))
+                return flash_and_redirect(
+                    "experience", gettext("Please, use a truth file in a csv format.")
+                )
         else:
             truth = None
 
@@ -171,7 +180,7 @@ def example():
         if f != ".gitignore":
             shutil.copyfile(
                 root_path_join(app.config["DEMO_FOLDER"], f),
-                root_path_join(app.config["UPLOAD_FOLDER"], f)
+                root_path_join(app.config["UPLOAD_FOLDER"], f),
             )
     return redirect(url_for("experience_show", filename=DEMO_FNAME))
 
@@ -238,6 +247,7 @@ def experience_show():
 
 # Error handlers.
 
+
 @app.errorhandler(500)
 def internal_error(error):
     return render_template("errors/500.html"), 500
@@ -250,7 +260,9 @@ def not_found_error(error):
 
 if not app.debug:
     file_handler = FileHandler("error.log")
-    file_handler.setFormatter(Formatter("%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"))
+    file_handler.setFormatter(
+        Formatter("%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]")
+    )
     app.logger.setLevel(logging.INFO)
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
