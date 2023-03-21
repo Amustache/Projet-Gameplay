@@ -7,8 +7,9 @@
 
 <script>
   setInterval(() => {
+    filename = (new URLSearchParams(window.location.search)).get("filename")
     const request = new XMLHttpRequest()
-    request.open("GET", "/progression")
+    request.open("GET", "/progression?filename="+filename)
     request.responseType = "json"
     request.send()
     request.onload = () => {
@@ -16,7 +17,6 @@
       if (request.readyState == 4 && request.status == 200) {
         result = (parseInt(request.response.progression*1000)/10) + "%"
         if(request.response.progression == 1){
-          filename = (new URLSearchParams(window.location.search)).get("filename")
           window.location.replace("{{ url_for('experience_show') }}?filename="+filename);
         }
       } else {

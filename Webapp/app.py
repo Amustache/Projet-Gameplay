@@ -3,6 +3,8 @@ import logging
 import os
 import shutil
 import threading
+import random
+import string
 import ML.model
 
 from logging import FileHandler, Formatter
@@ -32,8 +34,9 @@ app.config["DEMO_FOLDER"]   = os.path.join("static", "inputs", "demo")
 app.config["MAX_CONTENT_PATH"] = 200_000_000
 app.config.from_object("config")
 
-current_ML_thread = None
-current_ML_progress = 0
+ML_THREADS = {}
+MAX_ML_THREADS = 10
+FILENAME_LENGTH = 7
 
 def root_path_join(*args):
     return os.path.join(app.root_path, *args)
@@ -51,13 +54,15 @@ def flash_and_redirect(dest, msg):
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def run_ML(path):
-    ML.model.predict(path, callback=run_ML_callback)
+def run_ML(path,thread_name):
+    global ML_THREADS
+    ML.model.predict(path, callback=run_ML_callback, name=thread_name)
+    del ML_THREADS[thread_name]['thread']
 
-def run_ML_callback(progress):
-    global current_ML_progress
-    print("Progress "+str(round(progress*100,2))+"% ...")
-    current_ML_progress = progress
+def run_ML_callback(progress, name):
+    global ML_THREADS
+    print(f"Progress of {name} "+str(round(progress*100,2))+"% ...")
+    ML_THREADS[name]['progress'] = progress
 
 @app.after_request
 def after_request(response):
@@ -67,7 +72,7 @@ def after_request(response):
 
 @app.route("/uploader", methods=["GET", "POST"])
 def upload_file():
-    global current_ML_thread
+    global ML_THREADS
     if request.method == "POST":
         if "file" not in request.files:
             return flash_and_redirect("experience", gettext("No file to uploaded"))
@@ -79,16 +84,16 @@ def upload_file():
         if not (file and allowed_file(file.filename)):
             return flash_and_redirect("experience", gettext("Please, use a video in a valid format"))
             
-
-        if current_ML_thread == None :
-            clean_upload_folder()
-            fname = secure_filename(file.filename)
+        if len(ML_THREADS) <= MAX_ML_THREADS :
+            #clean_upload_folder()
+            fname = ''.join(random.choice(string.ascii_letters) for i in range(FILENAME_LENGTH)) #secure_filename(file.filename)
             full_path = root_path_join(app.config["UPLOAD_FOLDER"], fname)
 
             # Save the new file
             file.save(full_path)
-            current_ML_thread = threading.Thread(target=run_ML, args=(full_path,))
-            current_ML_thread.start()
+            ML_THREADS[fname] = {'thread':None, 'progress':0}
+            ML_THREADS[fname]['thread'] = threading.Thread(target=run_ML, args=(full_path,fname))
+            ML_THREADS[fname]['thread'].start()
             return redirect(url_for("waiting", filename=fname))
         else:
             return redirect(url_for("overloaded"))
@@ -137,8 +142,13 @@ def waiting():
 
 @app.route("/progression")
 def progression():
-    global current_ML_progress
-    return {"progression":current_ML_progress}
+    global ML_THREADS
+    print(ML_THREADS)
+    if request.args.get('filename') != None:
+        print("VALUE : ", ML_THREADS[request.args.get('filename')]['progress'])
+        return {"progression":ML_THREADS[request.args.get('filename')]['progress']}
+    else:
+        return {"progression":"Invalid file"}
 
 @app.route("/markov.png")
 def markov():

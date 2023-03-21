@@ -144,7 +144,7 @@ def train(video_path, keylog_path):
     print("Train finished")
 
 
-def predict(video_path, model_path=None, callback=None):
+def predict(video_path, model_path=None, callback=None, name=None):
     if os.path.isfile(video_path):
         if model_path == None :
             model_path = os.path.join(os.path.dirname(__file__), "model.pth")
@@ -206,7 +206,7 @@ def predict(video_path, model_path=None, callback=None):
                 prediction = torch.round(model(x.to(DEVICE)))
                 accumulator[acc:acc+len(prediction)] = prediction
                 if acc == (accumulator_size-1)*BATCH_SIZE :
-                    if callback != None : callback(i/end_batch)
+                    if callback != None : callback(i/end_batch, name)
                     for pred in accumulator.cpu():
                         for j in range(len(current_state)):
                             if current_state[j] != pred[j]:
@@ -229,7 +229,7 @@ def predict(video_path, model_path=None, callback=None):
         
 
         f.close()
-        if callback != None : callback(1)
+        if callback != None : callback(1, name)
         print("Prediction finished")
 
     elif os.path.isdir(video_path):
