@@ -1,154 +1,155 @@
 <!doctype html>
 <html lang="en" class="h-100">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
-  <meta name="author" content="">
-  <title>{% block title %}{% endblock %} - Projet Gameplay</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>{% block title %}{% endblock %} - Projet Gameplay</title>
 
-  <link type="text/css" href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link type="text/css" href="/static/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
         }
-      }
 
-      .b-example-divider {
-        height: 3rem;
-        background-color: rgba(0, 0, 0, .1);
-        border: solid rgba(0, 0, 0, .15);
-        border-width: 1px 0;
-        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
-      }
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
 
-      .b-example-vr {
-        flex-shrink: 0;
-        width: 1.5rem;
-        height: 100vh;
-      }
+        .b-example-divider {
+            height: 3rem;
+            background-color: rgba(0, 0, 0, .1);
+            border: solid rgba(0, 0, 0, .15);
+            border-width: 1px 0;
+            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        }
 
-      .bi {
-        vertical-align: -.125em;
-        fill: currentColor;
-      }
+        .b-example-vr {
+            flex-shrink: 0;
+            width: 1.5rem;
+            height: 100vh;
+        }
 
-      .nav-scroller {
-        position: relative;
-        z-index: 2;
-        height: 2.75rem;
-        overflow-y: hidden;
-      }
+        .bi {
+            vertical-align: -.125em;
+            fill: currentColor;
+        }
 
-      .nav-scroller .nav {
-        display: flex;
-        flex-wrap: nowrap;
-        padding-bottom: 1rem;
-        margin-top: -1px;
-        overflow-x: auto;
-        text-align: center;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-      }
-  </style>
+        .nav-scroller {
+            position: relative;
+            z-index: 2;
+            height: 2.75rem;
+            overflow-y: hidden;
+        }
 
-  <!-- Custom styles for this template -->
-  <link type="text/css" href="/static/css/experience.css" rel="stylesheet">
-  <link type="text/css" href="/static/css/sticky-footer-navbar.css" rel="stylesheet">
-  <script>
-    function change_lang(new_lang){
-      let url = "{{request.url}}".replaceAll("amp;", "")
-      const reg1 = new RegExp('&lang=..', 'g')
-      const reg2 = new RegExp('lang=..', 'g')
-      if(reg1.test(url)){
-        url = url.replaceAll(reg1, '&lang='+new_lang)
-      }else if(reg2.test(url)){
-        url = url.replaceAll(reg2, 'lang='+new_lang)
-      }else if(url.includes("?")){
-        url = url + "&lang="+new_lang
-      }else{
-        url = url + "?lang="+new_lang
-      }
-      window.location.replace(url)
-    }
-  </script>
+        .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+
+    <!-- Custom styles for this template -->
+    <link type="text/css" href="/static/css/experience.css" rel="stylesheet">
+    <link type="text/css" href="/static/css/sticky-footer-navbar.css" rel="stylesheet">
+    <script>
+        function change_lang(new_lang) {
+            let url = "{{request.url}}".replaceAll("amp;", "")
+            const reg1 = new RegExp('&lang=..', 'g')
+            const reg2 = new RegExp('lang=..', 'g')
+            if (reg1.test(url)) {
+                url = url.replaceAll(reg1, '&lang=' + new_lang)
+            } else if (reg2.test(url)) {
+                url = url.replaceAll(reg2, 'lang=' + new_lang)
+            } else if (url.includes("?")) {
+                url = url + "&lang=" + new_lang
+            } else {
+                url = url + "?lang=" + new_lang
+            }
+            window.location.replace(url)
+        }
+    </script>
 </head>
 <body class="d-flex flex-column h-100">
 
 <header>
-  <!-- Fixed navbar -->
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-danger">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">{{_('Gameplay Analysis')}}</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-              aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav me-auto mb-2 mb-md-0">
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('home') }}">{{_('Home')}}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'recording' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('recording') }}">{{_('Recording script')}}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'report' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('report') }}">{{_('Report')}}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'experience' %}active{% endif %}" aria-current="page"
-               href="{{ url_for('experience') }}">{{_('Online experiment')}}</a>
-          </li>
-        </ul>
-        <ul class="navbar-nav d-flex">
-          <li class="nav-item"><a onclick="change_lang('fr')" href="#" class="nav-link">Français</a></li>
-          <li class="nav-item"><a onclick="change_lang('en')" href="#" class="nav-link">English</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-danger">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">{{ _('Gameplay Analysis') }}</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" aria-current="page"
+                           href="{{ url_for('home') }}">{{ _('Home') }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'recording' %}active{% endif %}"
+                           aria-current="page"
+                           href="{{ url_for('recording') }}">{{ _('Recording script') }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'report' %}active{% endif %}" aria-current="page"
+                           href="{{ url_for('report') }}">{{ _('Report') }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint.startswith('experience') %}active{% endif %}"
+                           aria-current="page"
+                           href="{{ url_for('experience') }}">{{ _('Online experiment') }}</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav d-flex">
+                    <li class="nav-item"><a onclick="change_lang('fr')" href="#" class="nav-link">🇫🇷 Français</a></li>
+                    <li class="nav-item"><a onclick="change_lang('en')" href="#" class="nav-link">🇬🇧 English</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <!-- Begin page content -->
 <main class="flex-shrink-0">
-  <div class="container">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-warning" role="alert">
-      {{ message }}
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-warning" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
     </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    {% block content %}{% endblock %}
-  </div>
-</main>
 </main>
 
-<footer class="d-flex justify-content-center justify-content-lg-between p-4 border-top bg-secondary-subtle text-muted">
-  <div class="me-4">
-    <span>Made with love by a bunch of geeks!</span>
-  </div>
-  <div class="me-4">
-    <a href="https://github.com/Amustache/Projet-Gameplay">
-      <img height="20px" src="static/ico/github-mark.svg">
-    </a>
-  </div>
+<footer class="d-flex justify-content-center justify-content-lg-between p-4 mt-4 border-top bg-secondary-subtle text-muted">
+    <div class="me-4">
+        <span>Made with love by a bunch of geeks!</span>
+    </div>
+    <div class="me-4">
+        <a href="https://github.com/Amustache/Projet-Gameplay">
+            <img height="20px" src="static/ico/github-mark.svg">
+        </a>
+    </div>
 </footer>
 
 <script type="text/javascript" src="/static/js/bootstrap.bundle.min.js"></script>

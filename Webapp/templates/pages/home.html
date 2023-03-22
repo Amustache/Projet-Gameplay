@@ -1,37 +1,41 @@
 {% extends 'layouts/main.html' %}
-{% block title %}{{_('Home')}}{% endblock %}
+{% block title %}{{ _('Home') }}{% endblock %}
 {% block content %}
 
-<h1 class="mt-5">{{_('Gameplay Analysis and Preservation')}}</h1>
-<p class="lead">{{_('This project aims at extracting gameplay data from game recordings.')}}</p>
-<p>{{_('The goals of this project are :')}}</p>
-<ul>
-  <li>Provide a deep learning model able to recover the key logs from a simple video input</li>
-  <li>Provide a recording script, in the form of an OBS plugin, simplifying the recording of videos along with its key logs </li>
-  <li>Provide a report that explains the followed steps leading to our results</li>
-  <li>Provide an online analysis tool, running the deep learning model, and showing the game loops found inside the key logs</li>
-</ul>
-</p>
-<div class="container">
-  <div class="row">
-    <div class="col-sm text-center">
-      <a href="/rapport"><img src="static/img/read.png" width="30%"><br>
-        <button class="btn btn-danger btn-lg">{{_('Read the report')}}</button>
-      </a>
+    <h1 class="mt-5">{{ _('Gameplay Analysis and Preservation') }}</h1>
+    <p class="lead">{{ _('This project aims at extracting gameplay data from game recordings.') }}</p>
+    <p>{{ _('The goals of this project are :') }}</p>
+    <ul>
+        <li>Provide a deep learning model able to recover the key logs from a simple video input</li>
+        <li>Provide a recording script, in the form of an OBS plugin, simplifying the recording of videos along with its
+            key logs
+        </li>
+        <li>Provide a report that explains the followed steps leading to our results</li>
+        <li>Provide an online analysis tool, running the deep learning model, and showing the game loops found inside
+            the key logs
+        </li>
+    </ul>
+    </p>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm text-center">
+                <a href="/rapport"><img src="static/img/read.png" width="30%"><br>
+                    <button class="btn btn-danger btn-lg">{{ _('Read the report') }}</button>
+                </a>
+            </div>
+            <div class="col-sm text-center">
+                <a href="/experience"><img src="static/img/play.png" width="30%"><br>
+                    <button class="btn btn-danger btn-lg">{{ _('Try the experiment') }}</button>
+                </a>
+            </div>
+            <div class="col-sm text-center">
+                <a href="/recording"><img src="static/img/script.svg" width="30%"><br>
+                    <button class="btn btn-danger btn-lg">{{ _('Key logging script') }}</button>
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="col-sm text-center">
-      <a href="/experience"><img src="static/img/play.png" width="30%"><br>
-        <button class="btn btn-danger btn-lg">{{_('Try the experiment')}}</button>
-      </a>
-    </div>
-    <div class="col-sm text-center">
-      <a href="/recording"><img src="static/img/script.svg" width="30%"><br>
-        <button class="btn btn-danger btn-lg">{{_('Key logging script')}}</button>
-      </a>
-    </div>
-  </div>
-</div>
-<p class="mt-5">{{_('This project was made by Kévin Faustini, for the <a href="https://www.epfl.ch/schools/cdh">College of Humanities</a> at <a href="https://www.epfl.ch">EPFL</a>, directed by Frédéric Kaplan.')}}</p>
-<p>{{_('Supervised by Selim Krichane from the <a href="https://wp.unil.ch/gamelab/">GameLab</a> with the help of Magalie Vetter, Hugo Hueber and Corentin Junod')}}</p>
+    <p class="mt-5">{{ _('This project was made by Kévin Faustini, for the <a href="https://www.epfl.ch/schools/cdh">College of Humanities</a> at <a href="https://www.epfl.ch">EPFL</a>, directed by Frédéric Kaplan.') }}</p>
+    <p>{{ _('Supervised by Selim Krichane from the <a href="https://wp.unil.ch/gamelab/">GameLab</a> with the help of Magalie Vetter, Hugo Hueber and Corentin Junod') }}</p>
 
 {% endblock %}

@@ -29,7 +29,6 @@ def anotate():
     current_frame = 0
     valid, frame = video_in.read()
     while valid:
-
         if current_frame % 100 == 0:
             print(f"Working... ({100*current_frame/total_frames:.1f}%)")
 

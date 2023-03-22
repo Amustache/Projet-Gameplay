@@ -1,43 +1,92 @@
 {% extends 'layouts/main.html' %}
-{% block title %}{{_('Online experiment')}}{% endblock %}
+{% block title %}{{ _('Online experiment') }}{% endblock %}
 {% block content %}
 
-<h1 class="mt-5">{{_('Online experiment')}}</h1>
+    <h1 class="mt-5">{{ _('Online experiment') }}</h1>
 
-<div class="container">
-  <p class="lead">{{_('General information')}}</p>
-  <div class="row">
-      <div class="col">
-        <p>{{_('This page runs a deep learning model that recognize the key logs from a short extract of a Super Mario Bros gameplay')}}</p>
-        <p>{{_('We are currently working on improving the model, right now it has the following limitations :')}}</p>
-        <ul>
-          <li>{{_('The video should be a fullscreen recording (no frame around the game itself)')}}</li>
-          <li>{{_('The ratio should be the same as the original game (black borders are fine, but the original game should not be stretched)')}}</li>
-          <li>{{_('The run button is not recognized')}}</li>
-          <li>{{_('For computational reasons, only the first 13 first minutes will be processed if the video contains more')}}</li>
-          <li>{{_('The video must be in .MP4 format')}}</li>
-        </ul>
-        <p>{{_('The video can be recorded with any software, but we recommend <a href="https://obsproject.com/fr/" target="_blank">OBS</a> or the shortcut Windows+Alt+R in Windows')}}</p>
-      </div>
-      <div class="col-3">
-        <p class="text-center"><img width="100%" src="static/img/supermariopreview.png" alt="supermariopreview"></p>
-      </div>
-  </div>
-  <hr class="mt-4 mb-4"/>
-  <p class="lead">{{_('Experiment yourself the input prediction !')}}</p>
-  <p>{{_('Upload here the video to process, then press "Send"')}}</p>
-  <form action="/uploader" method="POST" enctype="multipart/form-data">
-    <div class="input-group">
-      <input class="form-control" id="formFileLg" type="file" name="file">
-      <button class="btn btn-danger" type="submit">{{_('Send')}}</button>
+    <div class="container">
+        <p class="lead">{{ _('General information') }}</p>
+        <div class="row">
+            <div class="col">
+                <p>{{ _('This page runs a deep learning model that recognize the key logs from a short extract of a Super Mario Bros gameplay') }}</p>
+                <p>{{ _('We are currently working on improving the model, right now it has the following limitations :') }}</p>
+                <ul>
+                    <li>{{ _('The video should be a fullscreen recording (no frame around the game itself)') }}</li>
+                    <li>{{ _('The ratio should be the same as the original game (black borders are fine, but the original game should not be stretched)') }}</li>
+                    <li>{{ _('The run button is not recognized') }}</li>
+                    <li>{{ _('For computational reasons, only the first 13 first minutes will be processed if the video contains more') }}</li>
+                    <li>{{ _('The video must be in .MP4 format') }}</li>
+                </ul>
+                <p>{{ _('The video can be recorded with any software, but we recommend <a href="https://obsproject.com/fr/" target="_blank">OBS</a> or the shortcut Windows+Alt+R in Windows') }}</p>
+            </div>
+            <div class="col-3">
+                <p class="text-center"><img width="100%" src="static/img/supermariopreview.png" alt="supermariopreview">
+                </p>
+            </div>
+        </div>
+        <hr class="mt-4 mb-4"/>
+        <p class="lead">{{ _('Experiment yourself the input prediction !') }}</p>
+        <p>{{ _('Upload here the video to process, then press "Send"') }}</p>
+        <form action="/uploader" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="formFileLg" class="form-label">Video to upload</label>
+                <input class="form-control" id="formFileLg" type="file" name="file" accept=".mkv,.mp4,video/mp4,.webm,video/webm,.avi,video/x-msvideo">
+            </div>
+            <div class="mb-3">
+                <label for="truthFile" class="form-label">(Facultative) Related truth value</label>
+                <input class="form-control" id="truthFile" type="file" name="truthFile" accept=".csv,text/csv">
+            </div>
+            <button class="btn btn-danger" type="submit">{{ _('Send') }}</button>
+        </form>
+        <hr class="mt-4 mb-4"/>
+        <div>
+            <p class="lead">{{ _('... Or you can also use the example data.') }}</p>
+            <p>{{ _('If you do not wish to provide you own video, you can use our example data. <br> This example video comes with the truth key logs to assess the model performance.') }}</p>
+            <p><a class="btn btn-danger" href="/example">{{ _('Use example data') }}</a></p>
+        </div>
+        <hr class="mt-4 mb-4"/>
+        <div>
+            <p class="lead">{{ _('... Or you can use a YouTube video.') }}</p>
+            <p>{{ _('You can use gameplay videos on YouTube for the experience. These videos must respect the same constraints mentioned above.') }}</p>
+            <form action="/youtube" method="POST" enctype="multipart/form-data">
+                <div class="input-group">
+                    <input class="form-control" id="formURL" type="text" name="url"
+                           pattern="^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$">
+                    <button class="btn btn-danger" type="submit">{{ _('Send') }}</button>
+                </div>
+            </form>
+            <div id="progress-yt" class="progress invisible">
+                <div id="progress-bar" class="progress-bar progress-bar-striped bg-danger progress-bar-animated"
+                     role="progressbar" aria-label="Processing the video" style="width: 0%;" aria-valuenow="0"
+                     aria-valuemin="0"
+                     aria-valuemax="100"><span id="progress">0%</span></div>
+            </div>
+        </div>
     </div>
-    <hr class="mt-4 mb-4"/>
-    <div>
-      <p class="lead">{{_('... Or you can also use the example data.')}}</p>
-      <p>{{_('If you do not wish to provide you own video, you can use our example data. <br> This example video comes with the truth key logs to assess the model performance.')}}</p>
-      <p><a class="btn btn-danger" href="/example">{{_('Use example data')}}</a></p>
-    </div>
-  </form>
-</div>
-      
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        setInterval(() => {
+            const request = new XMLHttpRequest()
+            request.open("GET", "/youtube_download")
+            request.responseType = "json"
+            request.send()
+            request.onload = () => {
+                let result;
+                if (request.readyState === 4 && request.status === 200) {
+                    result = parseInt(request.response.progression * 1000) / 10
+                    if (result > 0) {
+                        document.getElementById("progress-bar").setAttribute("aria-valuenow", result)
+                        document.getElementById("progress-bar").style.width = result + "%"
+                        document.getElementById("progress").innerHTML = result + "%"
+                        document.getElementById("progress-yt").classList.remove("invisible")
+                    }
+                } else {
+                    result = "Impossible de communiquer avec le serveur"
+                }
+            };
+        }, 3000)
+    </script>
 {% endblock %}

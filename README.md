@@ -11,6 +11,7 @@ Ce projet nécessite Python 3.10+ et Pip 22.3+.
    * Linux : `source ./env/bin/activate`
    * Windows : `.\env\Scripts\activate`
 4. Installer les dépendances : `pip install -Ur requirements.txt`
+   * Sur Debian, installer les dépendances : `sudo apt install ffmpeg libsm6 libxext6 -y`
 5. Activer pre-commit : `pre-commit install`
 
 ### ML
@@ -21,6 +22,7 @@ Dans le dossier `Webapp` :
 
 1. Copier le template de configuration : `cp config.dist.py`
 2. Éditer le fichier pour modifier `SECRET_KEY` avec quelque chose de secret.
+3. Télécharger les [données d'exemple](#), et les placer dans le dossier `Webapp/static/inputs/demo/`.
 
 ## Utilisation
 ### General

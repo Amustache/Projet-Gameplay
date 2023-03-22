@@ -3,4 +3,4 @@
 env
 venv
 config.py
-config.dist.py
+.code-workspace
