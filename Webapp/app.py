@@ -41,9 +41,9 @@ def root_path_join(*args):
 
 
 def clean_upload_folder():
-    path = root_path_join(app.config["UPLOAD_FOLDER"])
-    for f in os.listdir(path):
-        full_path = os.path.join(path, f)
+    upload_path = root_path_join(app.config["UPLOAD_FOLDER"])
+    for f in os.listdir(upload_path):
+        full_path = os.path.join(upload_path, f)
         if os.path.isfile(full_path) and f != ".gitkeep":
             os.remove(full_path)
 
@@ -183,7 +183,8 @@ def example():
     # clean_upload_folder()
 
     # Copy example data
-    for f in os.listdir(root_path_join(app.config["DEMO_FOLDER"])):
+    example_path = root_path_join(app.config["DEMO_FOLDER"])
+    for f in os.listdir(example_path):
         if f != ".gitignore":
             shutil.copyfile(
                 root_path_join(app.config["DEMO_FOLDER"], f),
@@ -219,8 +220,8 @@ def experience_show():
     if not request.args.get("filename"):
         return flash_and_redirect("experience", gettext("Please, upload a video first"))
 
-    filename = root_path_join(app.config["UPLOAD_FOLDER"], request.args.get("filename"))
-    if not os.path.isfile(filename):
+    filename = request.args.get("filename")
+    if not os.path.isfile(root_path_join(app.config["UPLOAD_FOLDER"], filename)):
         return flash_and_redirect("experience", gettext("The file seems to be invalid"))
 
     return render_template("pages/experience-show.html", filename=filename)
