@@ -219,7 +219,7 @@ def experience_show():
     if not request.args.get("filename"):
         return flash_and_redirect("experience", gettext("Please, upload a video first"))
 
-    filename = os.path.join(app.config["UPLOAD_FOLDER"], request.args.get("filename"))
+    filename = root_path_join(app.config["UPLOAD_FOLDER"], request.args.get("filename"))
     if not os.path.isfile(filename):
         return flash_and_redirect("experience", gettext("The file seems to be invalid"))
 
