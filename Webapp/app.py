@@ -25,6 +25,7 @@ MAX_ML_THREADS = 10
 FILENAME_LENGTH = 7
 current_YT_progress = 0
 
+
 def get_locale():
     print("GET ", request.cookies.get("lang"))
     if request.args.get("lang"):
@@ -34,39 +35,49 @@ def get_locale():
     else:
         return request.accept_languages.best_match(["fr", "en"])
 
+
 def root_path_join(*args):
     return os.path.join(app.root_path, *args)
 
+
 def clean_upload_folder():
-    for f in os.listdir(app.config["UPLOAD_FOLDER"]):
-        full_path = root_path_join(app.config["UPLOAD_FOLDER"], f)
+    path = root_path_join(app.config["UPLOAD_FOLDER"])
+    for f in os.listdir(path):
+        full_path = os.path.join(path, f)
         if os.path.isfile(full_path) and f != ".gitkeep":
             os.remove(full_path)
+
 
 def flash_and_redirect(dest, msg):
     flash(msg)
     return redirect(url_for(dest))
 
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def run_ML(path,thread_name):
+
+def run_ML(path, thread_name):
     global ML_THREADS
     ML.model.predict(path, callback=run_ML_callback, name=thread_name)
     del ML_THREADS[thread_name]['thread']
 
+
 def run_ML_callback(progress, name):
     global ML_THREADS
-    print(f"Progress of {name} "+str(round(progress*100,2))+"% ...")
+    print(f"Progress of {name} " + str(round(progress * 100, 2)) + "% ...")
     ML_THREADS[name]['progress'] = progress
+
 
 def progress_function(stream, chunk, bytes_remaining):
     global current_YT_progress
     current_YT_progress = 1 - float(bytes_remaining) / float(stream.filesize)
     print(f"YouTube processing: {current_YT_progress}")
 
+
 def get_video_random_name():
     return ''.join(random.choice(string.ascii_letters) for i in range(FILENAME_LENGTH))
+
 
 app = Flask(__name__)
 babel = Babel(app, locale_selector=get_locale)
@@ -74,6 +85,7 @@ app.config["UPLOAD_FOLDER"] = os.path.join("static", "inputs")
 app.config["DEMO_FOLDER"] = os.path.join("static", "inputs", "demo")
 app.config["MAX_CONTENT_PATH"] = 200_000_000
 app.config.from_object("config")
+
 
 @app.after_request
 def after_request(response):
@@ -92,8 +104,8 @@ def youtube_link():
             if not YOUTUBE_PATTERN.match(yt_link):
                 return flash_and_redirect("experience", gettext("Please use a valid YouTube link."))
 
-            if len(ML_THREADS) <= MAX_ML_THREADS :
-                clean_upload_folder()
+            if len(ML_THREADS) <= MAX_ML_THREADS:
+                # clean_upload_folder()
 
                 fname = get_video_random_name()
                 path = root_path_join(app.config["UPLOAD_FOLDER"])
@@ -107,8 +119,8 @@ def youtube_link():
                     output_path=path, filename=fname
                 )
 
-                ML_THREADS[fname] = {'thread':None, 'progress':0}
-                ML_THREADS[fname]['thread'] = threading.Thread(target=run_ML, args=(full_path,fname))
+                ML_THREADS[fname] = {'thread': None, 'progress': 0}
+                ML_THREADS[fname]['thread'] = threading.Thread(target=run_ML, args=(full_path, fname))
                 ML_THREADS[fname]['thread'].start()
 
                 return redirect(url_for("experience_waiting", filename=fname))
@@ -145,8 +157,8 @@ def upload_file():
         else:
             truth = None
 
-        if len(ML_THREADS) <= MAX_ML_THREADS :
-            #clean_upload_folder()
+        if len(ML_THREADS) <= MAX_ML_THREADS:
+            # clean_upload_folder()
             fname = get_video_random_name()
             path = root_path_join(app.config["UPLOAD_FOLDER"])
             full_path = os.path.join(path, fname)
@@ -157,8 +169,8 @@ def upload_file():
             if truth:
                 truth.save(os.path.join(path, "truth.csv"))
 
-            ML_THREADS[fname] = {'thread':None, 'progress':0}
-            ML_THREADS[fname]['thread'] = threading.Thread(target=run_ML, args=(full_path,fname))
+            ML_THREADS[fname] = {'thread': None, 'progress': 0}
+            ML_THREADS[fname]['thread'] = threading.Thread(target=run_ML, args=(full_path, fname))
             ML_THREADS[fname]['thread'].start()
 
             return redirect(url_for("experience_waiting", filename=fname))
@@ -168,7 +180,7 @@ def upload_file():
 
 @app.route("/example")
 def example():
-    clean_upload_folder()
+    # clean_upload_folder()
 
     # Copy example data
     for f in os.listdir(app.config["DEMO_FOLDER"]):
@@ -185,9 +197,10 @@ def progression():
     global ML_THREADS
     if request.args.get('filename') != None:
         print("VALUE : ", ML_THREADS[request.args.get('filename')]['progress'])
-        return {"progression":ML_THREADS[request.args.get('filename')]['progress']}
+        return {"progression": ML_THREADS[request.args.get('filename')]['progress']}
     else:
-        return {"progression":"Invalid file"}
+        return {"progression": "Invalid file"}
+
 
 @app.route("/markov.png")
 def markov():
@@ -212,29 +225,36 @@ def experience_show():
 
     return render_template("pages/experience-show.html", filename=filename)
 
+
 @app.route("/experience")
 def experience():
     return render_template("pages/experience.html")
+
 
 @app.route("/")
 def home():
     return render_template("pages/home.html")
 
+
 @app.route("/recording")
 def recording():
     return render_template("pages/recording.html")
+
 
 @app.route("/report")
 def report():
     return render_template("pages/report.html")
 
+
 @app.route("/overloaded")
 def overloaded():
     return render_template("pages/overloaded.html")
 
+
 @app.route("/experience-waiting")
 def experience_waiting():
     return render_template("pages/waiting.html")
+
 
 # Error handlers.
 
@@ -242,9 +262,11 @@ def experience_waiting():
 def internal_error(error):
     return render_template("errors/500.html"), 500
 
+
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template("errors/404.html"), 404
+
 
 if not app.debug:
     file_handler = FileHandler("error.log")
