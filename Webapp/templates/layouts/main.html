@@ -110,7 +110,7 @@
                            href="{{ url_for('report') }}">{{ _('Report') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint.startswith('experience') %}active{% endif %}"
+                        <a class="nav-link {% if request.endpoint and request.endpoint.startswith('experience') %}active{% endif %}"
                            aria-current="page"
                            href="{{ url_for('experience') }}">{{ _('Online experiment') }}</a>
                     </li>

@@ -1,4 +1,3 @@
-from logging import FileHandler, Formatter
 import io
 import logging
 import os
@@ -8,6 +7,7 @@ import threading
 import random
 import string
 
+from logging import FileHandler, Formatter
 from flask import flash, Flask, g, redirect, render_template, request, Response, url_for
 from flask_babel import Babel, gettext
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -24,13 +24,6 @@ ML_THREADS = {}
 MAX_ML_THREADS = 10
 FILENAME_LENGTH = 7
 current_YT_progress = 0
-
-app = Flask(__name__)
-babel = Babel(app, locale_selector=get_locale)
-app.config["UPLOAD_FOLDER"] = os.path.join("static", "inputs")
-app.config["DEMO_FOLDER"] = os.path.join("static", "inputs", "demo")
-app.config["MAX_CONTENT_PATH"] = 200_000_000
-app.config.from_object("config")
 
 def get_locale():
     print("GET ", request.cookies.get("lang"))
@@ -74,6 +67,13 @@ def progress_function(stream, chunk, bytes_remaining):
 
 def get_video_random_name():
     return ''.join(random.choice(string.ascii_letters) for i in range(FILENAME_LENGTH))
+
+app = Flask(__name__)
+babel = Babel(app, locale_selector=get_locale)
+app.config["UPLOAD_FOLDER"] = os.path.join("static", "inputs")
+app.config["DEMO_FOLDER"] = os.path.join("static", "inputs", "demo")
+app.config["MAX_CONTENT_PATH"] = 200_000_000
+app.config.from_object("config")
 
 @app.after_request
 def after_request(response):
