@@ -17,4 +17,5 @@ pandas
 scikit-learn
 torch
 torchinfo
+torchvision
 opencv-contrib-python
