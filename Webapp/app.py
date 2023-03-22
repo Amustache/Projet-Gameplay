@@ -183,7 +183,7 @@ def example():
     # clean_upload_folder()
 
     # Copy example data
-    for f in os.listdir(app.config["DEMO_FOLDER"]):
+    for f in os.listdir(root_path_join(app.config["DEMO_FOLDER"])):
         if f != ".gitignore":
             shutil.copyfile(
                 root_path_join(app.config["DEMO_FOLDER"], f),
