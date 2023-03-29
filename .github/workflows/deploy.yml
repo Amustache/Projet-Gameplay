@@ -57,7 +57,7 @@ jobs:
         run: |
           ssh ${{ secrets.HOST_USERNAME }}@${{ secrets.HOST_IP }} 'screen -r "gameplay" -X stuff "^C"'
           sleep 10s
-          ssh ${{ secrets.HOST_USERNAME }}@${{ secrets.HOST_IP }} 'screen -r "gameplay" -X stuff "Webapp/app.py^M"'
+          ssh ${{ secrets.HOST_USERNAME }}@${{ secrets.HOST_IP }} 'screen -r "gameplay" -X stuff "python3 Webapp/app.py^M"'
 
       - name: Log if payload
         run: |
