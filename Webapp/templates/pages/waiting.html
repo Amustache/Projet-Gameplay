@@ -11,8 +11,10 @@
         </div>
     </div>
     <p>Your video is currently being processed. The estimated duration of this operation is <span id="duration">X</span>
-        minutes. You can leave this page and return to the following address to see the result: {{ link }}</p>
-    <p>The video will be available for viewing for three days, then it will be deleted</p>
+        minutes. You can leave this page and use the following code to see the result:
+        <bold><a href="{{ link }}">{{ link }}</a></bold>
+    </p>
+    <p>The video will be available for viewing for three days, then it will be deleted.</p>
 {% endblock %}
 {% block javascript %}
     <script>
