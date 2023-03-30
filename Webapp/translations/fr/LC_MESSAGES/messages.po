@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-03-22 14:12+0100\n"
+"POT-Creation-Date: 2023-03-31 00:58+0200\n"
 "PO-Revision-Date: 2023-02-15 21:27+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -18,35 +18,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.11.0\n"
 
-#: app.py:93
+#: app.py:107
 msgid "Please use a valid YouTube link."
 msgstr ""
 
-#: app.py:130
+#: app.py:144
 #, fuzzy
 msgid "No file uploaded."
 msgstr "Pas de fichier téléversé"
 
-#: app.py:134
+#: app.py:148
 #, fuzzy
 msgid "No file selected."
 msgstr "Pas de fichier sélectionné"
 
-#: app.py:138
+#: app.py:152
 #, fuzzy
 msgid "Please, use a video in a valid format."
 msgstr "Merci d'utiliser une vidéo valide"
 
-#: app.py:144
+#: app.py:159
 #, fuzzy
 msgid "Please, use a truth file in a csv format."
 msgstr "Merci d'utiliser une vidéo valide"
 
-#: app.py:207
+#: app.py:224
 msgid "Please, upload a video first"
 msgstr "Il faut d'abord téléverser une vidéo !"
 
-#: app.py:211
+#: app.py:228
 msgid "The file seems to be invalid"
 msgstr "Le fichier sélectionné semble invalide"
 
@@ -103,9 +103,10 @@ msgid ""
 "frame. If example data are loaded, the ground truth and the total "
 "accuracy are also displayed"
 msgstr ""
-"Sur la gauche, le premier tableau indique la prédiction du la frame actuelle "
-"Si des données d'exemple ont été fournies, leur analyse et la précision sont "
-"également affichées"
+"Sur la gauche, le premier tableau indique la prédiction du la frame "
+"actuelle Si des données d'exemple ont été fournies, leur analyse et la "
+"précision sont également affichées"
+
 #: templates/pages/experience-show.html:27
 msgid ""
 "The second table on the left displays the transitions encountered so far "
@@ -113,13 +114,16 @@ msgid ""
 "column to line. For exemple, the top right cell indicated the percentage "
 "of \"x\" (jumps) followed by a \"Key.right\" (movement to the right)"
 msgstr ""
-"Le deuxième tableau sur la gauche affiche les transitions rencontrées jusqu'à "
-"la frame actuelle <br> Le tableau se lit de colonnes en ligne "
-"Par exemple, la cellule en haut à droite indique le pourcentage de \"x\" (sauts) "
-"suivis par un \"Key.right\" (mouvement à droite)"
+"Le deuxième tableau sur la gauche affiche les transitions rencontrées "
+"jusqu'à la frame actuelle <br> Le tableau se lit de colonnes en ligne Par"
+" exemple, la cellule en haut à droite indique le pourcentage de \"x\" "
+"(sauts) suivis par un \"Key.right\" (mouvement à droite)"
+
 #: templates/pages/experience-show.html:28
 msgid "The graphic on the right shows the key presses over the next few seconds"
-msgstr "Le graphique à droite affiches les touches pressées pour les quelques secondes à venir"
+msgstr ""
+"Le graphique à droite affiches les touches pressées pour les quelques "
+"secondes à venir"
 
 #: templates/pages/experience-show.html:30
 msgid "Time"
@@ -140,15 +144,18 @@ msgstr "Analyse de game loop"
 
 #: templates/pages/experience-show.html:74
 msgid "Our game loop extraction currently works as follow :"
-msgstr "Notre algorithme d'extraction de game loop fonctionne de la manière suivante :"
+msgstr ""
+"Notre algorithme d'extraction de game loop fonctionne de la manière "
+"suivante :"
 
 #: templates/pages/experience-show.html:76
 msgid ""
 "The list of all key presses is extracted from the video using our machine"
 " learning model"
 msgstr ""
-"La liste de toutes les touches pressés est extraite de la video en utilisant notre"
-"algorithme de machine learning"
+"La liste de toutes les touches pressés est extraite de la video en "
+"utilisant notrealgorithme de machine learning"
+
 #: templates/pages/experience-show.html:77
 msgid ""
 "This list is parsed using <a "
@@ -159,17 +166,17 @@ msgid ""
 msgstr ""
 "Cette liste est traitée à l'aide du <a "
 "href=\"https://en.wikipedia.org/wiki/Byte_pair_encoding\">Byte Pair "
-"Encoding</a> avec le nombre d'itérations indiquées ci-dessous. Le résultat "
-"est une nouvelle liste où les transitions les plus récurrentes sont considérées "
-"en tant que nouvel état."
+"Encoding</a> avec le nombre d'itérations indiquées ci-dessous. Le "
+"résultat est une nouvelle liste où les transitions les plus récurrentes "
+"sont considérées en tant que nouvel état."
 
 #: templates/pages/experience-show.html:78
 msgid ""
 "From this new list the table of transitions is extracted (available in "
 "the \"details\" section below)"
 msgstr ""
-"De cette nouvelle liste est extraite le tableau des transitions (se trouvant "
-"dans la section \"Détails\" ci-dessous)"
+"De cette nouvelle liste est extraite le tableau des transitions (se "
+"trouvant dans la section \"Détails\" ci-dessous)"
 
 #: templates/pages/experience-show.html:79
 msgid ""
@@ -178,6 +185,10 @@ msgid ""
 "parameter the probability of transition and the number of states in the "
 "loop."
 msgstr ""
+"Les boucles trouvées dans le tableau de transitions avec les plus grandes"
+"  probabilités sont extraites. La probabilité est est calculée à l'aide "
+"d'une heuristique prenant en paramètre la probabilité de transition et le"
+" nombre d'états d'une boucle."
 
 #: templates/pages/experience-show.html:84
 msgid "Number of iterations"
@@ -193,7 +204,7 @@ msgstr "Executer l'algorithme"
 
 #: templates/pages/experience-show.html:99
 msgid "Loops"
-msgstr ""
+msgstr "Boucles"
 
 #: templates/pages/experience-show.html:101
 msgid ""
@@ -203,12 +214,20 @@ msgid ""
 "Pair Encoding states. The last red arrow indicates a loop to the first "
 "state."
 msgstr ""
+"List des boucles trouvées. <br> Une flèche noire indique une transition "
+"issu du <a href=\"https://en.wikipedia.org/wiki/Byte_pair_encoding\">Byte"
+" Pair Encoding</a>. <br> Une flèche rouge indique une transition entre "
+"deux états du Byte Pair Encoding. La dernière flèche rouge d'une ligne "
+"indique un retour au premier état."
 
 #: templates/pages/experience-show.html:102
 msgid ""
 "The detailed table of transitions and the states extracted using the Byte"
 " Pair Encoding can be found in the \"details\" section below"
 msgstr ""
+"Le tableau détaillé des transitions et les états extraits à l'aide duByte"
+" Pair Encoding peuvent être trouvés dans la section \"Détails\" ci-"
+"dessous "
 
 #: templates/pages/experience-show.html:106
 msgid ""
@@ -216,48 +235,59 @@ msgid ""
 "the first row and column corresponds to the states in the second table "
 "below"
 msgstr ""
+"Le tableau des transitions extrait en utilisant le Byte Pair Encoding.les"
+" nombres de la première ligne et de la première colonne correspondent aux"
+" états dans le second tableau ci-dessous"
 
 #: templates/pages/experience.html:8
 msgid "General information"
-msgstr ""
+msgstr "Informations générales"
 
 #: templates/pages/experience.html:11
 msgid ""
-"This page runs a deep learning model that recognize the key logs from a "
-"short extract of a Super Mario Bros gameplay"
+"This page runs a deep learning model that recognizes the key logs from a "
+"short clip of a Super Mario Bros video"
 msgstr ""
+"Cette page utilise un modèle de deep learning pour extraire les "
+"entréesd'un court extrait de Super Mario Bros"
 
 #: templates/pages/experience.html:12
 msgid ""
 "We are currently working on improving the model, right now it has the "
 "following limitations :"
 msgstr ""
+"Nous travaillons pour améliorer le modèle. Actuellement les "
+"limitationssont les suivantes :"
 
 #: templates/pages/experience.html:14
 msgid ""
 "The video should be a fullscreen recording (no frame around the game "
 "itself)"
-msgstr ""
+msgstr "La vidéo doit être pleine écran (pas d'incrustation autour du jeu)"
 
 #: templates/pages/experience.html:15
 msgid ""
 "The ratio should be the same as the original game (black borders are "
 "fine, but the original game should not be stretched)"
 msgstr ""
+"Le ratio d'écran doit être le même que le jeu original (pas de "
+"déformation) ,les bordures sont autorisées"
 
 #: templates/pages/experience.html:16
 msgid "The run button is not recognized"
-msgstr ""
+msgstr "Le bouton de course n'est pour le moment pas reconnu"
 
 #: templates/pages/experience.html:17
 msgid ""
 "For computational reasons, only the first 13 first minutes will be "
 "processed if the video contains more"
 msgstr ""
+"Pour des raisons de temps de calcul, seules les 13 premières "
+"minutesseront traitées"
 
 #: templates/pages/experience.html:18
 msgid "The video must be in .MP4 format"
-msgstr ""
+msgstr "La vidéo doit être en format MP4"
 
 #: templates/pages/experience.html:20
 #, fuzzy
@@ -266,37 +296,44 @@ msgid ""
 "href=\"https://obsproject.com/fr/\" target=\"_blank\">OBS</a> or the "
 "shortcut Windows+Alt+R in Windows"
 msgstr ""
-"Nous vous invitons à enregistrer une séquence plein écran du jeu "
-"Super Mario Bros. au format mp4. Pour cela, vous pouvez par exemple "
-"utiliser <a href=\"https://obsproject.com/fr/\" target=\"_blank\">OBS</a>"
-" ou Windows+Alt+R sur Windows."
+"Nous vous invitons à enregistrer une séquence plein écran du jeu Super "
+"Mario Bros. au format mp4. Pour cela, vous pouvez par exemple utiliser <a"
+" href=\"https://obsproject.com/fr/\" target=\"_blank\">OBS</a> ou "
+"Windows+Alt+R sur Windows."
 
 #: templates/pages/experience.html:28
-msgid "Experiment yourself the input prediction !"
-msgstr "Expérimentez vous-même la prédiction des inputs dans votre jeu !"
+msgid "Experiment with input prediction in a chosen game !"
+msgstr ""
+"Expérimentez vous-même la prédiction des inputs dans le jeu de votre "
+"choix !"
 
 #: templates/pages/experience.html:29
-msgid "Upload here the video to process, then press \"Send\""
+msgid "Upload a video you wish to process, then press \"Send\""
 msgstr ""
+"Téléchargez la vidéo que vous souhaitez traiter, puis appuyez sur "
+"\"Envoyer\""
 
 #: templates/pages/experience.html:39 templates/pages/experience.html:55
 msgid "Send"
 msgstr "Envoyer"
 
 #: templates/pages/experience.html:43
-msgid "... Or you can also use the example data."
-msgstr "... Ou bien utilisez les données d'exemples."
+msgid "... You can also use the data provided here."
+msgstr "… Vous pouvez également utiliser les données fournies en exemple."
 
 #: templates/pages/experience.html:44
 msgid ""
 "If you do not wish to provide you own video, you can use our example "
 "data. <br> This example video comes with the truth key logs to assess the"
-" model performance."
+" model's performance."
 msgstr ""
+"Si vous ne souhaitez pas fournir votre propre vidéo, vous pouvez utiliser"
+" nos données d'exemple. <br> Cet exemple est fournis avec les véritables "
+"entrées pour calculer la performance du modèle."
 
 #: templates/pages/experience.html:45
 msgid "Use example data"
-msgstr ""
+msgstr "Utiliser les données d'exemple"
 
 #: templates/pages/experience.html:49
 #, fuzzy
@@ -308,18 +345,22 @@ msgid ""
 "You can use gameplay videos on YouTube for the experience. These videos "
 "must respect the same constraints mentioned above."
 msgstr ""
+"Il est possible d'utiliser des vidéos YouTube pour l'expérience. Ces "
+"vidéosdoivent respecter les mêmes contraintes décrites ci-dessus"
 
 #: templates/pages/home.html:5
 msgid "Gameplay Analysis and Preservation"
-msgstr "Analyse de Gameplay"
+msgstr "Analyse et préservation de Gameplay"
 
 #: templates/pages/home.html:6
 msgid "This project aims at extracting gameplay data from game recordings."
 msgstr ""
+"Ce projet vise à extraire les données de gameplay à partir "
+"d'enregistrements"
 
 #: templates/pages/home.html:7
 msgid "The goals of this project are :"
-msgstr ""
+msgstr "Les objectifs de ce projet sont :"
 
 #: templates/pages/home.html:23
 msgid "Read the report"
@@ -368,51 +409,61 @@ msgstr "Script pour enregistrement"
 
 #: templates/pages/recording.html:9
 msgid ""
-"To collect data from various games, we used the well-known software <a "
-"href=\"https://obsproject.com/\">OBS</a>"
+"To collect data from various games, we used the free and open source "
+"software <a href=\"https://obsproject.com/\">OBS</a>"
 msgstr ""
+"Pour collecter les données des différents jeux, nous avons utilisé le "
+"logiciel libre et gratuit <a href=\"https://obsproject.com/\">OBS</a>"
 
 #: templates/pages/recording.html:10
 msgid ""
-"Along width the video, we developed a plugin that record all the key "
-"pressed on the keyboard during the record time"
+"As to gather input data, we developed a plugin that records all the key "
+"pressed on the keyboard during the record time."
 msgstr ""
+"Pour recueillir les données d'entrée, nous avons développé un plugin qui "
+"enregistre toutes les touches pressées sur le clavier pendant la durée de"
+" l'enregistrement."
 
 #: templates/pages/recording.html:15
 msgid "Setup and requirements"
-msgstr ""
+msgstr "Installation et dépendances"
 
 #: templates/pages/recording.html:16
 msgid "The script has the following dependencies :"
-msgstr ""
+msgstr "Le script possèdes les dépendances suivantes : "
 
 #: templates/pages/recording.html:18
 msgid "<a href=\"https://www.python.org/\">Python 3</a> should be installed"
-msgstr ""
+msgstr "<a href=\"https://www.python.org/\">Python 3</a> doit être installé"
 
 #: templates/pages/recording.html:19
 msgid ""
 "<a href=\"https://pypi.org/project/pynput/\">pynput</a> should be "
 "installed <br> Using pip the command is <code>pip install pynput</code>"
 msgstr ""
+"<a href=\"https://pypi.org/project/pynput/\">pynput</a> doit être "
+"installé <br> La commande pip est la suivante : <code>pip install "
+"pynput</code>"
 
 #: templates/pages/recording.html:21
 msgid "Download"
-msgstr ""
+msgstr "Téléchargement"
 
 #: templates/pages/recording.html:22
 msgid ""
 "The script can be downloaded by clicking <a "
 "href=\"/static/obs/script.py\"><b>here</b></a>"
 msgstr ""
+"Le script peut être téléchargé en utilisant le lien suivant : <a "
+"href=\"/static/obs/script.py\"><b>ici</b></a>"
 
 #: templates/pages/recording.html:23
 msgid "Installation"
-msgstr ""
+msgstr "Installation"
 
 #: templates/pages/recording.html:24
 msgid "The plugin can be installed like any other OBS script"
-msgstr ""
+msgstr "Le plugin peut être installé comme tout autre script OBS"
 
 #: templates/pages/recording.html:26
 msgid ""
@@ -427,26 +478,32 @@ msgid ""
 "In the new window, locate the downloaded script by clicking on the \"+\" "
 "button"
 msgstr ""
+"Dans la nouvelle fenêtre, indiquer le script téléchargé, et cliquer sur "
+"le bouton \"+\" "
 
 #: templates/pages/recording.html:31
 msgid ""
 "Once the script is loaded, the configuration appears on the right. The "
 "path where the key logs will be stored can be configured"
 msgstr ""
+"Une fois le script chargé, sa configuration apparaît sur la droite. Le "
+"cheminoù les entrées doivent être enregistrées peut être configuré."
 
 #: templates/pages/recording.html:32
 msgid ""
 "The key log will automatically start and stop with the recording of a "
 "video"
 msgstr ""
+"L'enregistrement des entrées commencera et s'arrêtera automatiquementen "
+"même temps que la vidéo"
 
 #: templates/pages/recording.html:39
 msgid "Screenshot of the script menu in OBS and the script configuration"
-msgstr ""
+msgstr "Capture d'écran de la fenêtre des scripts d'OBS avec leur configuration"
 
 #: templates/pages/recording.html:46
 msgid "Output format"
-msgstr ""
+msgstr "Format de sortie"
 
 #: templates/pages/recording.html:47
 msgid ""
@@ -455,26 +512,35 @@ msgid ""
 "line describes a key event. Each line contains the frame at which the "
 "event happens, the key that changed and its new state."
 msgstr ""
+"Le format de sortie est un fichier .<abbr title=\"comma separated "
+"values\">csv</abbr>. <br> L'en-tête contiens "
+"<code>FRAME,KEY,STATUS</code>, puis chaque line décrit la pression d'une "
+"touche. Chaque ligne contient la frame durant laquelle l'événement est "
+"survenu, la touche concernée et son nouvel état (enfoncé/relâché)."
 
 #: templates/pages/recording.html:48
 msgid "This format has the following properties :"
-msgstr ""
+msgstr "Ce format a les propriétés suivantes :"
 
 #: templates/pages/recording.html:50
 msgid ""
 "A line is added only when an event occurs, so many frame does not have an"
 " entry in the file. This reduces the log size."
 msgstr ""
+"Une ligne n'est ajoutée que lorsqu'un événement survient, et non a chaque"
+" frame.Cela produit un fichier plus compacte."
 
 #: templates/pages/recording.html:51
 msgid ""
 "Multiple event (key state changes) may occur on the same frame. Thus, "
 "multiple lines can have the same <code>FRAME</code> number"
 msgstr ""
+"Plusieurs événements peuvent survenir lors de la même frame, puisque "
+"plusieurslignes peuvent indiquer la même frame."
 
 #: templates/pages/recording.html:52
-msgid "The line are sorted by <code>FRAME</code>"
-msgstr ""
+msgid "The lines are sorted by <code>FRAME</code>"
+msgstr "Les lignes sont triées par ordre de frame croissant"
 
 #: templates/pages/waiting.html:2
 msgid "Loading"
@@ -484,8 +550,8 @@ msgstr "Chargement"
 msgid "Processing of the video"
 msgstr ""
 
-#~ msgid "Then, you only have to upload the file here : "
-#~ msgstr "Ensuite, il vous suffit de le téléverser ci-après :"
+#~ msgid "You can then upload the file here : "
+#~ msgstr "Il vous suffit ensuite de le téléverser ici :"
 
 #~ msgid ""
 #~ "We provided an example video with "

@@ -8,7 +8,7 @@
         <p class="lead">{{ _('General information') }}</p>
         <div class="row">
             <div class="col">
-                <p>{{ _('This page runs a deep learning model that recognize the key logs from a short extract of a Super Mario Bros gameplay') }}</p>
+                <p>{{ _('This page runs a deep learning model that recognizes the key logs from a short clip of a Super Mario Bros video') }}</p>
                 <p>{{ _('We are currently working on improving the model, right now it has the following limitations :') }}</p>
                 <ul>
                     <li>{{ _('The video should be a fullscreen recording (no frame around the game itself)') }}</li>
@@ -25,8 +25,8 @@
             </div>
         </div>
         <hr class="mt-4 mb-4"/>
-        <p class="lead">{{ _('Experiment yourself the input prediction !') }}</p>
-        <p>{{ _('Upload here the video to process, then press "Send"') }}</p>
+        <p class="lead">{{ _('Experiment with input prediction in a chosen game !') }}</p>
+        <p>{{ _('Upload a video you wish to process, then press \"Send\"') }}</p>
         <form action="/uploader" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="formFileLg" class="form-label">Video to upload</label>
@@ -40,8 +40,8 @@
         </form>
         <hr class="mt-4 mb-4"/>
         <div>
-            <p class="lead">{{ _('... Or you can also use the example data.') }}</p>
-            <p>{{ _('If you do not wish to provide you own video, you can use our example data. <br> This example video comes with the truth key logs to assess the model performance.') }}</p>
+            <p class="lead">{{ _('... You can also use the data provided here.') }}</p>
+            <p>{{ _('If you do not wish to provide you own video, you can use our example data. <br> This example video comes with the truth key logs to assess the model\'s performance.') }}</p>
             <p><a class="btn btn-danger" href="/example">{{ _('Use example data') }}</a></p>
         </div>
         <hr class="mt-4 mb-4"/>
