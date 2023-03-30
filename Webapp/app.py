@@ -1,18 +1,20 @@
+from logging import FileHandler, Formatter
 import io
 import logging
 import os
+import random
 import re
 import shutil
-import threading
-import random
 import string
+import threading
 
-from logging import FileHandler, Formatter
-from flask import flash, Flask, g, redirect, render_template, request, Response, url_for
+
+from flask import abort, flash, Flask, g, redirect, render_template, request, Response, url_for
 from flask_babel import Babel, gettext
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from pytube import YouTube
 import ML.model
+
 
 ALLOWED_EXTENSIONS = {"mkv", "mp4", "webm", "avi"}
 DEMO_TRUTH = "truth.csv"
@@ -60,13 +62,13 @@ def allowed_file(filename):
 def run_ML(path, thread_name):
     global ML_THREADS
     ML.model.predict(path, callback=run_ML_callback, name=thread_name)
-    del ML_THREADS[thread_name]['thread']
+    del ML_THREADS[thread_name]["thread"]
 
 
 def run_ML_callback(progress, name):
     global ML_THREADS
     print(f"Progress of {name} " + str(round(progress * 100, 2)) + "% ...")
-    ML_THREADS[name]['progress'] = progress
+    ML_THREADS[name]["progress"] = progress
 
 
 def progress_function(stream, chunk, bytes_remaining):
@@ -76,7 +78,7 @@ def progress_function(stream, chunk, bytes_remaining):
 
 
 def get_video_random_name():
-    return ''.join(random.choice(string.ascii_letters) for i in range(FILENAME_LENGTH))
+    return "".join(random.choice(string.ascii_letters) for i in range(FILENAME_LENGTH))
 
 
 app = Flask(__name__)
@@ -119,9 +121,11 @@ def youtube_link():
                     output_path=path, filename=fname
                 )
 
-                ML_THREADS[fname] = {'thread': None, 'progress': 0}
-                ML_THREADS[fname]['thread'] = threading.Thread(target=run_ML, args=(full_path, fname))
-                ML_THREADS[fname]['thread'].start()
+                ML_THREADS[fname] = {"thread": None, "progress": 0}
+                ML_THREADS[fname]["thread"] = threading.Thread(
+                    target=run_ML, args=(full_path, fname)
+                )
+                ML_THREADS[fname]["thread"].start()
 
                 return redirect(url_for("experience_waiting", filename=fname))
             else:
@@ -153,7 +157,9 @@ def upload_file():
         if "truthFile" in request.files:
             truth = request.files["truthFile"]
             if truth.filename != "" and not (truth and truth.filename.endswith(".csv")):
-                return flash_and_redirect("experience", gettext("Please, use a truth file in a csv format."))
+                return flash_and_redirect(
+                    "experience", gettext("Please, use a truth file in a csv format.")
+                )
         else:
             truth = None
 
@@ -169,9 +175,9 @@ def upload_file():
             if truth:
                 truth.save(os.path.join(path, "truth.csv"))
 
-            ML_THREADS[fname] = {'thread': None, 'progress': 0}
-            ML_THREADS[fname]['thread'] = threading.Thread(target=run_ML, args=(full_path, fname))
-            ML_THREADS[fname]['thread'].start()
+            ML_THREADS[fname] = {"thread": None, "progress": 0}
+            ML_THREADS[fname]["thread"] = threading.Thread(target=run_ML, args=(full_path, fname))
+            ML_THREADS[fname]["thread"].start()
 
             return redirect(url_for("experience_waiting", filename=fname))
         else:
@@ -196,11 +202,13 @@ def example():
 @app.route("/progression")
 def progression():
     global ML_THREADS
-    if request.args.get('filename') != None:
-        print("VALUE : ", ML_THREADS[request.args.get('filename')]['progress'])
-        return {"progression": ML_THREADS[request.args.get('filename')]['progress']}
-    else:
-        return {"progression": "Invalid file"}
+    if request.args.get("filename") is not None:
+        filename = request.args.get("filename")
+        if filename in ML_THREADS:
+            progress = ML_THREADS[filename]["progress"]
+            print(f"{filename}: {progress}")
+            return {"progression": progress}
+    abort(404)
 
 
 @app.route("/markov.png")
@@ -234,7 +242,10 @@ def experience():
 
 @app.route("/")
 def home():
-    return render_template("pages/home.html")
+    if request.args.get("filename"):
+        return redirect(url_for("experience_waiting", filename=request.args.get("filename")))
+    else:
+        return render_template("pages/home.html")
 
 
 @app.route("/recording")
@@ -254,10 +265,21 @@ def overloaded():
 
 @app.route("/experience-waiting")
 def experience_waiting():
-    return render_template("pages/waiting.html")
+    global ML_THREADS
+    if request.args.get("filename", None):
+        filename = request.args.get("filename")
+        if filename in ML_THREADS:
+            return render_template(
+                "pages/waiting.html", link=f"{request.url_root}?filename={filename}"
+            )
+        else:
+            return redirect(url_for("experience_show", filename=filename))
+
+    abort(404)
 
 
 # Error handlers.
+
 
 @app.errorhandler(500)
 def internal_error(error):
