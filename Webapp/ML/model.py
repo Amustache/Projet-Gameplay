@@ -1,15 +1,19 @@
+from datetime import datetime
 import os
 import sys
-import numpy as np
-import torch
-from datetime import datetime
+
+
 from sklearn.model_selection import KFold
 from torch.utils.data import DataLoader, Subset
 from torchinfo import summary
+import numpy as np
+import torch
+
 
 from .lib.KeyslogReader import KeyslogReader
 from .lib.NeuralNetwork import NeuralNetwork
 from .lib.VideoLoader import VideoLoader
+
 
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 VIDEO_DIMENSIONS = (int(1920 / 8), int(1080 / 8))
@@ -219,7 +223,7 @@ def predict(video_path, model_path=None, callback=None, name=None):
 
         frame = START_FRAME
         end_batch = END_FRAME / BATCH_SIZE if END_FRAME != 0 else len(dataloader)
-        file_path = os.path.join(os.path.dirname(video_path), "prediction.csv")
+        file_path = os.path.join(os.path.dirname(video_path), f"{video_path}_prediction.csv")
         f = open(file_path, "w")
         f.write("FRAME,KEY,STATUS\n")
         with torch.no_grad():

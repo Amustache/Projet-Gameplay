@@ -159,7 +159,7 @@
         VIDEO.ontimeupdate = event => update()
 
         function init() {
-            d3.csv("static/inputs/prediction.csv").then(r => {
+            d3.csv("static/inputs/{{ filename }}_prediction.csv").then(r => {
                 prediction_data = r
             }).finally(() => process())
             d3.csv("static/inputs/truth.csv").then(r => {
