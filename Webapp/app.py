@@ -39,7 +39,7 @@ def get_locale():
 def root_path_join(*args):
     return os.path.join(app.root_path, *args)
 
-
+# Unused right now
 def clean_upload_folder():
     upload_path = root_path_join(app.config["UPLOAD_FOLDER"])
     for f in os.listdir(upload_path):
@@ -105,8 +105,6 @@ def youtube_link():
                 return flash_and_redirect("experience", gettext("Please use a valid YouTube link."))
 
             if len(ML_THREADS) <= MAX_ML_THREADS:
-                # clean_upload_folder()
-
                 fname = get_video_random_name()
                 path = root_path_join(app.config["UPLOAD_FOLDER"])
                 full_path = os.path.join(path, fname)
@@ -158,7 +156,6 @@ def upload_file():
             truth = None
 
         if len(ML_THREADS) <= MAX_ML_THREADS:
-            # clean_upload_folder()
             fname = get_video_random_name()
             path = root_path_join(app.config["UPLOAD_FOLDER"])
             full_path = os.path.join(path, fname)
@@ -167,7 +164,7 @@ def upload_file():
             file.save(full_path)
 
             if truth:
-                truth.save(os.path.join(path, "truth.csv"))
+                truth.save(os.path.join(path, fname+"_truth.csv"))
 
             ML_THREADS[fname] = {'thread': None, 'progress': 0}
             ML_THREADS[fname]['thread'] = threading.Thread(target=run_ML, args=(full_path, fname))
@@ -180,8 +177,6 @@ def upload_file():
 
 @app.route("/example")
 def example():
-    # clean_upload_folder()
-
     # Copy example data
     example_path = root_path_join(app.config["DEMO_FOLDER"])
     for f in os.listdir(example_path):

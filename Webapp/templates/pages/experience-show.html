@@ -315,6 +315,8 @@
                     })
                 }
                 accuracies.push(new Graph(getById("keys_accuracies"), datasets, "Accuracy per key", "Frame number", "Prediction accuracy [%]"))
+            }else{
+                getById("keys_accuracies_params").style.display = "None"
             }
 
             return {
