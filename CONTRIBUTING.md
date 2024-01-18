@@ -9,8 +9,8 @@
 First of all, thank you for taking the time to help this project, it means a lot.
 
 To sum-up:
-* You know how to Python? You can help the project by [reviewing code](https://github.com/AMustache/vroumbot/pulls), [fixing bugs](https://github.com/AMustache/vroumbot/issues), and [adding features](https://github.com/AMustache/vroumbot/issues)!
-* No matter what you know, you can always report a bug or [ask for a feature](https://github.com/AMustache/vroumbot/issues), [discuss about the project](https://github.com/AMustache/vroumbot/discussions), or [get in touch](https://t.me/Stache)!
+* You know how to Python? You can help the project by [reviewing code](https://github.com/AMustache/Projet-Gameplay/pulls), [fixing bugs](https://github.com/AMustache/Projet-Gameplay/issues), and [adding features](https://github.com/AMustache/Projet-Gameplay/issues)!
+* No matter what you know, you can always report a bug or [ask for a feature](https://github.com/AMustache/Projet-Gameplay/issues), [discuss about the project](https://github.com/AMustache/Projet-Gameplay/discussions), or [get in touch](https://t.me/Stache)!
 
 ## Documentation
 
